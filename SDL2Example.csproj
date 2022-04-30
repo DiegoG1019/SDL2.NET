@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks> <!-- This is a requirement to use unsafe code / pointers -->
+    <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- This copies all .dll files from the lib folder to the project output root folder -->
+  <ItemGroup>
+    <ContentWithTargetPath Include="lib\*.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+    <None Include="lib\*.dll" />
+  </ItemGroup>
+
+  <!-- This copies all .txt files from the lib folder to the project output Licenses folder -->
+  <ItemGroup>
+    <ContentWithTargetPath Include="lib\*.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Licenses\%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+    <None Include="lib\*.txt" />
+  </ItemGroup>
+
+  <!-- This makes sure that all the resources get copied to the project output resoruces folder -->
+  <ItemGroup>
+    <Content Include="Resources\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
