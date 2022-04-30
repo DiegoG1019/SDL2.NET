@@ -1,8 +1,8 @@
-# SDL2Example
-Very basic .NET 6 (C#) SDL2 example application.
+# SDL2.NET
+Bringing SDL2 into .NET with its code styles and best practices. Based on https://github.com/flibitijibibo/SDL2-CS (and/or https://github.com/ppy/SDL2-CS) and forked from https://github.com/DoogeJ/SDL2Example
 There are probably a lot of beginner mistakes in this; feel free to point them out to me.
 
-Example project under [MIT License](LICENSE.md). All used external libraries, binaries, resources under their respective licenses as listed here or stored in the [lib](lib) folder.
+Library project [MIT License](LICENSE.md). All used external libraries, binaries, resources under their respective licenses as listed here or stored in the [lib](lib) folder.
 
 ### Requirements:
 * This is a .NET 6 application: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
@@ -29,10 +29,3 @@ Example project under [MIT License](LICENSE.md). All used external libraries, bi
 
 ### Library sources:
 * SDL2-CS, Ethan Lee (flibitijibibo), zlib/libpng license: https://github.com/flibitijibibo/SDL2-CS (and/or https://github.com/ppy/SDL2-CS)
-
-### Other resources:
-* 'Game die Icon', © Google, Apache 2.0 license: https://iconarchive.com/show/noto-emoji-activities-icons-by-google/52765-game-die-icon.html
-* 'Deer', © Calciumtrice, CC-BY 3.0 license: https://opengameart.org/content/deer
-* 'Loading screen loop', © Brandon Morris, CC0 (public domain) license: https://opengameart.org/content/loading-screen-loop
-* 'Pew Laser fire Sound', © sketcherskt, CC0 (public domain) license: https://opengameart.org/content/pew-laser-fire-sound
-* 'VCR OSD Mono', © Riciery Leal, 100% Free: https://www.dafont.com/vcr-osd-mono.font
