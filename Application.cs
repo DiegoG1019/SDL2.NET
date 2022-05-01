@@ -77,8 +77,8 @@ public class Application : IDisposable
                 MainWindow.Dispose();
             }
 
-            SDL.SDL_Quit();
             disposedValue = true;
+            SDL.SDL_Quit();
         }
     }
 
