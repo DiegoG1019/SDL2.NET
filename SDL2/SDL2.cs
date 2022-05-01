@@ -2091,7 +2091,6 @@ namespace SDL2
 			SDL_bool grabbed
 		);
 
-
 		/* window refers to an SDL_Window*, icon to an SDL_Surface* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SDL_SetWindowIcon(
@@ -2192,13 +2191,21 @@ namespace SDL2
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int SDL_UpdateWindowSurface(IntPtr window);
 
+#warning IF SOMETHING DOES NOT WORK. CHECK THIS FIRST
+
 		/* window refers to an SDL_Window* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_UpdateWindowSurfaceRects(
+		public static unsafe extern int INTERNAL_SDL_UpdateWindowSurfaceRects(
 			IntPtr window,
-			[In] SDL_Rect[] rects,
+			[In] SDL_Rect* rects,
 			int numrects
 		);
+
+		public unsafe static int SDL_UpdateWindowSurfaceRects(IntPtr window, ReadOnlySpan<SDL_Rect> rects, int numrects)
+        {
+			fixed (SDL_Rect* r = rects)
+				return INTERNAL_SDL_UpdateWindowSurfaceRects(window, r, numrects);
+        }
 
 		[DllImport(nativeLibName, EntryPoint = "SDL_VideoInit", CallingConvention = CallingConvention.Cdecl)]
 		private static extern unsafe int INTERNAL_SDL_VideoInit(
