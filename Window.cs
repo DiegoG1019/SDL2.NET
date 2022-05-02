@@ -223,11 +223,13 @@ public class Window : IDisposable
         SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurfaceRects(_handle, rects, rects.Length), 0);
     }
 
-#warning I'm not sure what to do about callbackData
-    public void SetHitTestCallback(SDL_HitTest callback, IntPtr callbackData)
+    private UserData? hitTestCallbackData;
+    private HitTestCallback? hitTestCallback;
+    public void SetHitTestCallback(HitTestCallback? callback, UserData? userData)
     {
         ThrowIfDisposed();
-        SDLWindowException.ThrowIfLessThan(SDL_SetWindowHitTest(_handle, callback, callbackData), 0);
+        hitTestCallback = callback;
+        hitTestCallbackData = userData;
     }
 
     public void Flash(SDL_FlashOperation operation)
@@ -275,6 +277,8 @@ public class Window : IDisposable
             : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window outside of this class?");
     }
 
+    public delegate SDL_HitTestResult HitTestCallback(Window window, Size area, UserData? data);
+
     public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
     {
         _handle = SDL_CreateWindow(
@@ -288,6 +292,13 @@ public class Window : IDisposable
         if (_handle == IntPtr.Zero)
             throw new SDLWindowCreationException(SDL_GetError());
         _handleDict[_handle] = new(this);
+
+        SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data) 
+            => hitTestCallback is null
+                ? SDL_HitTestResult.SDL_HITTEST_NORMAL
+                : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData);
+
+        SDLWindowException.ThrowIfLessThan(SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero), 0);
     }
 
     #region IDisposable
