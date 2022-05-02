@@ -120,7 +120,7 @@ public class SDLApplication : IDisposable
     }
 
     protected virtual Renderer InstantiateMainRenderer()
-        => new(MainWindow, -1);
+        => new WindowRenderer(MainWindow, -1);
 
     protected virtual Window InsantiateMainWindow(string title, int width, int height)
         => new(title, width, height);
