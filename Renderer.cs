@@ -4,22 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static SDL2.SDL;
 
 namespace SDL2.NET;
-public class Renderer : IDisposable
+
+public abstract class Renderer : IDisposable
 {
-#error Not Implemented
-    internal readonly IntPtr _handle = IntPtr.Zero;
-    private readonly Window AttachedWindow;
+    protected internal readonly IntPtr _handle = IntPtr.Zero;
 
-    public Renderer(Window window, int index) : this(window, index, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC) { }
-
-    public Renderer(Window window, int index, SDL.SDL_RendererFlags flags)
+    protected Renderer(IntPtr handle)
     {
-        _handle = SDL.SDL_CreateRenderer(window._handle, -1, flags);
+        _handle = handle;
         if (_handle == IntPtr.Zero)
-            throw new SDLRendererCreationException(SDL.SDL_GetError());
-        AttachedWindow = window;
+            throw new SDLRendererCreationException(SDL_GetError());
+    }
     }
 
     #region IDisposable
@@ -44,6 +42,12 @@ public class Renderer : IDisposable
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    protected void ThrowIfDisposed()
+    {
+        if (disposedValue)
+            throw new ObjectDisposedException(nameof(Renderer));
     }
 
     #endregion
