@@ -1,4 +1,6 @@
-﻿namespace SDL2.NET;
+﻿using static SDL2.SDL;
+
+namespace SDL2.NET;
 
 public struct Point
 {
@@ -9,5 +11,17 @@ public struct Point
     {
         X = x;
         Y = y;
+    }
+
+    public static implicit operator Point(SDL_Point point)
+        => new(point.x, point.y);
+
+    internal void ToSDLPoint(ref SDL_Point point)
+    {
+        point = new SDL_Point()
+        {
+            x = X,
+            y = Y
+        };
     }
 }
