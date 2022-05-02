@@ -33,39 +33,39 @@ public class DefaultSDLLogger : ISDLLogger
         _isVerb = logLevel >= LogLevel.Verbose;
     }
 
-    private static void _log(LogLevel level, ISDLLogContext context, string template, object[] data)
-        => Console.WriteLine($"[{level}]({DateTime.Now:g}) {context.FormatContext()}: {string.Format(template, data)}");
+    private static void _log(LogLevel level, ISDLLogContext context, string template, params object[]? data)
+        => Console.WriteLine($"[{level}]({DateTime.Now:g}) {context.FormatContext()}: {(data is null ? template : string.Format(template, data))}");
 
-    public void Log(LogLevel level, ISDLLogContext context, string template, object[] data)
+    public void Log(LogLevel level, ISDLLogContext context, string template, params object[]? data)
     {
         if (LogLevel >= level)
             _log(level, context, template, data);
     }
 
-    public void Fatal(ISDLLogContext context, string template, object[] data)
+    public void Fatal(ISDLLogContext context, string template, params object[]? data)
     {
         Log(LogLevel.Fatal, context, template, data);
     }
 
-    public void Warning(ISDLLogContext context, string template, object[] data)
+    public void Warning(ISDLLogContext context, string template, params object[]? data)
     {
         if (_isWarn)
             Log(LogLevel.Warning, context, template, data);
     }
 
-    public void Information(ISDLLogContext context, string template, object[] data)
+    public void Information(ISDLLogContext context, string template, params object[]? data)
     {
         if (_isInfo)
             Log(LogLevel.Information, context, template, data);
     }
 
-    public void Debug(ISDLLogContext context, string template, object[] data)
+    public void Debug(ISDLLogContext context, string template, params object[]? data)
     {
         if (_isDebug)
             Log(LogLevel.Debug, context, template, data);
     }
 
-    public void Verbose(ISDLLogContext context, string template, object[] data)
+    public void Verbose(ISDLLogContext context, string template, params object[]? data)
     {
         if (_isVerb)
             Log(LogLevel.Verbose, context, template, data);
@@ -74,12 +74,12 @@ public class DefaultSDLLogger : ISDLLogger
 
 public interface ISDLLogger
 {
-    public void Log(LogLevel level, ISDLLogContext context, string template, object[] data);
-    public void Fatal(ISDLLogContext context, string template, object[] data);        
-    public void Warning(ISDLLogContext context, string template, object[] data);        
-    public void Information(ISDLLogContext context, string template, object[] data);        
-    public void Debug(ISDLLogContext context, string template, object[] data);        
-    public void Verbose(ISDLLogContext context, string template, object[] data);        
+    public void Log(LogLevel level, ISDLLogContext context, string template, params object[]? data);
+    public void Fatal(ISDLLogContext context, string template, params object[]? data);        
+    public void Warning(ISDLLogContext context, string template, params object[]? data);        
+    public void Information(ISDLLogContext context, string template, params object[]? data);        
+    public void Debug(ISDLLogContext context, string template, params object[]? data);        
+    public void Verbose(ISDLLogContext context, string template, params object[]? data);        
 }
 
 public interface ISDLLogContext
