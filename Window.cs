@@ -1,12 +1,15 @@
 ﻿using SDL2.NET.Exceptions;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using static SDL2.SDL;
 
 namespace SDL2.NET;
 
 public class Window : IDisposable
 {
-    internal readonly IntPtr _handle = IntPtr.Zero;
+    internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new();
+    protected internal readonly IntPtr _handle = IntPtr.Zero;
 
     public string Title
     {
@@ -35,21 +38,6 @@ public class Window : IDisposable
         {
             ThrowIfDisposed();
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowOpacity(_handle, value), 0);
-        }
-    }
-
-    public Size Size
-    {
-        get
-        {
-            ThrowIfDisposed();
-            SDL_GetWindowSize(_handle, out var width, out var height);
-            return new(width, height);
-        }
-        set
-        {
-            ThrowIfDisposed();
-            SDL_SetWindowSize(_handle, value.Width, value.Height);
         }
     }
 
@@ -140,20 +128,166 @@ public class Window : IDisposable
         }
     }
 
-    ///Max Size
+    public Size MaximumSize
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_GetWindowMaximumSize(_handle, out var w, out var h);
+            return new(w, h);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDL_SetWindowMaximumSize(_handle, value.Width, value.Height);
+        }
+    }
 
-#error Not Implemented
+    public Size MinimumSize
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_GetWindowMinimumSize(_handle, out var w, out var h);
+            return new(w, h);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDL_SetWindowMinimumSize(_handle, value.Width, value.Height);
+        }
+    }
+
+    public Size Size
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_GetWindowSize(_handle, out var w, out var h);
+            return new(w, h);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDL_SetWindowSize(_handle, value.Width, value.Height);
+        }
+    }
+
+    public Point Position
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_GetWindowPosition(_handle, out var x, out var y);
+            return new(x, y);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDL_SetWindowPosition(_handle, value.X, value.Y);
+        }
+    }
+
+    public void GetBorderSize(out int top, out int left, out int bottom, out int right)
+    {
+        ThrowIfDisposed();
+        SDLWindowException.ThrowIfLessThan(SDL_GetWindowBordersSize(_handle, out top, out left, out bottom, out right), 0);
+    }
+
+    public void Show()
+    {
+        ThrowIfDisposed();
+        SDL_ShowWindow(_handle);
+    }
+
+    public void Configure(bool hasBorder, bool alwaysOnTop, bool isResizable)
+    {
+        ThrowIfDisposed();
+        SDL_SetWindowBordered(_handle, hasBorder ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
+        SDL_SetWindowAlwaysOnTop(_handle, alwaysOnTop ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
+        SDL_SetWindowResizable(_handle, isResizable ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
+    }
+
+    public void UpdateSurface()
+    {
+        ThrowIfDisposed();
+        SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurface(_handle), 0);
+    }
+
+    public void UpdateWindowSurfaceRects(Span<Rectangle> rectangles, int? numrect)
+    {
+        ThrowIfDisposed();
+        Span<SDL_Rect> rects = stackalloc SDL_Rect[numrect ?? rectangles.Length];
+        for (int i = 0; i < rects.Length; i++)
+            rectangles[i].ToSDLRect(ref rects[i]);
+        SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurfaceRects(_handle, rects, rects.Length), 0);
+    }
+
+#warning I'm not sure what to do about callbackData
+    public void SetHitTestCallback(SDL_HitTest callback, IntPtr callbackData)
+    {
+        ThrowIfDisposed();
+        SDLWindowException.ThrowIfLessThan(SDL_SetWindowHitTest(_handle, callback, callbackData), 0);
+    }
+
+    public void Flash(SDL_FlashOperation operation)
+    {
+        ThrowIfDisposed();
+        SDLWindowException.ThrowIfLessThan(SDL_FlashWindow(_handle, operation), 0);
+    }
+
+    /// <summary>
+    /// A barrier inside the window, defining an area the grabbed mouse is bound in. This does NOT grab the mouse, and only works when the window has mouse focus.
+    /// </summary>
+    public Rectangle? MouseRectangle
+    {
+        get
+        {
+            ThrowIfDisposed();
+            var ptr = SDL_GetWindowMouseRect(_handle);
+            return ptr == IntPtr.Zero ? null : Marshal.PtrToStructure<SDL_Rect>(ptr);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (value is null)
+            {
+                SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, IntPtr.Zero), 0);
+                return;
+            }
+
+            SDL_Rect r = default;
+            ((Rectangle)value).ToSDLRect(ref r);
+            SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, ref r), 0);
+        }
+    }
+
+    public Window GetGrabbedWindow()
+    {
+        ThrowIfDisposed();
+        var ptr = SDL_GetGrabbedWindow();
+        return ptr == IntPtr.Zero
+            ? throw new SDLWindowException(SDL_GetError())
+            : _handleDict.TryGetValue(ptr, out var wr)
+            ? wr.TryGetTarget(out var window) ?
+            window
+            : throw new SDLWindowException("This window object has already been garbage collected and disposed")
+            : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window outside of this class?");
+    }
 
     public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
     {
         _handle = SDL_CreateWindow(
-            "SDL2Example",
+            title,
             centerPointX ?? SDL_WINDOWPOS_CENTERED,
             centerPointY ?? SDL_WINDOWPOS_CENTERED,
             width,
             height,
             flags
         );
+        if (_handle == IntPtr.Zero)
+            throw new SDLWindowCreationException(SDL_GetError());
+        _handleDict[_handle] = new(this);
     }
 
     #region IDisposable
@@ -165,6 +299,7 @@ public class Window : IDisposable
         if (!disposedValue)
         {
             SDL_DestroyWindow(_handle);
+            _handleDict.TryRemove(_handle, out _);
             disposedValue = true;
         }
     }
@@ -183,7 +318,7 @@ public class Window : IDisposable
     private void ThrowIfDisposed()
     {
         if (disposedValue)
-            throw new ObjectDisposedException(nameof(Application));
+            throw new ObjectDisposedException(nameof(SDLApplication));
     }
 
     #endregion
