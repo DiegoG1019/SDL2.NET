@@ -36,7 +36,7 @@ public class Image : IDisposable
     private void ThrowIfDisposed()
     {
         if (disposedValue)
-            throw new ObjectDisposedException(nameof(Application));
+            throw new ObjectDisposedException(nameof(SDLApplication));
     }
 
     #endregion
