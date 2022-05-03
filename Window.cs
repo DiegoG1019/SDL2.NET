@@ -145,22 +145,11 @@ public class Window : IDisposable
         set => SDL_SetWindowMouseGrab(_handle, value ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
     }
 
-    private Image? _icon;
-    public Image? Icon
+    public void SetIcon(Image icon)
     {
-        get
-        {
-            ThrowIfDisposed();
-            return _icon;
-        }
-
-        set
-        {
-            ThrowIfDisposed();
-            ArgumentNullException.ThrowIfNull(value); // Rather than throwing if null in a property with a nullable type; is it possible to remove a Window's Icon by setting it to IntPtr.Zero?
-            SDL_SetWindowIcon(_handle, value._handle);
-            _icon = value;
-        }
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(icon); // Rather than throwing if null in a property with a nullable type; is it possible to remove a Window's Icon by setting it to IntPtr.Zero?
+        SDL_SetWindowIcon(_handle, icon._handle);
     }
 
     public Size MaximumSize
@@ -249,7 +238,7 @@ public class Window : IDisposable
         SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurface(_handle), 0);
     }
 
-    public void UpdateWindowSurfaceRects(Span<Rectangle> rectangles, int? numrect)
+    public void UpdateSurfaceRects(Span<Rectangle> rectangles, int? numrect)
     {
         ThrowIfDisposed();
         Span<SDL_Rect> rects = stackalloc SDL_Rect[numrect ?? rectangles.Length];
