@@ -72,6 +72,9 @@ public class DefaultSDLLogger : ISDLLogger
     }
 }
 
+/// <summary>
+/// Provides an interface for an SDL object to log data onto
+/// </summary>
 public interface ISDLLogger
 {
     public void Log(LogLevel level, ISDLLogContext context, string template, params object[]? data);
@@ -82,8 +85,15 @@ public interface ISDLLogger
     public void Verbose(ISDLLogContext context, string template, params object[]? data);        
 }
 
+/// <summary>
+/// Provides context for the object writing the log entry
+/// </summary>
 public interface ISDLLogContext
 {
+    /// <summary>
+    /// Produces the context string for this instance
+    /// </summary>
+    /// <returns></returns>
     public string FormatContext();
 }
 
