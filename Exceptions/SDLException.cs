@@ -142,3 +142,78 @@ public class SDLRendererException : SDLException
             throw new SDLRendererException(SDL.SDL_GetError());
     }
 }
+
+[Serializable]
+public class SDLDisplayException : SDLException
+{
+    public SDLDisplayException() { }
+    public SDLDisplayException(string message) : base(message) { }
+    public SDLDisplayException(string message, Exception inner) : base(message, inner) { }
+    protected SDLDisplayException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfLessThan(int value, int comparison)
+    {
+        if (value < comparison)
+            throw new SDLDisplayException(SDL.SDL_GetError());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfEquals(int value, int comparison)
+    {
+        if (value == comparison)
+            throw new SDLDisplayException(SDL.SDL_GetError());
+    }
+}
+
+[Serializable]
+public class SDLOpenGLContextCreationException : SDLException
+{
+    public SDLOpenGLContextCreationException() { }
+    public SDLOpenGLContextCreationException(string message) : base(message) { }
+    public SDLOpenGLContextCreationException(string message, Exception inner) : base(message, inner) { }
+    protected SDLOpenGLContextCreationException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfLessThan(int value, int comparison)
+    {
+        if (value < comparison)
+            throw new SDLOpenGLContextCreationException(SDL.SDL_GetError());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfEquals(int value, int comparison)
+    {
+        if (value == comparison)
+            throw new SDLOpenGLContextCreationException(SDL.SDL_GetError());
+    }
+}
+
+[Serializable]
+public class SDLOpenGLContextException : SDLException
+{
+    public SDLOpenGLContextException() { }
+    public SDLOpenGLContextException(string message) : base(message) { }
+    public SDLOpenGLContextException(string message, Exception inner) : base(message, inner) { }
+    protected SDLOpenGLContextException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfLessThan(int value, int comparison)
+    {
+        if (value < comparison)
+            throw new SDLOpenGLContextException(SDL.SDL_GetError());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfEquals(int value, int comparison)
+    {
+        if (value == comparison)
+            throw new SDLOpenGLContextException(SDL.SDL_GetError());
+    }
+}
