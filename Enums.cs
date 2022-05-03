@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDL2.NET.HintTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -67,6 +68,24 @@ public enum HitTestResult
 	ResizeLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_LEFT
 }
 
+public enum HintPriority
+{
+	/// <summary>
+	/// Low priority, used for default values
+	/// </summary>
+	Default = SDL_HintPriority.SDL_HINT_DEFAULT,
+
+	/// <summary>
+	/// Medium priority
+	/// </summary>
+	Normal = SDL_HintPriority.SDL_HINT_NORMAL,
+
+	/// <summary>
+	/// High priority
+	/// </summary>
+	Override = SDL_HintPriority.SDL_HINT_OVERRIDE
+}
+
 public static class EnumExtensions
 {
 	public static SDL_HitTestResult ToSDL(this HitTestResult hit)
@@ -84,4 +103,13 @@ public static class EnumExtensions
 			HitTestResult.ResizeLeft => SDL_HitTestResult.SDL_HITTEST_RESIZE_LEFT,
 			_ => throw new ArgumentException($"Unknown hit test result {hit}", nameof(hit))
         };
+
+	public static SDL_HintPriority ToSDL(this HintPriority priority)
+		=> priority switch
+		{
+			HintPriority.Default => SDL_HintPriority.SDL_HINT_DEFAULT,			
+			HintPriority.Normal => SDL_HintPriority.SDL_HINT_NORMAL,
+			HintPriority.Override => SDL_HintPriority.SDL_HINT_OVERRIDE,
+			_ => throw new ArgumentException($"Unknown hint priority {priority}", nameof(priority))
+		};
 }
