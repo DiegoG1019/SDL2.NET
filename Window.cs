@@ -312,7 +312,7 @@ public class Window : IDisposable
             : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window outside of this class?");
     }
 
-    public delegate SDL_HitTestResult HitTestCallback(Window window, Size area, UserData? data);
+    public delegate HitTestResult HitTestCallback(Window window, Size area, UserData? data);
 
     public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
     {
@@ -331,7 +331,7 @@ public class Window : IDisposable
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data) 
             => hitTestCallback is null
                 ? SDL_HitTestResult.SDL_HITTEST_NORMAL
-                : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData);
+                : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
 
         SDLWindowException.ThrowIfLessThan(SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero), 0);
     }
