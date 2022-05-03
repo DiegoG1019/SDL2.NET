@@ -568,6 +568,8 @@ namespace SDL2
 			"SDL_WINDOWS_DISABLE_THREAD_NAMING";
 		public const string SDL_HINT_APPLE_TV_REMOTE_ALLOW_ROTATION =
 			"SDL_APPLE_TV_REMOTE_ALLOW_ROTATION";
+		public const string SDL_HINT_APPLE_TV_CONTROLLER_UI_EVENTS =
+			"SDL_APPLE_TV_CONTROLLER_UI_EVENTS";
 
 		/* Only available in 2.0.6 or higher. */
 		public const string SDL_HINT_AUDIO_RESAMPLING_MODE =
