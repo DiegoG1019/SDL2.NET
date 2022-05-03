@@ -15,6 +15,28 @@ public class Window : IDisposable
     internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new();
     protected internal readonly IntPtr _handle = IntPtr.Zero;
 
+    public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
+    {
+        _handle = SDL_CreateWindow(
+            title,
+            centerPointX ?? SDL_WINDOWPOS_CENTERED,
+            centerPointY ?? SDL_WINDOWPOS_CENTERED,
+            width,
+            height,
+            flags
+        );
+        if (_handle == IntPtr.Zero)
+            throw new SDLWindowCreationException(SDL_GetError());
+        _handleDict[_handle] = new(this);
+
+        _hitTestSupported = SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero) == 0;
+
+        // local function
+        SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
+            => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
+    }
+
+    private string _title;
     /// <summary>
     /// Gets or Sets the <see cref="SDL"/> <see cref="Window"/> <see cref="Title"/>. get: <see cref="SDL_GetWindowTitle" href="https://wiki.libsdl.org/SDL_GetWindowTitle"/>; set: <see cref="SDL_SetWindowTitle" href="https://wiki.libsdl.org/SDL_SetWindowTitle"/>
     /// </summary>
@@ -29,6 +51,7 @@ public class Window : IDisposable
         {
             ThrowIfDisposed();
             SDL_SetWindowTitle(_handle, value);
+            _title = value;
         }
     }
 
@@ -81,17 +104,19 @@ public class Window : IDisposable
     public void SetAsModalFor(Window parent)
     {
         ThrowIfDisposed();
+        if (ReferenceEquals(this, parent))
+            throw new InvalidOperationException("Cannot set a Window as a modal of itself");
         SDLWindowException.ThrowIfLessThan(SDL_SetWindowModalFor(_handle, parent._handle), 0);
     }
 
     /// <summary>
-    /// Sets <paramref name="modal"/> as <see cref="this"/> <see cref="Window"/>'s modal. <see cref="SDL_SetWindowModalFor" href="https://wiki.libsdl.org/SDL_SetWindowModalFor"/>
+    /// Sets <paramref name="modal"/> as <see cref="this"/> <see cref="Window"/>'s modal.
     /// </summary>
     /// <param name="parent">The parent <see cref="Window"/> to set this <see cref="Window"/> as a modal for</param>
     public void SetAsModal(Window modal)
     {
         ThrowIfDisposed();
-        SDLWindowException.ThrowIfLessThan(SDL_SetWindowModalFor(modal._handle, _handle), 0);
+        modal.SetAsModalFor(this);
     }
 
     /// <summary>
@@ -481,27 +506,6 @@ public class Window : IDisposable
     /// <remarks>See <see cref="SetHitTestCallback(HitTestCallback?, UserData?)"/></remarks>
     public delegate HitTestResult HitTestCallback(Window window, Point area, UserData? data);
 
-    public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
-    {
-        _handle = SDL_CreateWindow(
-            title,
-            centerPointX ?? SDL_WINDOWPOS_CENTERED,
-            centerPointY ?? SDL_WINDOWPOS_CENTERED,
-            width,
-            height,
-            flags
-        );
-        if (_handle == IntPtr.Zero)
-            throw new SDLWindowCreationException(SDL_GetError());
-        _handleDict[_handle] = new(this);
-
-        _hitTestSupported = SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero) == 0;
-
-        // local function
-        SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data) 
-            => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
-    }
-
     #region IDisposable
 
     private bool disposedValue;
@@ -531,6 +535,18 @@ public class Window : IDisposable
     {
         if (disposedValue)
             throw new ObjectDisposedException(nameof(SDLApplication));
+    }
+
+    #endregion
+
+    #region WindowLogContext
+
+    private class WindowLogContext : ISDLLogContext
+    {
+        private readonly Window Window;
+        public WindowLogContext(Window window)
+            => Window = window;
+        public string FormatContext() => $"Window ({Window.Title})";
     }
 
     #endregion
