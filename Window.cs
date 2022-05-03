@@ -1,5 +1,6 @@
 ﻿using SDL2.NET.Exceptions;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static SDL2.SDL;
@@ -18,7 +19,6 @@ public class Window : IDisposable
             ThrowIfDisposed();
             return SDL_GetWindowTitle(_handle);
         }
-
         set
         {
             ThrowIfDisposed();
@@ -37,20 +37,38 @@ public class Window : IDisposable
         set
         {
             ThrowIfDisposed();
-            SDLWindowException.ThrowIfLessThan(SDL_SetWindowOpacity(_handle, value), 0);
+            var error = SDL_SetWindowOpacity(_handle, value);
+            if (error is -1)
+                throw new PlatformNotSupportedException(SDL_GetError());
+            SDLWindowException.ThrowIfLessThan(error, 0);
         }
     }
 
-    public float GetBrightness()
+    public float GetBrightness
     {
-        ThrowIfDisposed();
-        return SDL_GetWindowBrightness(_handle);
+        get
+        {
+            ThrowIfDisposed();
+            return SDL_GetWindowBrightness(_handle);
+        }
     }
 
     public void SetAsModalFor(Window parent)
     {
         ThrowIfDisposed();
         SDLWindowException.ThrowIfLessThan(SDL_SetWindowModalFor(_handle, parent._handle), 0);
+    }
+
+    public void SetAsModal(Window modal)
+    {
+        ThrowIfDisposed();
+        SDLWindowException.ThrowIfLessThan(SDL_SetWindowModalFor(modal._handle, _handle), 0);
+    }
+
+    public void Raise()
+    {
+        ThrowIfDisposed();
+        SDL_RaiseWindow(_handle);
     }
 
     public void SetInputFocus()
@@ -64,26 +82,43 @@ public class Window : IDisposable
         get
         {
             ThrowIfDisposed();
-            return SDL_GetWindowDisplayIndex(_handle);
+            var r = SDL_GetWindowDisplayIndex(_handle);
+            SDLWindowException.ThrowIfLessThan(r, 0);
+            return r;
         }
     }
 
-    public void GetDisplayMode(out SDL_DisplayMode mode)
+    public SDL_DisplayMode? DisplayMode
     {
-        ThrowIfDisposed();
-        SDLWindowException.ThrowIfLessThan(SDL_GetWindowDisplayMode(_handle, out mode), 0);
+        [return: NotNull]
+        get
+        {
+            ThrowIfDisposed();
+            SDLWindowException.ThrowIfLessThan(SDL_GetWindowDisplayMode(_handle, out var mode), 0);
+            return mode;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (value is SDL_DisplayMode mode)
+            {
+                SDLWindowException.ThrowIfLessThan(SDL_SetWindowDisplayMode(_handle, ref mode), 0);
+                return;
+            }
+            SDLWindowException.ThrowIfLessThan(SDL_SetWindowDisplayMode(_handle, IntPtr.Zero), 0);
+        }
     }
 
-    public void SetDisplayMode(ref SDL_DisplayMode mode)
-    {
-        ThrowIfDisposed();
-        SDLWindowException.ThrowIfLessThan(SDL_SetWindowDisplayMode(_handle, ref mode), 0);
-    }
+    private FullscreenMode _fs;
 
-    public void SetFullscreen(uint flags)
+    public FullscreenMode FullscreenMode
     {
-        ThrowIfDisposed();
-        SDLWindowException.ThrowIfLessThan(SDL_SetWindowFullscreen(_handle, flags), 0);
+        get => _fs;
+        set
+        {
+            ThrowIfDisposed();
+            SDLWindowException.ThrowIfLessThan(SDL_SetWindowFullscreen(_handle, (uint)(_fs = value)), 0);
+        }
     }
 
     public void SetGammaRamp(ushort[] red, ushort[] green, ushort[] blue)
