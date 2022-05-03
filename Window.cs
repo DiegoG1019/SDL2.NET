@@ -104,6 +104,24 @@ public class Window : IDisposable
     }
 
     /// <summary>
+    /// Shows the <see cref="Window"/>. <see cref="SDL_ShowWindow" href="https://wiki.libsdl.org/SDL_ShowWindow"/>
+    /// </summary>
+    public void Show()
+    {
+        ThrowIfDisposed();
+        SDL_ShowWindow(_handle);
+    }
+
+    /// <summary>
+    /// Hides the <see cref="Window"/>. <see cref="SDL_HideWindow" href="https://wiki.libsdl.org/SDL_HideWindow"/>
+    /// </summary>
+    public void Hide()
+    {
+        ThrowIfDisposed();
+        SDL_HideWindow(_handle);
+    }
+
+    /// <summary>
     /// Sets this Window as the OS's input focus. <see cref="SDL_SetWindowInputFocus" href="https://wiki.libsdl.org/SDL_SetWindowInputFocus"/>
     /// </summary>
     /// <remarks>
@@ -328,15 +346,6 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// Shows the <see cref="Window"/>. <see cref="SDL_ShowWindow" href="https://wiki.libsdl.org/SDL_ShowWindow"/>
-    /// </summary>
-    public void Show()
-    {
-        ThrowIfDisposed();
-        SDL_ShowWindow(_handle);
-    }
-
-    /// <summary>
     /// Configures several settings for this <see cref="Window"/>. Calls several <see cref="SDL"/> functions at once.
     /// </summary>
     /// <param name="hasBorder">Whether the window is borderless or not. <see cref="SDL_SetWindowBordered" href="https://wiki.libsdl.org/SDL_SetWindowBordered"/></param>
@@ -381,18 +390,37 @@ public class Window : IDisposable
 
     private UserData? hitTestCallbackData;
     private HitTestCallback? hitTestCallback;
+    private readonly bool _hitTestSupported;
     /// <summary>
     /// Provide a callback that decides if a window region has special properties. <see cref="SDL_SetWindowHitTest" href="https://wiki.libsdl.org/SDL_SetWindowHitTest"/>
     /// </summary>
-    /// <param name="callback"></param>
-    /// <param name="userData"></param>
+    /// <param name="callback">The callback to assign to this <see cref="Window"/></param>
+    /// <param name="userData">User data to be held by this window, and passed to the callback when called. This has no effect on the SDL side of things (and is in fact stored in the .NET heap for the purposes of this library) and is intended to provide special, and even identification data for a given <see cref="Window"/></param>
+    /// <remarks>
+    /// Your callback may fire at any time, and its firing does not indicate any specific behavior (for example, on Windows, this certainly might fire when the OS is deciding whether to drag your window, but it fires for lots of other reasons, too, some unrelated to anything you probably care about and when the mouse isn't actually at the location it is testing). Since this can fire at any time, you should try to keep your callback efficient, devoid of allocations, etc.
+    /// </remarks>
+    /// <exception cref="PlatformNotSupportedException">Thrown if the current platform does not support assigning a HitTestCallback to a <see cref="Window"/>. See <see cref="IsHitTestSupported"/></exception>
     public void SetHitTestCallback(HitTestCallback? callback, UserData? userData)
     {
         ThrowIfDisposed();
+        if (!_hitTestSupported)
+            throw new PlatformNotSupportedException($"Assigning a HitTestCallback to a Window is not supported on this platform.");
         hitTestCallback = callback;
         hitTestCallbackData = userData;
     }
 
+    /// <summary>
+    /// <see cref="true"/> if setting a HitTestCallback is supported in this platform. <see cref="false"/> otherwise.
+    /// </summary>
+    /// <remarks>
+    /// This is tested inside .NET as SDL does not provide a way to test this. However, for the purposes of this library, a <see cref="Window"/>'s constructor will always assign a callback to an <see cref="SDL"/>'s window, and manage .NET callbacks from that. If that assignment fails, it'll be assumed to be unsupported.
+    /// </remarks>
+    public bool IsHitTestSupported => _hitTestSupported;
+
+    /// <summary>
+    /// Request a <see cref="Window"/> to demand attention from the user. <see cref="SDL_FlashWindow" href="https://wiki.libsdl.org/SDL_FlashWindow"/>
+    /// </summary>
+    /// <param name="operation">The operation to request for the <see cref="Window"/></param>
     public void Flash(SDL_FlashOperation operation)
     {
         ThrowIfDisposed();
@@ -425,20 +453,33 @@ public class Window : IDisposable
         }
     }
 
-    public Window GetGrabbedWindow()
+    /// <summary>
+    /// Get the <see cref="Window"/> that currently has an input grab enabled. <see cref="SDL_GetGrabbedWindow" href="https://wiki.libsdl.org/SDL_GetGrabbedWindow"/>
+    /// </summary>
+    /// <returns>Returns the <see cref="Window"/> if input is grabbed or <see cref="null"/> otherwise.</returns>
+    /// <exception cref="SDLWindowException"></exception>
+    public Window? GetGrabbedWindow()
     {
         ThrowIfDisposed();
         var ptr = SDL_GetGrabbedWindow();
         return ptr == IntPtr.Zero
-            ? throw new SDLWindowException(SDL_GetError())
+            ? null
             : _handleDict.TryGetValue(ptr, out var wr)
             ? wr.TryGetTarget(out var window) ?
             window
             : throw new SDLWindowException("This window object has already been garbage collected and disposed")
-            : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window outside of this class?");
+            : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window directly through SDL?");
     }
 
-    public delegate HitTestResult HitTestCallback(Window window, Size area, UserData? data);
+    /// <summary>
+    /// Represents a method set as a callback for a <see cref="Window"/>'s hit test
+    /// </summary>
+    /// <param name="window">The <see cref="Window"/> object this callback refers to</param>
+    /// <param name="area">The area the <see cref="Window"/> was hit</param>
+    /// <param name="data">User defined data held by the <see cref="Window"/></param>
+    /// <returns>The appropriate user selected HitTestResult</returns>
+    /// <remarks>See <see cref="SetHitTestCallback(HitTestCallback?, UserData?)"/></remarks>
+    public delegate HitTestResult HitTestCallback(Window window, Point area, UserData? data);
 
     public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
     {
@@ -454,12 +495,11 @@ public class Window : IDisposable
             throw new SDLWindowCreationException(SDL_GetError());
         _handleDict[_handle] = new(this);
 
-        SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data) 
-            => hitTestCallback is null
-                ? SDL_HitTestResult.SDL_HITTEST_NORMAL
-                : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
+        _hitTestSupported = SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero) == 0;
 
-        SDLWindowException.ThrowIfLessThan(SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero), 0);
+        // local function
+        SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data) 
+            => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
     }
 
     #region IDisposable
