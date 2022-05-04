@@ -86,6 +86,74 @@ public enum HintPriority
 	Override = SDL_HintPriority.SDL_HINT_OVERRIDE
 }
 
+public enum PixelFormat : uint
+{
+	Unknown = 0u,
+	Index1LSB = 286261504u,
+	Index1MSB = 287310080u,
+	Index4LSB = 303039488u,
+	Index4MSB = 304088064u,
+	Index8 = 318769153u,
+	RGB332 = 336660481u,
+	XRGB444 = 353504258u,
+	RGB444 = 353504258u,
+	XBGR444 = 357698562u,
+	BGR444 = 357698562u,
+	XRGB1555 = 353570562u,
+	RGB555 = 353570562u,
+	XBGR1555 = 286461698u,
+	BGR555 = 286461698u,
+	ARGB4444 = 355602434u,
+	RGBA4444 = 356651010u,
+	ABGR4444 = 359796738u,
+	BGRA4444 = 360845314u,
+	ARGB1555 = 355667970u,
+	RGBA5551 = 356782082u,
+	ABGR1555 = 359862274u,
+	BGRA5551 = 360976386u,
+	RGB565 = 353701890u,
+	BGR565 = 357896194u,
+	RGB24 = 386930691u,
+	BGR24 = 390076419u,
+	XRGB888 = 370546692u,
+	RGB888 = 370546692u,
+	RGBX8888 = 371595268u,
+	XBGR888 = 374740996u,
+	BGR888 = 374740996u,
+	BGRX8888 = 375789572u,
+	ARGB8888 = 372645892u,
+	RGBA8888 = 373694468u,
+	ABGR8888 = 376840196u,
+	BGRA8888 = 377888772u,
+	ARGB2101010 = 372711428u,
+	YV12 = 842094169u,
+	IYUV = 1448433993u,
+	YUY2 = 844715353u,
+	UYVY = 1498831189u,
+	YVYU = 1431918169u,
+}
+
+/// <summary>
+/// An enumeration of texture access patterns. <see cref="SDL_TextureAccess" href="https://wiki.libsdl.org/SDL_TextureAccess"/>
+/// </summary>
+public enum TextureAccess
+{
+	/// <summary>
+	/// Changes rarely, not lockable
+	/// </summary>
+	Static = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC,
+
+	/// <summary>
+	/// Changes frequently, lockable
+	/// </summary>
+	Streaming = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING,
+
+	/// <summary>
+	/// Can be used as a render target
+	/// </summary>
+	Target = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET
+}
+
 public static class EnumExtensions
 {
 	public static SDL_HitTestResult ToSDL(this HitTestResult hit)
