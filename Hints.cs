@@ -81,5 +81,11 @@ public sealed class Hints
     /// <remarks>SDL can try to accelerate the screen surface returned by SDL_GetWindowSurface() by using streaming textures with a 3D rendering engine. This variable controls whether and how this is done.</remarks>
     public FramebufferAcceleration FramebufferAcceleration { get; } = new();
 
+    /// <summary>
+    /// A hint that specifies scaling quality. <see cref="SDL_HINT_RENDER_SCALE_QUALITY" href="https://wiki.libsdl.org/SDL_HINT_RENDER_SCALE_QUALITY"/>
+    /// </summary>
+    /// <remarks>This hint is checked when a texture is created and it affects scaling when copying that texture.</remarks>
+    public RenderScaleQuality RenderScaleQuality { get; } = new();
+
 #warning finish up the rest of the hints
 }
