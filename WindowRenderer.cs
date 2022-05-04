@@ -2,7 +2,7 @@
 
 public class WindowRenderer : Renderer
 {
-    protected internal readonly Window AttachedWindow;
+    public Window AttachedWindow { get; }
 
     public WindowRenderer(Window window, int index) : this(window, index, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC) { }
 
