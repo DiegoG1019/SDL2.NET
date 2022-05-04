@@ -157,27 +157,8 @@ public enum TextureAccess
 public static class EnumExtensions
 {
 	public static SDL_HitTestResult ToSDL(this HitTestResult hit)
-		=> hit switch
-        {
-			HitTestResult.Normal => SDL_HitTestResult.SDL_HITTEST_NORMAL,
-			HitTestResult.Draggable => SDL_HitTestResult.SDL_HITTEST_DRAGGABLE,
-			HitTestResult.ResizeTopLeft => SDL_HitTestResult.SDL_HITTEST_RESIZE_TOPLEFT,
-			HitTestResult.ResizeTop => SDL_HitTestResult.SDL_HITTEST_RESIZE_TOP,
-			HitTestResult.ResizeTopRight => SDL_HitTestResult.SDL_HITTEST_RESIZE_TOPRIGHT,
-			HitTestResult.ResizeRight => SDL_HitTestResult.SDL_HITTEST_RESIZE_RIGHT,
-			HitTestResult.ResizeBottomRight => SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOMRIGHT,
-			HitTestResult.ResizeBottom => SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOM,
-			HitTestResult.ResizeBottomLeft => SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOMLEFT,
-			HitTestResult.ResizeLeft => SDL_HitTestResult.SDL_HITTEST_RESIZE_LEFT,
-			_ => throw new ArgumentException($"Unknown hit test result {hit}", nameof(hit))
-        };
+		=> (SDL_HitTestResult)hit;
 
 	public static SDL_HintPriority ToSDL(this HintPriority priority)
-		=> priority switch
-		{
-			HintPriority.Default => SDL_HintPriority.SDL_HINT_DEFAULT,			
-			HintPriority.Normal => SDL_HintPriority.SDL_HINT_NORMAL,
-			HintPriority.Override => SDL_HintPriority.SDL_HINT_OVERRIDE,
-			_ => throw new ArgumentException($"Unknown hint priority {priority}", nameof(priority))
-		};
+		=> (SDL_HintPriority)priority;
 }
