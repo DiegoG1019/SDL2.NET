@@ -20,6 +20,8 @@ public class SDLApplication : IDisposable
     public Window MainWindow => _mw ?? throw new InvalidOperationException("This application's window has not been launched");
     public Renderer MainRenderer => _mr ?? throw new InvalidOperationException("This application's window has not been launched");
 
+    public Hints Hints { get; } = new Hints();
+
     private SDLApplication() { }
 
     public static SDLApplication App { get; } = new();
@@ -64,9 +66,12 @@ public class SDLApplication : IDisposable
         Logger.Debug(LogContext, "Initialized SDL2 TTF");
         return this;
     }
+
     public SDLApplication LaunchWindow(string title, int width, int height)
     {
         ThrowIfDisposed();
+        if (_mw is not null)
+            throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
         _mw = InsantiateMainWindow(title, width, height);
         Logger.Debug(LogContext, "Instantiated main SDL2 Window");
         _mr = InstantiateMainRenderer();
@@ -74,6 +79,12 @@ public class SDLApplication : IDisposable
 
         Logger.Information(LogContext, "Launched Main SDL2 Window");
         return this;
+    }
+
+    public void SetMainWindow(WindowRenderer renderer)
+    {
+        _mw = renderer.AttachedWindow;
+        _mr = renderer;
     }
 
     #endregion
