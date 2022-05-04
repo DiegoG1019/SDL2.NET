@@ -15,6 +15,12 @@ public class Window : IDisposable
     internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new();
     protected internal readonly IntPtr _handle = IntPtr.Zero;
 
+    public static WindowRenderer CreateWindowAndRenderer(string title, int width, int height, int rendererIndex = -1, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
+    {
+        var win = new Window(title, width, height, flags, centerPointX, centerPointY);
+        return new WindowRenderer(win, rendererIndex);
+    }
+
     public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
     {
         _handle = SDL_CreateWindow(
@@ -36,7 +42,6 @@ public class Window : IDisposable
             => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
     }
 
-    private string _title;
     /// <summary>
     /// Gets or Sets the <see cref="SDL"/> <see cref="Window"/> <see cref="Title"/>. get: <see cref="SDL_GetWindowTitle" href="https://wiki.libsdl.org/SDL_GetWindowTitle"/>; set: <see cref="SDL_SetWindowTitle" href="https://wiki.libsdl.org/SDL_SetWindowTitle"/>
     /// </summary>
@@ -51,7 +56,6 @@ public class Window : IDisposable
         {
             ThrowIfDisposed();
             SDL_SetWindowTitle(_handle, value);
-            _title = value;
         }
     }
 
@@ -534,19 +538,7 @@ public class Window : IDisposable
     private void ThrowIfDisposed()
     {
         if (disposedValue)
-            throw new ObjectDisposedException(nameof(SDLApplication));
-    }
-
-    #endregion
-
-    #region WindowLogContext
-
-    private class WindowLogContext : ISDLLogContext
-    {
-        private readonly Window Window;
-        public WindowLogContext(Window window)
-            => Window = window;
-        public string FormatContext() => $"Window ({Window.Title})";
+            throw new ObjectDisposedException(nameof(Window));
     }
 
     #endregion
