@@ -3,12 +3,12 @@
 namespace SDL2.NET.Exceptions;
 
 [Serializable]
-public class SDLTextureCreationException : SDLException
+public class SDLTextureException : SDLException
 {
-    public SDLTextureCreationException() { }
-    public SDLTextureCreationException(string message) : base(message) { }
-    public SDLTextureCreationException(string message, Exception inner) : base(message, inner) { }
-    protected SDLTextureCreationException(
+    public SDLTextureException() { }
+    public SDLTextureException(string message) : base(message) { }
+    public SDLTextureException(string message, Exception inner) : base(message, inner) { }
+    protected SDLTextureException(
       System.Runtime.Serialization.SerializationInfo info,
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 
@@ -16,13 +16,13 @@ public class SDLTextureCreationException : SDLException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLTextureCreationException(SDL.SDL_GetError());
+            throw new SDLTextureException(SDL.SDL_GetError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLTextureCreationException(SDL.SDL_GetError());
+            throw new SDLTextureException(SDL.SDL_GetError());
     }
 }
