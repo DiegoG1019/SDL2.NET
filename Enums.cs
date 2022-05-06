@@ -133,9 +133,6 @@ public enum PixelFormat : uint
 	YVYU = 1431918169u,
 }
 
-/// <summary>
-/// An enumeration of texture access patterns. <see cref="SDL_TextureAccess" href="https://wiki.libsdl.org/SDL_TextureAccess"/>
-/// </summary>
 public enum TextureAccess
 {
 	/// <summary>
@@ -154,11 +151,49 @@ public enum TextureAccess
 	Target = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET
 }
 
-public static class EnumExtensions
+[Flags]
+#warning document this
+public enum BlendMode
 {
-	public static SDL_HitTestResult ToSDL(this HitTestResult hit)
-		=> (SDL_HitTestResult)hit;
+	None = SDL_BlendMode.SDL_BLENDMODE_NONE,
+	Blend = SDL_BlendMode.SDL_BLENDMODE_BLEND,
+	Add = SDL_BlendMode.SDL_BLENDMODE_ADD,
+	Mod = SDL_BlendMode.SDL_BLENDMODE_MOD,
+	Mul = SDL_BlendMode.SDL_BLENDMODE_MUL,
+	Invalid = SDL_BlendMode.SDL_BLENDMODE_INVALID
+}
 
-	public static SDL_HintPriority ToSDL(this HintPriority priority)
-		=> (SDL_HintPriority)priority;
+#warning document this
+public enum BlendOperation
+{
+	Add = SDL_BlendOperation.SDL_BLENDOPERATION_ADD,
+	Subtract = SDL_BlendOperation.SDL_BLENDOPERATION_SUBTRACT,
+	Rev_subtract = SDL_BlendOperation.SDL_BLENDOPERATION_REV_SUBTRACT,
+	Minimum = SDL_BlendOperation.SDL_BLENDOPERATION_MINIMUM,
+	Maximum = SDL_BlendOperation.SDL_BLENDOPERATION_MAXIMUM
+}
+
+#warning document this
+public enum BlendFactor
+{
+	Zero = SDL_BlendFactor.SDL_BLENDFACTOR_ZERO,
+	One = SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
+	SourceColor = SDL_BlendFactor.SDL_BLENDFACTOR_SRC_COLOR,
+	OneMinusSourceColor = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR,
+	SourceAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_SRC_ALPHA,
+	OneMinusSourceAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+	DestinationColor = SDL_BlendFactor.SDL_BLENDFACTOR_DST_COLOR,
+	OneMinusDestinationColor = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+	DestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_DST_ALPHA,
+	OneMinusDestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA
+}
+
+#warning document this
+[Flags]
+public enum RendererFlags : uint
+{
+	Software = SDL_RendererFlags.SDL_RENDERER_SOFTWARE,
+	Accelerated = SDL_RendererFlags.SDL_RENDERER_ACCELERATED,
+	Presentvsync = SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC,
+	TargetTexture = SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE
 }
