@@ -31,6 +31,7 @@
 #pragma warning disable CS8625
 
 #region Using Statements
+using SDL2.NET;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -2478,6 +2479,7 @@ namespace SDL2
 			public int max_texture_height;
 		}
 
+
 		/* Only available in 2.0.11 or higher. */
 		public enum SDL_ScaleMode
 		{
@@ -2884,11 +2886,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderDrawLines(
+		private static unsafe extern int INTERNAL_SDL_RenderDrawLines(
 			IntPtr renderer,
-			[In] SDL_Point[] points,
+			[In] SDL_Point* points,
 			int count
 		);
+
+		public static unsafe int SDL_RenderDrawLines(IntPtr renderer, ReadOnlySpan<SDL_Point> points, int count)
+		{
+			fixed (SDL_Point* p = points)
+				return INTERNAL_SDL_RenderDrawLines(renderer, p, count);
+		}
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -3179,11 +3187,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderDrawPointsF(
+		private unsafe static extern int INTERNAL_SDL_RenderDrawPointsF(
 			IntPtr renderer,
-			[In] SDL_FPoint[] points,
+			[In] SDL_FPoint* points,
 			int count
 		);
+
+		public static unsafe int SDL_RenderDrawPointsF(IntPtr renderer, ReadOnlySpan<SDL_FPoint> points, int count)
+		{
+			fixed (SDL_FPoint* x = points)
+				return INTERNAL_SDL_RenderDrawPointsF(renderer, x, count);
+		}
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -3197,11 +3211,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderDrawLinesF(
+		private unsafe static extern int INTERNAL_SDL_RenderDrawLinesF(
 			IntPtr renderer,
-			[In] SDL_FPoint[] points,
+			[In] SDL_FPoint* points,
 			int count
 		);
+
+		public static unsafe int SDL_RenderDrawLinesF(IntPtr renderer, ReadOnlySpan<SDL_FPoint> points, int count)
+		{
+			fixed(SDL_FPoint* x = points)
+				return INTERNAL_SDL_RenderDrawLinesF(renderer, x, count);
+		}
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -3221,11 +3241,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderDrawRectsF(
+		private unsafe static extern int INTERNAL_SDL_RenderDrawRectsF(
 			IntPtr renderer,
-			[In] SDL_FRect[] rects,
+			[In] SDL_FRect* rects,
 			int count
 		);
+
+		public static unsafe int SDL_RenderDrawRectsF(IntPtr renderer, ReadOnlySpan<SDL_FRect> rects, int count)
+		{
+			fixed(SDL_FRect* x = rects)
+				return INTERNAL_SDL_RenderDrawRectsF(renderer, x, count);
+		}
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -3245,11 +3271,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderFillRectsF(
+		private unsafe static extern int INTERNAL_SDL_RenderFillRectsF(
 			IntPtr renderer,
-			[In] SDL_FRect[] rects,
+			[In] SDL_FRect* rects,
 			int count
 		);
+
+		public static unsafe int SDL_RenderFillRectsF()
+		{
+			fixed(SDL_FRect* x = rects)
+				return INTERNAL_SDL_RenderFillRectsF(renderer, x, count);
+		}
 
 		#endregion
 
@@ -4167,12 +4199,32 @@ namespace SDL2
 		}
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern SDL_bool SDL_EnclosePoints(
-			[In] SDL_Point[] points,
+		private static unsafe extern SDL_bool INTERNAL_SDL_EnclosePoints(
+			[In] SDL_Point* points,
 			int count,
 			ref SDL_Rect clip,
 			out SDL_Rect result
 		);
+
+		public static unsafe SDL_bool SDL_EnclosePoints(ReadOnlySpan<SDL_Point> points, int count, ref SDL_Rect clip, out SDL_Rect result)
+        {
+			fixed (SDL_Point* p = points)
+				return INTERNAL_SDL_EnclosePoints(p, count, ref clip, out result);
+		}
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		private static unsafe extern SDL_bool INTERNAL_SDL_EnclosePoints(
+			[In] SDL_Point* points,
+			int count,
+			IntPtr clip,
+			out SDL_Rect result
+		);
+
+		public static unsafe SDL_bool SDL_EnclosePoints(ReadOnlySpan<SDL_Point> points, int count, IntPtr clip, out SDL_Rect result)
+		{
+			fixed (SDL_Point* p = points)
+				return INTERNAL_SDL_EnclosePoints(p, count, clip, out result);
+		}
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern SDL_bool SDL_HasIntersection(
