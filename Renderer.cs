@@ -18,6 +18,55 @@ public abstract class Renderer : IDisposable
         if (_handle == IntPtr.Zero)
             throw new SDLRendererCreationException(SDL_GetError());
     }
+    /// <summary>
+    /// The blend mode used for drawing operations. get: <see cref="SDL_GetRenderDrawBlendMode" href="https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode"/>; set: <see cref="SDL_SetRenderDrawBlendMode" href="https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode"/>
+    /// </summary>
+    public SDL_BlendMode BlendMode
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_GetRenderDrawBlendMode(_handle, out var mode), 0);
+            return mode;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_SetRenderDrawBlendMode(_handle, value), 0);
+        }
+    }
+
+    /// <summary>
+    /// Get the color used for drawing operations (Rect, Line and Clear). get: <see cref="SDL_GetRenderDrawColor" href="https://wiki.libsdl.org/SDL_GetRenderDrawColor"/>; set: <see cref="SDL_SetRenderDrawColor" href="https://wiki.libsdl.org/SDL_SetRenderDrawColor"/>
+    /// </summary>
+    public RGBAColor RenderColor
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_GetRenderDrawColor(_handle, out byte r, out byte g, out byte b, out byte a), 0);
+            return new(r, g, b, a);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_SetRenderDrawColor(_handle, value.Red, value.Green, value.Blue, value.Alpha), 0);
+        }
+    }
+
+    /// <summary>
+    /// Get the output size in pixels of a rendering context. <see cref="SDL_GetRendererOutputSize" href="https://wiki.libsdl.org/SDL_GetRendererOutputSize"/>
+    /// </summary>
+    /// <remarks>Due to high-dpi displays, you might end up with a rendering context that has more pixels than the window that contains it, so use this instead of <see cref="Window.Size"/> to decide how much drawing area you have.</remarks>
+    public Size OutputSize
+    {
+        get
+        {
+            SDLRendererException.ThrowIfLessThan(SDL_GetRendererOutputSize(_handle, out var w, out var h), 0);
+            return new(w, h);
+        }
+    }
+
     private Texture? renderTarget;
     /// <summary>
     /// The current render target or <see cref="null"/> for the default render target. get: Cached in .NET memory; set: <see cref="SDL_SetRenderTarget" href="https://wiki.libsdl.org/SDL_SetRenderTarget"/>
@@ -46,6 +95,22 @@ public abstract class Renderer : IDisposable
             : Texture.FetchTexture(ptr) ?? throw new SDLRendererException("This Renderer targets a Texture that is not indexed by this library");
     }
 
+    private bool HasRendererInfo;
+    private RendererInfo CachedInfo;
+    /// <summary>
+    /// Get information about a rendering context. <see cref="SDL_GetRendererInfo" href="https://wiki.libsdl.org/SDL_GetRendererInfo"/>
+    /// </summary>
+    /// <remarks>Due to complications in the marshalling process, the info is only actually requested once. This is a cached property.</remarks>
+    public unsafe RendererInfo RendererInfo
+    {
+        get
+        {
+            if (HasRendererInfo)
+                return CachedInfo;
+            SDLRendererException.ThrowIfLessThan(SDL_GetRendererInfo(_handle, out var sdli), 0);
+            HasRendererInfo = true;
+            return CachedInfo = new RendererInfo(Marshal.PtrToStringAnsi(sdli.name)!, (RendererFlags)sdli.flags, new(sdli.max_texture_width, sdli.max_texture_height), new(sdli.texture_formats, sdli.num_texture_formats));
+        }
     }
 
     #region IDisposable
