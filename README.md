@@ -7,6 +7,9 @@ Library project [MIT License](LICENSE.md). All used external libraries, binaries
 ### Requirements:
 * This is a .NET 6 application: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
+### A Request!
+* Anyone with experience developing interoping apps with C#, I'd be very thankful for a solution for, or help in solving the issue of including SDL's binaries for other platforms into the library as well -- potentially in a form that would allow for multiple NuGet packages?
+
 ### Hints and tips:
 * Check the comments in [SDL2Example.csproj](SDL2Example.csproj)
 * If you use VS Code, set the program path in launch.json to the executable (not dll), for example `${workspaceFolder}/bin/Debug/net6.0/SDL2Example.exe` or external resources will not load properly when debugging
