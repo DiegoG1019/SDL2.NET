@@ -1,5 +1,6 @@
 ﻿using SDL2.NET.Exceptions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -17,6 +18,17 @@ namespace SDL2.NET;
 public class Texture : IDisposable
 {
     protected internal readonly IntPtr _handle;
+    private static readonly ConcurrentDictionary<IntPtr, WeakReference<Texture>> _textDict = new(2, 20);
+
+    static internal Texture? FetchTexture(IntPtr handle)
+    {
+        if (_textDict.TryGetValue(handle, out var reference))
+            if (reference.TryGetTarget(out var target))
+                return target;
+            else
+                _textDict.TryRemove(handle, out _);
+        return null;
+    }
 
     /// <summary>
     /// The renderer that was hooked to this Texture when it was created
@@ -38,6 +50,8 @@ public class Texture : IDisposable
         _handle = SDL_CreateTexture(renderer._handle, (uint)format, (int)access, width, height);
         if (_handle == IntPtr.Zero)
             throw new SDLTextureCreationException(SDL_GetError());
+        if (_textDict.TryAdd(_handle, new(this)) is false)
+            throw new SDLTextureCreationException("Could not register this Texture's address in .NET (Since SDL sometimes returns pointers, and these objects are only in .NET, they need to be indexed). This is likely a problem with the library, please report this and your code on GitHub. If this texture was created succesfully, it has NOT been destroyed.");
         Renderer = renderer;
     }
 
@@ -53,6 +67,8 @@ public class Texture : IDisposable
         _handle = SDL_CreateTextureFromSurface(renderer._handle, surface._handle);
         if (_handle == IntPtr.Zero)
             throw new SDLTextureCreationException(SDL_GetError());
+        if (_textDict.TryAdd(_handle, new(this)) is false)
+            throw new SDLTextureCreationException("Could not register this Texture's address in .NET (Since SDL sometimes returns pointers, and these objects are only in .NET, they need to be indexed). This is likely a problem with the library, please report this and your code on GitHub. If this texture was created succesfully, it has NOT been destroyed.");
         Renderer = renderer;
     }
 
@@ -273,6 +289,7 @@ public class Texture : IDisposable
         if (!disposedValue)
         {
             SDL_DestroyTexture(_handle);
+            _textDict.Remove(_handle, out _);
             disposedValue = true;
         }
     }
