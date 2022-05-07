@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static SDL2.SDL;
@@ -18,6 +19,65 @@ public abstract class Renderer : IDisposable
         if (_handle == IntPtr.Zero)
             throw new SDLRendererCreationException(SDL_GetError());
     }
+
+    /// <summary>
+    /// Draw a line on the current rendering target. <see cref="SDL_RenderDrawLine" href="https://wiki.libsdl.org/SDL_RenderDrawLine"/>
+    /// </summary>
+    /// <param name="originX">The X coordinate of the origin point</param>
+    /// <param name="originY">The Y coordinate of the origin point</param>
+    /// <param name="destX">The X coordinate of the destination point</param>
+    /// <param name="destY">The Y coordinate of the destination point</param>
+    public void DrawLine(int originX, int originY, int destX, int destY)
+        => SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLine(_handle, originX, originY, destX, destY), 0);
+
+    /// <summary>
+    /// Draw a line on the current rendering target. <see cref="SDL_RenderDrawLine" href="https://wiki.libsdl.org/SDL_RenderDrawLine"/>
+    /// </summary>
+    /// <param name="origin">The origin point</param>
+    /// <param name="destination">The destination point</param>
+    public void DrawLine(Point origin, Point destination) => DrawLine(origin.X, origin.Y, destination.X, destination.Y);
+
+    /// <summary>
+    /// Draw a line on the current rendering target at subpixel precision. <see cref="SDL_RenderDrawLineF" href="https://wiki.libsdl.org/SDL_RenderDrawLineF"/>
+    /// </summary>
+    /// <param name="originX">The X coordinate of the origin point</param>
+    /// <param name="originY">The Y coordinate of the origin point</param>
+    /// <param name="destX">The X coordinate of the destination point</param>
+    /// <param name="destY">The Y coordinate of the destination point</param>
+    public void DrawLine(float originX, float originY, float destX, float destY)
+        => SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLineF(_handle, originX, originY, destX, destY), 0);
+
+    /// <summary>
+    /// Draw a line on the current rendering target. <see cref="SDL_RenderDrawLineF" href="https://wiki.libsdl.org/SDL_RenderDrawLineF"/>
+    /// </summary>
+    /// <param name="origin">The origin point</param>
+    /// <param name="destination">The destination point</param>
+    public void DrawLine(FPoint origin, FPoint destination) => DrawLine(origin.X, origin.Y, destination.X, destination.Y);
+
+    /// <summary>
+    /// Draw a series of connected lines on the current rendering target. <see cref="SDL_RenderDrawLines" href="https://wiki.libsdl.org/SDL_RenderDrawLines"/>
+    /// </summary>
+    public void DrawLines(ReadOnlySpan<Point> points)
+    {
+        Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            points[i].ToSDLPoint(ref sdl_p[i]);
+
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLines(_handle, sdl_p, points.Length), 0);
+    }
+
+    /// <summary>
+    /// Draw a series of connected lines on the current rendering target. <see cref="SDL_RenderDrawLinesF" href="https://wiki.libsdl.org/SDL_RenderDrawLinesF"/>
+    /// </summary>
+    public void DrawLines(ReadOnlySpan<FPoint> points)
+    {
+        Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            points[i].ToSDLFPoint(ref sdl_p[i]);
+
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLinesF(_handle, sdl_p, points.Length), 0);
+    }
+
     /// <summary>
     /// The blend mode used for drawing operations. get: <see cref="SDL_GetRenderDrawBlendMode" href="https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode"/>; set: <see cref="SDL_SetRenderDrawBlendMode" href="https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode"/>
     /// </summary>
