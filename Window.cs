@@ -12,7 +12,7 @@ namespace SDL2.NET;
 /// </summary>
 public class Window : IDisposable
 {
-    internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new();
+    internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new(2, 5);
     protected internal readonly IntPtr _handle = IntPtr.Zero;
 
     public static WindowRenderer CreateWindowAndRenderer(string title, int width, int height, int rendererIndex = -1, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
