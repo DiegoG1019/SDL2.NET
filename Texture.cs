@@ -280,6 +280,46 @@ public class Texture : IDisposable
         }
     }
 
+    /// <summary>
+    /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopyEx" href="https://wiki.libsdl.org/SDL_RenderCopyEx"/>
+    /// </summary>
+    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="Blend"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
+    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
+    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
+    public void Render(Rectangle? source = null, Rectangle? destination = null, double angle = 0, Point center = default, Flip flip = Flip.None)
+    {
+        ThrowIfDisposed();
+        IntPtr srect = IntPtr.Zero;
+        IntPtr drect = IntPtr.Zero;
+
+        try
+        {
+            if (source is Rectangle src)
+            {
+                srect = Marshal.AllocHGlobal(Marshal.SizeOf(src));
+                Marshal.StructureToPtr(src, srect, false);
+            }
+
+            if (destination is Rectangle dst)
+            {
+                drect = Marshal.AllocHGlobal(Marshal.SizeOf(dst));
+                Marshal.StructureToPtr(dst, drect, false);
+            }
+
+            SDL_Point sdl_p = default;
+            center.ToSDLPoint(ref sdl_p);
+
+            SDLTextureException.ThrowIfLessThan(SDL_RenderCopyEx(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
+        }
+        finally
+        {
+            if (srect != IntPtr.Zero)
+                Marshal.FreeHGlobal(srect);
+            if (drect != IntPtr.Zero)
+                Marshal.FreeHGlobal(drect);
+        }
+    }
+
     #region IDisposable
 
     private bool disposedValue;
