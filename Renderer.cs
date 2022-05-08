@@ -27,15 +27,21 @@ public abstract class Renderer : IDisposable
     /// <param name="originY">The Y coordinate of the origin point</param>
     /// <param name="destX">The X coordinate of the destination point</param>
     /// <param name="destY">The Y coordinate of the destination point</param>
-    public void DrawLine(int originX, int originY, int destX, int destY)
-        => SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLine(_handle, originX, originY, destX, destY), 0);
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawLine(int originX, int originY, int destX, int destY, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLine(_handle, originX, originY, destX, destY), 0);
+    }
 
     /// <summary>
     /// Draw a line on the current rendering target. <see cref="SDL_RenderDrawLine" href="https://wiki.libsdl.org/SDL_RenderDrawLine"/>
     /// </summary>
     /// <param name="origin">The origin point</param>
     /// <param name="destination">The destination point</param>
-    public void DrawLine(Point origin, Point destination) => DrawLine(origin.X, origin.Y, destination.X, destination.Y);
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawLine(Point origin, Point destination, RGBAColor? color = null) => DrawLine(origin.X, origin.Y, destination.X, destination.Y, color);
 
     /// <summary>
     /// Draw a line on the current rendering target at subpixel precision. <see cref="SDL_RenderDrawLineF" href="https://wiki.libsdl.org/SDL_RenderDrawLineF"/>
@@ -44,38 +50,203 @@ public abstract class Renderer : IDisposable
     /// <param name="originY">The Y coordinate of the origin point</param>
     /// <param name="destX">The X coordinate of the destination point</param>
     /// <param name="destY">The Y coordinate of the destination point</param>
-    public void DrawLine(float originX, float originY, float destX, float destY)
-        => SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLineF(_handle, originX, originY, destX, destY), 0);
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawLine(float originX, float originY, float destX, float destY, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLineF(_handle, originX, originY, destX, destY), 0);
+    }
 
     /// <summary>
     /// Draw a line on the current rendering target. <see cref="SDL_RenderDrawLineF" href="https://wiki.libsdl.org/SDL_RenderDrawLineF"/>
     /// </summary>
     /// <param name="origin">The origin point</param>
     /// <param name="destination">The destination point</param>
-    public void DrawLine(FPoint origin, FPoint destination) => DrawLine(origin.X, origin.Y, destination.X, destination.Y);
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawLine(FPoint origin, FPoint destination, RGBAColor? color = null) => DrawLine(origin.X, origin.Y, destination.X, destination.Y, color);
 
     /// <summary>
     /// Draw a series of connected lines on the current rendering target. <see cref="SDL_RenderDrawLines" href="https://wiki.libsdl.org/SDL_RenderDrawLines"/>
     /// </summary>
-    public void DrawLines(ReadOnlySpan<Point> points)
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawLines(ReadOnlySpan<Point> points, RGBAColor? color = null)
     {
+        ThrowIfDisposed();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             points[i].ToSDLPoint(ref sdl_p[i]);
 
+        TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLines(_handle, sdl_p, points.Length), 0);
     }
 
     /// <summary>
     /// Draw a series of connected lines on the current rendering target. <see cref="SDL_RenderDrawLinesF" href="https://wiki.libsdl.org/SDL_RenderDrawLinesF"/>
     /// </summary>
-    public void DrawLines(ReadOnlySpan<FPoint> points)
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawLines(ReadOnlySpan<FPoint> points, RGBAColor? color = null)
     {
+        ThrowIfDisposed();
         Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             points[i].ToSDLFPoint(ref sdl_p[i]);
 
+        TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLinesF(_handle, sdl_p, points.Length), 0);
+    }
+
+    /// <summary>
+    /// Draw a point on the current rendering target. <see cref="SDL_RenderDrawPoint" href="https://wiki.libsdl.org/SDL_RenderDrawPoint"/>
+    /// </summary>
+    /// <remarks>
+    /// <see cref="DrawPoint(int, int)"/> draws a single point. If you want to draw multiple, use <see cref="DrawPoints(ReadOnlySpan{Point})"/> instead.
+    /// </remarks>
+    /// <param name="x">The X coordinate for the point to draw in the screen</param>
+    /// <param name="y">The Y coordinate for the point to draw in the screen</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawPoint(int x, int y, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoint(_handle, x, y), 0);
+    }
+
+    /// <summary>
+    /// Draw a point on the current rendering target. <see cref="SDL_RenderDrawPoint" href="https://wiki.libsdl.org/SDL_RenderDrawPoint"/>
+    /// </summary>
+    /// <remarks>
+    /// <see cref="DrawPoint(Point)"/> draws a single point. If you want to draw multiple, use <see cref="DrawPoints(ReadOnlySpan{Point})"/> instead.
+    /// </remarks>
+    /// <param name="point">The point to draw in the screen</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawPoint(Point point, RGBAColor? color = null) => DrawPoint(point.X, point.Y, color);
+
+    /// <summary>
+    /// Draw multiple points on the current rendering target. <see cref="SDL_RenderDrawPoints" href="https://wiki.libsdl.org/SDL_RenderDrawPoints"/>
+    /// </summary>
+    /// <param name="points">The points to draw</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawPoints(ReadOnlySpan<Point> points, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            points[i].ToSDLPoint(ref sdl_p[i]);
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoints(_handle, sdl_p, points.Length), 0);
+    }
+
+    /// <summary>
+    /// Draw a rectangle on the current rendering target. <see cref="SDL_RenderDrawRect" href="https://wiki.libsdl.org/SDL_RenderDrawRect"/>
+    /// </summary>
+    /// <param name="rectangle">A <see cref="Rectangle"/> representing the rectangle to draw, or <see cref="null"/> to outline the entire rendering target</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawRectangle(Rectangle? rectangle, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        if (rectangle is Rectangle r)
+        {
+            SDL_Rect rect = default;
+            r.ToSDLRect(ref rect);
+            TrySetColor(color);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRect(_handle, ref rect), 0);
+            return;
+        }
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRect(_handle, IntPtr.Zero), 0);
+    }
+
+    /// <summary>
+    /// Fill a rectangle on the current rendering target with the drawing color. <see cref="SDL_RenderFillRect" href="https://wiki.libsdl.org/SDL_RenderFillRect"/>
+    /// </summary>
+    /// <remarks>
+    /// The current drawing color is set by <see cref="RenderColor"/>, and the color's alpha value is ignored unless blending is enabled with the appropriate call to <see cref="BlendMode"/>.
+    /// </remarks>
+    /// <param name="rectangle">The <see cref="Rectangle"/> representing the rectangle to fill, or <see cref="null"/> for the entire rendering target</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void FillRectangle(Rectangle? rectangle, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        if (rectangle is Rectangle r)
+        {
+            SDL_Rect rect = default;
+            r.ToSDLRect(ref rect);
+            TrySetColor(color);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderFillRect(_handle, ref rect), 0);
+            return;
+        }
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRect(_handle, IntPtr.Zero), 0);
+    }
+
+    /// <summary>
+    /// Draw some number of rectangles on the current rendering target. <see cref="SDL_RenderDrawRects" href="https://wiki.libsdl.org/SDL_RenderDrawRects"/>
+    /// </summary>
+    /// <param name="rectangles">A set of <see cref="Rectangle"/>s representing the rectangles to be drawn</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            rectangles[i].ToSDLRect(ref sdl_p[i]);
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRects(_handle, sdl_p, rectangles.Length), 0);
+    }
+
+    /// <summary>
+    /// Fill some number of rectangles on the current rendering target with the drawing color. <see cref="SDL_RenderFillRects" href="https://wiki.libsdl.org/SDL_RenderFillRects"/>
+    /// </summary>
+    /// <param name="rectangles">A set of <see cref="Rectangle"/>s representing the rectangles to be filled</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void FillRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            rectangles[i].ToSDLRect(ref sdl_p[i]);
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRects(_handle, sdl_p, rectangles.Length), 0);
+    }
+
+    /// <summary>
+    /// Update the screen with any rendering performed since the previous call. <see cref="SDL_RenderPresent" href="https://wiki.libsdl.org/SDL_RenderPresent"/>
+    /// </summary>
+    /// <remarks>
+    /// SDL's rendering functions operate on a backbuffer; that is, calling a rendering function such as <see cref="DrawLine"/> does not directly put a line on the screen, but rather updates the backbuffer. As such, you compose your entire scene and present the composed backbuffer to the screen as a complete picture.
+    /// </remarks>
+    public void Present()
+    {
+        ThrowIfDisposed();
+        SDL_RenderPresent(_handle);
+    }
+
+    /// <summary>
+    /// Clear the current rendering target with the drawing color. <see cref="SDL_RenderClear" href="https://wiki.libsdl.org/SDL_RenderClear"/>
+    /// </summary>
+    /// <remarks>
+    /// This function clears the entire rendering target, ignoring the viewport and the clip rectangle.
+    /// </remarks>
+    public void Clear(RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderClear(_handle), 0);
+    }
+
+    /// <summary>
+    /// Read pixels from the current rendering target to an array of pixels. <see cref="SDL_RenderReadPixels" href="https://wiki.libsdl.org/SDL_RenderReadPixels"/>
+    /// </summary>
+    /// <param name="format">Value of the desired format of the pixel data, or 0 to use the format of the rendering target</param>
+    /// <param name="pixels">An array to copy pixel data onto</param>
+    /// <param name="pitch">The pitch of the <paramref name="pixels"/> parameter</param>
+    /// <remarks><b>WARNING: </b>This is a very slow operation, and should not be used frequently. If you're using this on the main rendering target, it should be called after rendering and before <see cref="Present"/></remarks>
+    /// <exception cref="NotImplementedException"></exception>
+    public void ReadPixels(PixelFormat format, object[] pixels, int pitch)
+    {
+        ThrowIfDisposed();
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -113,6 +284,134 @@ public abstract class Renderer : IDisposable
             SDLRendererException.ThrowIfLessThan(SDL_SetRenderDrawColor(_handle, value.Red, value.Green, value.Blue, value.Alpha), 0);
         }
     }
+    private void TrySetColor(RGBAColor? color)
+    {
+        if (color is RGBAColor c)
+            RenderColor = c;
+    }
+
+    /// <summary>
+    /// Gets or sets the drawing area for rendering on the current target. get: <see cref="SDL_RenderGetViewport" href="https://wiki.libsdl.org/SDL_RenderGetViewport"/>; set: <see cref="SDL_RenderSetViewport" href="https://wiki.libsdl.org/SDL_RenderSetViewport"/>
+    /// </summary>
+    /// <remarks>When the <see cref="Window"/> is resized, the viewport is reset to fill the entire new <see cref="Window"/> size.</remarks>
+    /// <param name="rect">The <see cref="Rectangle"/> representing the drawing area, or <see cref="null"/> to set the viewport to the entire target</param>
+    public Rectangle? Viewport
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_RenderGetViewport(_handle, out SDL_Rect rect), 0);
+            return rect;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (value is Rectangle r)
+            {
+                SDL_Rect sdl_r = default;
+                r.ToSDLRect(ref sdl_r);
+                SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, ref sdl_r), 0);
+            }
+            SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, IntPtr.Zero), 0);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets device independent resolution for rendering. get: <see cref="SDL_RenderGetLogicalSize" href="https://wiki.libsdl.org/SDL_RenderGetLogicalSize"/>; set: <see cref="SDL_RenderSetLogicalSize" href="https://wiki.libsdl.org/SDL_RenderSetLogicalSize"/>
+    /// </summary>
+    /// <remarks>
+    /// This function uses the viewport and scaling functionality to allow a fixed logical resolution for rendering, regardless of the actual output resolution. If the actual output resolution doesn't have the same aspect ratio the output rendering will be centered within the output display. If the output display is a window, mouse and touch events in the window will be filtered and scaled so they seem to arrive within the logical resolution. The <see cref="HintTypes.MouseRelativeScaling"/> hint controls whether relative motion events are also scaled. If this function results in scaling or subpixel drawing by the rendering backend, it will be handled using the appropriate quality hints.
+    /// </remarks>
+    public Size LogicalSize
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_RenderGetLogicalSize(_handle, out int w, out int h);
+            return new(w, h);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_RenderSetLogicalSize(_handle, value.Width, value.Height), 0);
+        }
+    }
+
+    /// <summary>
+    /// Get whether clipping is enabled on the given renderer. <see cref="SDL_RenderIsClipEnabled" href="https://wiki.libsdl.org/SDL_RenderIsClipEnabled"/>
+    /// </summary>
+    public bool IsClipEnabled
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return SDL_RenderIsClipEnabled(_handle) is SDL_bool.SDL_TRUE;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the clip rectangle for rendering on the specified target, a <see cref="Rectangle"/> filled in with the current clipping area or an <see cref="null"/> if clipping is disabled
+    /// </summary>
+    public Rectangle? Clip
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_RenderGetClipRect(_handle, out var rect);
+            Rectangle r = (Rectangle)rect;
+            return r.Size != default ? r : null;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (value is Rectangle r)
+            {
+                SDL_Rect sl = default;
+                r.ToSDLRect(ref sl);
+                SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, ref sl), 0);
+                return;
+            }
+            SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, IntPtr.Zero), 0);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether to force integer scales for resolution-independent rendering. <see cref="SDL_RenderGetIntegerScale" href="https://wiki.libsdl.org/SDL_RenderGetIntegerScale"/>; set: <see cref="SDL_RenderSetIntegerScale" href="https://wiki.libsdl.org/SDL_RenderSetIntegerScale"/>
+    /// </summary>
+    public bool IntegerScale
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return SDL_RenderGetIntegerScale(_handle) is SDL_bool.SDL_TRUE;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_RenderSetIntegerScale(_handle, value ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE), 0);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the drawing scale for rendering on the current target. get: <see cref="SDL_RenderGetScale" href="https://wiki.libsdl.org/SDL_RenderGetScale"/>; set: <see cref="SDL_RenderSetScale" href="https://wiki.libsdl.org/SDL_RenderSetScale"/>
+    /// </summary>
+    /// <remarks>
+    /// The drawing coordinates are scaled by the x/y (width/height) scaling factors before they are used by the renderer. This allows resolution independent drawing with a single coordinate system.
+    /// </remarks>
+    public FSize Scale
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_RenderGetScale(_handle, out float sx, out float sy);
+            return new(sx, sy);
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_RenderSetScale(_handle, value.Width, value.Height), 0);
+        }
+    }
 
     /// <summary>
     /// Get the output size in pixels of a rendering context. <see cref="SDL_GetRendererOutputSize" href="https://wiki.libsdl.org/SDL_GetRendererOutputSize"/>
@@ -122,6 +421,7 @@ public abstract class Renderer : IDisposable
     {
         get
         {
+            ThrowIfDisposed();
             SDLRendererException.ThrowIfLessThan(SDL_GetRendererOutputSize(_handle, out var w, out var h), 0);
             return new(w, h);
         }
@@ -136,8 +436,29 @@ public abstract class Renderer : IDisposable
     /// </remarks>
     public Texture? RenderTarget
     {
-        get => renderTarget;
-        set => SDLRendererException.ThrowIfLessThan(SDL_SetRenderTarget(_handle, (renderTarget = value)?._handle ?? IntPtr.Zero), 0);
+        get
+        {
+            ThrowIfDisposed();
+            return renderTarget;
+        }
+
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfLessThan(SDL_SetRenderTarget(_handle, (renderTarget = value)?._handle ?? IntPtr.Zero), 0);
+        }
+    }
+
+    /// <summary>
+    /// Determine whether a renderer supports the use of render targets. <see cref="SDL_RenderTargetSupported" href="https://wiki.libsdl.org/SDL_RenderTargetSupported"/>
+    /// </summary>
+    public bool SupportsRenderTargets
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return SDL_RenderTargetSupported(_handle) is SDL_bool.SDL_TRUE;
+        }
     }
 
     /// <summary>
@@ -149,6 +470,7 @@ public abstract class Renderer : IDisposable
     /// <returns>The Texture object, after it has been assigned to the renderTarget cache</returns>
     public Texture? FetchRenderTarget()
     {
+        ThrowIfDisposed();
         var ptr = SDL_GetRenderTarget(_handle);
         return ptr == IntPtr.Zero
             ? (renderTarget = null)
@@ -165,6 +487,7 @@ public abstract class Renderer : IDisposable
     {
         get
         {
+            ThrowIfDisposed();
             if (HasRendererInfo)
                 return CachedInfo;
             SDLRendererException.ThrowIfLessThan(SDL_GetRendererInfo(_handle, out var sdli), 0);
