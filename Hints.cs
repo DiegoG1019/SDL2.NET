@@ -87,5 +87,13 @@ public sealed class Hints
     /// <remarks>This hint is checked when a texture is created and it affects scaling when copying that texture.</remarks>
     public RenderScaleQuality RenderScaleQuality { get; } = new();
 
+    /// <summary>
+    /// A hint that specifies whether relative motion is affected by renderer scaling. <see cref="SDL_HINT_MOUSE_RELATIVE_SCALING" href="https://wiki.libsdl.org/SDL_HINT_MOUSE_RELATIVE_SCALING"/>
+    /// </summary>
+    /// <remarks>
+    /// By default relative mouse deltas are affected by DPI and renderer scaling
+    /// </remarks>
+    public MouseRelativeScaling MouseRelativeScaling { get; } = new();
+
 #warning finish up the rest of the hints
 }
