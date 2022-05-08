@@ -46,6 +46,7 @@ namespace SDL2
 
 		private const string nativeLibName = "SDL2";
 
+
 		#endregion
 
 		#region UTF8 Marshaling
@@ -2908,11 +2909,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderDrawPoints(
+		internal unsafe static extern int INTERNAL_SDL_RenderDrawPoints(
 			IntPtr renderer,
-			[In] SDL_Point[] points,
+			[In] SDL_Point* points,
 			int count
 		);
+
+		public unsafe static int SDL_RenderDrawPoints(IntPtr renderer, ReadOnlySpan<SDL_Point> points, int count)
+		{
+			fixed (SDL_Point* p = points)
+				return INTERNAL_SDL_RenderDrawPoints(renderer, p, count);
+		}
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -2932,11 +2939,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderDrawRects(
+		internal unsafe static extern int INTERNAL_SDL_RenderDrawRects(
 			IntPtr renderer,
-			[In] SDL_Rect[] rects,
+			[In] SDL_Rect* rects,
 			int count
 		);
+
+		public unsafe static int SDL_RenderDrawRects(IntPtr renderer, ReadOnlySpan<SDL_Rect> rects, int count)
+		{
+			fixed (SDL_Rect* p = rects)
+				return INTERNAL_SDL_RenderDrawRects(renderer, p, count);
+		}
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -2956,11 +2969,17 @@ namespace SDL2
 
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int SDL_RenderFillRects(
+		internal unsafe static extern int INTERNAL_SDL_RenderFillRects(
 			IntPtr renderer,
-			[In] SDL_Rect[] rects,
+			[In] SDL_Rect* rects,
 			int count
 		);
+
+		public unsafe static int SDL_RenderFillRects(IntPtr renderer, ReadOnlySpan<SDL_Rect> rects, int count)
+		{
+			fixed (SDL_Rect* p = rects)
+				return INTERNAL_SDL_RenderFillRects(renderer, p, count);
+		}
 
 		#region Floating Point Render Functions
 
@@ -3277,7 +3296,7 @@ namespace SDL2
 			int count
 		);
 
-		public static unsafe int SDL_RenderFillRectsF()
+		public static unsafe int SDL_RenderFillRectsF(IntPtr renderer, ReadOnlySpan<SDL_FRect> rects, int count)
 		{
 			fixed(SDL_FRect* x = rects)
 				return INTERNAL_SDL_RenderFillRectsF(renderer, x, count);
@@ -3394,11 +3413,26 @@ namespace SDL2
 			SDL_bool enable
 		);
 
+		/* renderer refers to an SDL_Renderer*
+		 * Only available in 2.0.5 or higher.
+		 */
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern SDL_bool SDL_RenderGetIntegerScale(
+			IntPtr renderer
+		);
+
 		/* renderer refers to an SDL_Renderer* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int SDL_RenderSetViewport(
 			IntPtr renderer,
 			ref SDL_Rect rect
+		);
+
+		/* renderer refers to an SDL_Renderer* */
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int SDL_RenderSetViewport(
+			IntPtr renderer,
+			IntPtr rect
 		);
 
 		/* renderer refers to an SDL_Renderer* */
