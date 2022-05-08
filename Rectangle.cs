@@ -2,7 +2,7 @@
 
 namespace SDL2.NET;
 
-public struct Rectangle
+public struct Rectangle : IEquatable<Rectangle>
 {
     public int Width { get; }
     public int Height { get; }
@@ -16,6 +16,11 @@ public struct Rectangle
         X = x;
         Y = y;
     }
+
+    /// <summary>
+    /// Gets the <see cref="Rectangle"/>'s <see cref="Size"/>: Its <see cref="Width"/> and <see cref="Height"/> only.
+    /// </summary>
+    public Size Size => new(Width, Height);
 
     /// <summary>
     /// Calculate a minimal <see cref="Rectangle"/> enclosing a set of <see cref="Point"/>s. <see cref="SDL_EnclosePoints" href="https://wiki.libsdl.org/SDL_EnclosePoints"/>
@@ -139,4 +144,14 @@ public struct Rectangle
             y = Y
         };
     }
+
+    public bool Equals(Rectangle other) => Height == other.Height && Width == other.Width && X == other.X && Y == other.Y;
+    public static bool operator ==(Rectangle a, Rectangle b) => a.Equals(b);
+    public static bool operator !=(Rectangle a, Rectangle b) => !a.Equals(b);
+
+    public override bool Equals(object? obj) 
+        => obj is Rectangle rectangle && Equals(rectangle);
+
+    public override int GetHashCode()
+        => HashCode.Combine(Width, Height, X, Y);
 }
