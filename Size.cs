@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using static SDL2.SDL;
 
 namespace SDL2.NET;
-public struct Size
+public struct Size : IEquatable<Size>
 {
     public int Width { get; }
     public int Height { get; }
@@ -28,4 +28,14 @@ public struct Size
             y = Height
         };
     }
+
+    public bool Equals(Size other) => Height == other.Height && Width == other.Width;
+    public static bool operator ==(Size a, Size b) => a.Equals(b);
+    public static bool operator !=(Size a, Size b) => !a.Equals(b);
+
+    public override bool Equals(object? obj)
+        => obj is Size size && Equals(size);
+
+    public override int GetHashCode()
+        => HashCode.Combine(Width, Height);
 }
