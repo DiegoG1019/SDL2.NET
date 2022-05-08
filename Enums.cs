@@ -197,3 +197,11 @@ public enum RendererFlags : uint
 	Presentvsync = SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC,
 	TargetTexture = SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE
 }
+
+[Flags]
+public enum Flip
+{
+	None = SDL_RendererFlip.SDL_FLIP_NONE,
+	Horizontal = SDL_RendererFlip.SDL_FLIP_HORIZONTAL,
+	Vertical = SDL_RendererFlip.SDL_FLIP_VERTICAL
+}
