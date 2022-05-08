@@ -13,5 +13,3 @@ public class BinaryHint : Hint
         set => Set(value ? "1" : "0");
     }
 }
-
-//public delegate void HintCallback();
