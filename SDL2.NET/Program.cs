@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Runtime.InteropServices;
-using SDL2;
+using SDL2.Bindings;
 
 namespace SDL2.NET;
 
