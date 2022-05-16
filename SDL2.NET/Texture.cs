@@ -8,7 +8,7 @@ using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using static SDL2.SDL;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 

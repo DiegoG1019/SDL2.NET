@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Versioning;
-using static SDL2.SDL;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.HintTypes;
 

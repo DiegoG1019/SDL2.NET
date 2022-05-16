@@ -1,4 +1,6 @@
-﻿namespace SDL2.NET.HintTypes;
+﻿using SDL2.Bindings;
+
+namespace SDL2.NET.HintTypes;
 
 /// <summary>
 /// A hint that specifies whether relative motion is affected by renderer scaling. <see cref="SDL_HINT_MOUSE_RELATIVE_SCALING" href="https://wiki.libsdl.org/SDL_HINT_MOUSE_RELATIVE_SCALING"/>

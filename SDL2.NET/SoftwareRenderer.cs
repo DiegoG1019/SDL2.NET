@@ -1,4 +1,6 @@
-﻿namespace SDL2.NET;
+﻿using SDL2.Bindings;
+
+namespace SDL2.NET;
 
 public class SoftwareRenderer : Renderer
 {

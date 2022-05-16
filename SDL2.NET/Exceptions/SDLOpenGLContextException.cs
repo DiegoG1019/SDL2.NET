@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using SDL2.Bindings;
+using System.Runtime.CompilerServices;
 
 namespace SDL2.NET.Exceptions;
 
