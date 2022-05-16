@@ -39,7 +39,7 @@ public class Window : IDisposable
 
         // local function
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
-            => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData).ToSDL();
+            => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : (SDL_HitTestResult)hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData);
     }
 
     /// <summary>
@@ -413,7 +413,7 @@ public class Window : IDisposable
         ThrowIfDisposed();
         Span<SDL_Rect> rects = stackalloc SDL_Rect[numrect ?? rectangles.Length];
         for (int i = 0; i < rects.Length; i++)
-            rectangles[i].ToSDLRect(ref rects[i]);
+            rectangles[i].ToSDL(ref rects[i]);
         SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurfaceRects(_handle, rects, rects.Length), 0);
     }
 
@@ -477,7 +477,7 @@ public class Window : IDisposable
             }
 
             SDL_Rect r = default;
-            ((Rectangle)value).ToSDLRect(ref r);
+            ((Rectangle)value).ToSDL(ref r);
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, ref r), 0);
         }
     }

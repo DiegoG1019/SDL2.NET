@@ -131,6 +131,14 @@ public struct Rectangle : IEquatable<Rectangle>
         return (Rectangle)result;
     }
 
+    /// <summary>
+    /// Verifies if the given <see cref="Point"/> <paramref name="point"/> is contained within this <see cref="Rectangle"/>
+    /// </summary>
+    /// <param name="point">The <see cref="Point"/> to check if is resident of this <see cref="Rectangle"/></param>
+    /// <returns>Whether <see cref="Point"/> <paramref name="point"/> resides within <see cref="this"/> <see cref="Rectangle"/></returns>
+    public bool Contains(Point point)
+        => point.IsContainedIn(this);
+
     public static implicit operator Rectangle(SDL_Rect rect)
         => new(rect.w, rect.h, rect.x, rect.y);
 

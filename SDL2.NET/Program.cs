@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using SDL2;
 
-namespace SDL2Example;
+namespace SDL2.NET;
 
 internal class Program
 {
@@ -11,56 +11,16 @@ internal class Program
         // avoid 0x406D1388 exception. See https://wiki.libsdl.org/SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
         SDL.SDL_SetHint(SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 
-        // init video
-        ConOut.Write("Init SDL2 video: ");
-        if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0)
-        {
-            ConOut.WriteLine($"Error: {SDL.SDL_GetError()}", ConsoleColor.Red);
-            return;
-        }
-        else
-        {
-            ConOut.WriteLine("Success", ConsoleColor.Green);
-        }
+        SDLApplication.App
+            .InitializeVideo()
+            .InitializeAudio()
+            .OpenAudioMixer()
+            .InitializeTTF()
+            .LaunchWindow("SDL2.NET", 800, 600);
 
-        // init audio
-        ConOut.Write("Init SDL2 audio: ");
-        if (SDL.SDL_Init(SDL.SDL_INIT_AUDIO) < 0)
-        {
-            ConOut.WriteLine($"Error: {SDL.SDL_GetError()}", ConsoleColor.Red);
-            return;
-        }
-        else
-        {
-            ConOut.WriteLine("Success", ConsoleColor.Green);
-        }
-
-        // init mixer
-        ConOut.Write("Init SDL2 mixer: ");
-        if (SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 2048) == -1)
-        {
-            ConOut.WriteLine($"Error: {SDL_mixer.Mix_GetError()}", ConsoleColor.Red);
-            return;
-        }
-        else
-        {
-            ConOut.WriteLine("Success", ConsoleColor.Green);
-        }
-
-        // init ttf
-        ConOut.Write("Init SDL2_ttf: ");
-        if (SDL_ttf.TTF_Init() < 0)
-        {
-            ConOut.WriteLine($"Error: {SDL_ttf.TTF_GetError()}", ConsoleColor.Red);
-            return;
-        }
-        else
-        {
-            ConOut.WriteLine("Success", ConsoleColor.Green);
-        }
-
+        
         // spawn window
-        ConOut.Write("Spawn window: ");
+        Console.Write("Spawn window: ");
         IntPtr Window = IntPtr.Zero;
         Window = SDL.SDL_CreateWindow(
             "SDL2Example",
@@ -73,12 +33,12 @@ internal class Program
 
         if (Window == IntPtr.Zero)
         {
-            ConOut.WriteLine($"Error: {SDL.SDL_GetError()}", ConsoleColor.Red);
+            Console.WriteLine($"Error: {SDL.SDL_GetError()}", ConsoleColor.Red);
             return;
         }
         else
         {
-            ConOut.WriteLine("Success", ConsoleColor.Green);
+            Console.WriteLine("Success", ConsoleColor.Green);
         }
 
         // set icon
@@ -87,7 +47,7 @@ internal class Program
         SDL.SDL_FreeSurface(ico);
 
         // create renderer
-        ConOut.Write("Creating renderer: ");
+        Console.Write("Creating renderer: ");
         IntPtr Renderer = IntPtr.Zero;
         bool vSync = true;
         Renderer = SDL.SDL_CreateRenderer(
@@ -98,12 +58,12 @@ internal class Program
 
         if (Renderer == IntPtr.Zero)
         {
-            ConOut.WriteLine($"Error: {SDL.SDL_GetError()}", ConsoleColor.Red);
+            Console.WriteLine($"Error: {SDL.SDL_GetError()}", ConsoleColor.Red);
             return;
         }
         else
         {
-            ConOut.WriteLine("Success", ConsoleColor.Green);
+            Console.WriteLine("Success", ConsoleColor.Green);
         }
 
         // log some renderer information
@@ -112,11 +72,11 @@ internal class Program
         string? currentVideoDriver = Marshal.PtrToStringAnsi(rendererInfo.name);
         if (currentVideoDriver != null && currentVideoDriver != "")
         {
-            ConOut.Write("Rendering using ");
-            ConOut.Write(currentVideoDriver, ConsoleColor.Blue);
-            ConOut.Write(" (");
-            ConOut.Write(SDL.SDL_GetCurrentVideoDriver(), ConsoleColor.Blue);
-            ConOut.WriteLine(")");
+            Console.Write("Rendering using ");
+            Console.Write(currentVideoDriver, ConsoleColor.Blue);
+            Console.Write(" (");
+            Console.Write(SDL.SDL_GetCurrentVideoDriver(), ConsoleColor.Blue);
+            Console.WriteLine(")");
         }
 
         // load audio
@@ -153,11 +113,11 @@ internal class Program
         FontTarget.y = 64;
 
         // prepare a color for SDL2_gfx
-        UInt32 SolidRed = 0xFF0000FF; // Warning, this is in reverse but basically HTML color codes: A B G R
+        uint SolidRed = 0xFF0000FF; // Warning, this is in reverse but basically HTML color codes: A B G R
 
         // main loop
         SDL.SDL_Event e;
-        Boolean stop = false;
+        bool stop = false;
         while (!stop)
         {
 
@@ -179,7 +139,6 @@ internal class Program
             // end render batch
             SDL.SDL_RenderPresent(Renderer);
 
-
             // handle events
             while (SDL.SDL_PollEvent(out e) != 0)
             {
@@ -187,21 +146,21 @@ internal class Program
                 {
                     case SDL.SDL_EventType.SDL_QUIT:
                         //quit on window closed
-                        ConOut.WriteLine("Exiting: Caught SDL_QUIT", ConsoleColor.Blue);
+                        Console.WriteLine("Exiting: Caught SDL_QUIT", ConsoleColor.Blue);
                         stop = true;
                         break;
                     case SDL.SDL_EventType.SDL_KEYDOWN:
                         //quit on escape
                         if (e.key.keysym.sym == SDL.SDL_Keycode.SDLK_ESCAPE)
                         {
-                            ConOut.WriteLine("Exiting: Caught SDLK_ESCAPE", ConsoleColor.Blue);
+                            Console.WriteLine("Exiting: Caught SDLK_ESCAPE", ConsoleColor.Blue);
                             stop = true;
                         }
                         break;
                     case SDL.SDL_EventType.SDL_KEYUP:
 
                         // example to catch actual key name:
-                        ConOut.WriteLine($"KeyUp: {Enum.GetName(typeof(SDL.SDL_Keycode), e.key.keysym.sym)}");
+                        Console.WriteLine($"KeyUp: {Enum.GetName(typeof(SDL.SDL_Keycode), e.key.keysym.sym)}");
 
                         // play sound effect on RETURN (enter)
                         if (e.key.keysym.sym == SDL.SDL_Keycode.SDLK_RETURN)
@@ -242,29 +201,27 @@ internal class Program
                                 {
                                     SDL.SDL_SetWindowSize(Window, xSize, ySize);
                                 }
-
-
                                 break;
                             default:
 
-                                ConOut.WriteLine($"Unhandled window event: {Enum.GetName(typeof(SDL.SDL_WindowEventID), e.window.windowEvent)}", ConsoleColor.Yellow);
+                                Console.WriteLine($"Unhandled window event: {Enum.GetName(typeof(SDL.SDL_WindowEventID), e.window.windowEvent)}", ConsoleColor.Yellow);
                                 break;
                         }
                         break;
                     case SDL.SDL_EventType.SDL_TEXTINPUT:
                         // example to catch TextInput event. This supports IME so will work for compound characters like ë â ç and so on.
                         // use this to handle text input (like username/password)
-                        byte[] rawBytes = new byte[SDL2.SDL.SDL_TEXTINPUTEVENT_TEXT_SIZE];
+                        byte[] rawBytes = new byte[SDL.SDL_TEXTINPUTEVENT_TEXT_SIZE];
                         unsafe
                         {
-                            Marshal.Copy((IntPtr)e.text.text, rawBytes, 0, SDL2.SDL.SDL_TEXTINPUTEVENT_TEXT_SIZE);
+                            Marshal.Copy((IntPtr)e.text.text, rawBytes, 0, SDL.SDL_TEXTINPUTEVENT_TEXT_SIZE);
                         }
                         int length = Array.IndexOf(rawBytes, (byte)0);
                         string text = Encoding.UTF8.GetString(rawBytes, 0, length);
-                        ConOut.WriteLine($"Caught TextInput event: {text}", ConsoleColor.Yellow);
+                        Console.WriteLine($"Caught TextInput event: {text}", ConsoleColor.Yellow);
                         break;
                     default:
-                        ConOut.WriteLine($"Unhandled event: {Enum.GetName(typeof(SDL.SDL_EventType), e.type)}", ConsoleColor.Yellow);
+                        Console.WriteLine($"Unhandled event: {Enum.GetName(typeof(SDL.SDL_EventType), e.type)}", ConsoleColor.Yellow);
                         break;
                 }
             }
@@ -285,7 +242,7 @@ internal class Program
         } // end of main loop
 
         // handle shutdown
-        ConOut.WriteLine("Cleaning up...", ConsoleColor.White);
+        Console.WriteLine("Cleaning up...", ConsoleColor.White);
 
         SDL.SDL_DestroyTexture(FontTexture);
         SDL.SDL_FreeSurface(FontSurface);
@@ -299,7 +256,7 @@ internal class Program
         SDL_ttf.TTF_Quit();
         SDL.SDL_Quit();
 
-        ConOut.WriteLine("Bye!", ConsoleColor.Green);
+        Console.WriteLine("Bye!", ConsoleColor.Green);
         Console.ResetColor();
     }
 }

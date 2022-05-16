@@ -72,6 +72,11 @@ public class Texture : IDisposable
         Renderer = renderer;
     }
 
+    public void RenderGeometry(Span<Vertex> vertices, Span<int> indices)
+    {
+
+    }
+
     /// <summary>
     /// The blend mode used for texture copy operations. get: <see cref="SDL_GetTextureBlendMode" href="https://wiki.libsdl.org/SDL_GetTextureBlendMode"/>; set: <see cref="SDL_SetTextureBlendMode" href="https://wiki.libsdl.org/SDL_SetTextureBlendMode"/>
     /// </summary>

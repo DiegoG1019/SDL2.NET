@@ -152,7 +152,6 @@ public enum TextureAccess
 }
 
 [Flags]
-#warning document this
 public enum BlendMode
 {
 	None = SDL_BlendMode.SDL_BLENDMODE_NONE,
@@ -163,7 +162,6 @@ public enum BlendMode
 	Invalid = SDL_BlendMode.SDL_BLENDMODE_INVALID
 }
 
-#warning document this
 public enum BlendOperation
 {
 	Add = SDL_BlendOperation.SDL_BLENDOPERATION_ADD,
@@ -173,7 +171,6 @@ public enum BlendOperation
 	Maximum = SDL_BlendOperation.SDL_BLENDOPERATION_MAXIMUM
 }
 
-#warning document this
 public enum BlendFactor
 {
 	Zero = SDL_BlendFactor.SDL_BLENDFACTOR_ZERO,
@@ -188,7 +185,6 @@ public enum BlendFactor
 	OneMinusDestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA
 }
 
-#warning document this
 [Flags]
 public enum RendererFlags : uint
 {
