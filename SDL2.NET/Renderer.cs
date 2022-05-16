@@ -497,7 +497,7 @@ public abstract class Renderer : IDisposable
         for (int i = 0; i < sdl_v.Length; i++)
             vertices[i].ToSDL(ref sdl_v[i]);
 
-        SDL_RenderGeometry(renderer._handle, texture?._handle ?? IntPtr.Zero, sdl_v, sdl_v.Length, indices, indices.Length);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderGeometry(renderer._handle, texture?._handle ?? IntPtr.Zero, sdl_v, sdl_v.Length, indices, indices.Length), 0);
     }
 
     private bool HasRendererInfo;
