@@ -45,6 +45,15 @@ public class Surface : IDisposable
         : this(SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, (uint)format)) { }
 
 #warning missing https://wiki.libsdl.org/SDL_CreateRGBSurfaceFrom
+
+    /// <summary>
+    /// Copy an existing <see cref="Surface"/> to a new <see cref="Surface"/> of the specified format.
+    /// </summary>
+    /// <param name="format">the <see cref="PixelFormat"/> that the new surface is optimized for</param>
+    /// <returns>Returns the new <see cref="Surface"/> structure that is created</returns>
+    public Surface Convert(PixelFormat format) 
+        => new(SDL_ConvertSurfaceFormat(_handle, (uint)format, 0));
+
     /// <summary>
     /// Performs a fast surface copy to a destination surface.
     /// </summary>
