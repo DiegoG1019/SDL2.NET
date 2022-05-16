@@ -31,7 +31,6 @@
 #pragma warning disable CS8625
 
 #region Using Statements
-using SDL2.NET;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;

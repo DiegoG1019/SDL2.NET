@@ -44,5 +44,4 @@
   <ItemGroup>
     <ProjectReference Include="..\SDL2.Bindings\SDL2.Bindings.csproj" />
   </ItemGroup>
-
 </Project>
