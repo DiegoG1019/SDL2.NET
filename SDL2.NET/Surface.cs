@@ -19,6 +19,32 @@ public class Surface : IDisposable
 {
     protected internal readonly IntPtr _handle = IntPtr.Zero;
 
+    private Surface(IntPtr handle) => _handle = handle;
+
+    /// <summary>
+    /// Creates a new RGB surface
+    /// </summary>
+    /// <param name="width">The width of the surface</param>
+    /// <param name="height">The Height of the surface</param>
+    /// <param name="depth">The Depth of the surface in bits</param>
+    /// <param name="rmask">The red mask for the pixels</param>
+    /// <param name="gmask">The green mask for the pixels</param>
+    /// <param name="bmask">The blue mask for the pixels</param>
+    /// <param name="amask">The alpha mask for the pixels</param>
+    public Surface(int width, int height, int depth, uint rmask, uint gmask, uint bmask, uint amask, PixelFormat? format = null)
+        : this(SDL_CreateRGBSurface(0, width, height, depth, rmask, gmask, bmask, amask)) { }
+
+    /// <summary>
+    /// Creates a new RGB surface
+    /// </summary>
+    /// <param name="width">The width of the surface</param>
+    /// <param name="height">The Height of the surface</param>
+    /// <param name="depth">The Depth of the surface in bits</param>
+    /// <param name="format">The pixel format to use</param>
+    public Surface(int width, int height, int depth, PixelFormat format)
+        : this(SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, (uint)format)) { }
+
+#warning missing https://wiki.libsdl.org/SDL_CreateRGBSurfaceFrom
     /// <summary>
     /// Performs a fast surface copy to a destination surface.
     /// </summary>
