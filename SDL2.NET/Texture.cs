@@ -312,7 +312,7 @@ public class Texture : IDisposable
             }
 
             SDL_Point sdl_p = default;
-            center.ToSDLPoint(ref sdl_p);
+            center.ToSDL(ref sdl_p);
 
             SDLTextureException.ThrowIfLessThan(SDL_RenderCopyEx(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
         }

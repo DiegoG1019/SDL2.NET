@@ -24,7 +24,7 @@ public struct Point
     public static implicit operator Point(SDL_Point point)
         => new(point.x, point.y);
 
-    internal void ToSDLPoint(ref SDL_Point point)
+    internal void ToSDL(ref SDL_Point point)
     {
         point = new SDL_Point()
         {

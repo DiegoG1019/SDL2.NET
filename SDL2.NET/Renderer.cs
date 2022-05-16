@@ -9,6 +9,9 @@ using static SDL2.SDL;
 
 namespace SDL2.NET;
 
+/// <summary>
+/// An object that contains a rendering state. <see href="https://wiki.libsdl.org/SDL_Renderer"/>
+/// </summary>
 public abstract class Renderer : IDisposable
 {
     protected internal readonly IntPtr _handle = IntPtr.Zero;
@@ -75,7 +78,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDLPoint(ref sdl_p[i]);
+            points[i].ToSDL(ref sdl_p[i]);
 
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLines(_handle, sdl_p, points.Length), 0);
@@ -132,7 +135,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDLPoint(ref sdl_p[i]);
+            points[i].ToSDL(ref sdl_p[i]);
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoints(_handle, sdl_p, points.Length), 0);
     }

@@ -32,7 +32,7 @@ public struct Rectangle : IEquatable<Rectangle>
     {
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDLPoint(ref sdl_p[i]);
+            points[i].ToSDL(ref sdl_p[i]);
 
         SDL_Rect res = default;
         SDL_bool suc = SDL_bool.SDL_FALSE;
