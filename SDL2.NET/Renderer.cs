@@ -481,6 +481,24 @@ public abstract class Renderer : IDisposable
             : Texture.FetchTexture(ptr) ?? throw new SDLRendererException("This Renderer targets a Texture that is not indexed by this library");
     }
 
+    /// <summary>
+    /// Render a list of triangles in <see cref="this"/> <see cref="Renderer"/>, optionally with <paramref name="indices"/> into the vertex array. Color and alpha modulation is done per vertex (<see cref="Color"/> and <see cref="Alpha"/> are ignored). <see cref="SDL_RenderGeometry"/>
+    /// </summary>
+    /// <remarks>See <see cref="Texture.RenderGeometry(ReadOnlySpan{Vertex}, ReadOnlySpan{int})"/> to use a <see cref="Texture"/> as well</remarks>
+    /// <param name="vertices">The list of vertices to use when drawing the triangles</param>
+    /// <param name="indices">The indices into the vertex array</param>
+    public void RenderGeometry(ReadOnlySpan<Vertex> vertices, ReadOnlySpan<int> indices = default)
+        => RenderGeometry(this, null, vertices, indices);
+
+    internal static void RenderGeometry(Renderer renderer, Texture? texture, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<int> indices = default)
+    {
+        Span<SDL_Vertex> sdl_v = stackalloc SDL_Vertex[vertices.Length]; //If the array is too large, maybe use a heap allocated one instead? -- Is there a way to avoid this conversion altogether?
+        for (int i = 0; i < sdl_v.Length; i++)
+            vertices[i].ToSDL(ref sdl_v[i]);
+
+        SDL_RenderGeometry(renderer._handle, texture?._handle ?? IntPtr.Zero, sdl_v, sdl_v.Length, indices, indices.Length);
+    }
+
     private bool HasRendererInfo;
     private RendererInfo CachedInfo;
     /// <summary>

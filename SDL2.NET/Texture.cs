@@ -72,10 +72,14 @@ public class Texture : IDisposable
         Renderer = renderer;
     }
 
-    public void RenderGeometry(Span<Vertex> vertices, Span<int> indices)
-    {
-
-    }
+    /// <summary>
+    /// Render a list of triangles, using <see cref="this"/> <see cref="Texture"/> and optionally <paramref name="indices"/> into the vertex array. Color and alpha modulation is done per vertex (<see cref="Color"/> and <see cref="Alpha"/> are ignored). <see cref="SDL_RenderGeometry"/>
+    /// </summary>
+    /// <remarks>See <see cref="Renderer.RenderGeometry(ReadOnlySpan{Vertex}, ReadOnlySpan{int})"/> to discard the use of a <see cref="Texture"/></remarks>
+    /// <param name="vertices">The list of vertices to use when drawing the triangles</param>
+    /// <param name="indices">The indices into the vertex array</param>
+    public void RenderGeometry(ReadOnlySpan<Vertex> vertices, ReadOnlySpan<int> indices = default)
+        => Renderer.RenderGeometry(Renderer, this, vertices, indices);
 
     /// <summary>
     /// The blend mode used for texture copy operations. get: <see cref="SDL_GetTextureBlendMode" href="https://wiki.libsdl.org/SDL_GetTextureBlendMode"/>; set: <see cref="SDL_SetTextureBlendMode" href="https://wiki.libsdl.org/SDL_SetTextureBlendMode"/>
