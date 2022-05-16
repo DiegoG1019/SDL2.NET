@@ -5,6 +5,10 @@ VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDL2.NET", "SDL2.NET.csproj", "{446B5129-FE83-4559-A125-5DBD306CFE0C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDL2.NET Tests", "..\SDL2.NET Tests\SDL2.NET Tests.csproj", "{35FE1BAE-1E5D-466B-9FCE-B09BCC362280}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDL2.Bindings", "..\SDL2.Bindings\SDL2.Bindings.csproj", "{3DF03D48-646F-4415-B2D5-1D28BD1736FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{446B5129-FE83-4559-A125-5DBD306CFE0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{446B5129-FE83-4559-A125-5DBD306CFE0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{446B5129-FE83-4559-A125-5DBD306CFE0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35FE1BAE-1E5D-466B-9FCE-B09BCC362280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35FE1BAE-1E5D-466B-9FCE-B09BCC362280}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35FE1BAE-1E5D-466B-9FCE-B09BCC362280}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35FE1BAE-1E5D-466B-9FCE-B09BCC362280}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DF03D48-646F-4415-B2D5-1D28BD1736FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DF03D48-646F-4415-B2D5-1D28BD1736FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DF03D48-646F-4415-B2D5-1D28BD1736FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DF03D48-646F-4415-B2D5-1D28BD1736FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
