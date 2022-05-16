@@ -39,7 +39,7 @@ public struct Rectangle : IEquatable<Rectangle>
         if (clip is Rectangle c)
         {
             SDL_Rect r = default;
-            c.ToSDLRect(ref r);
+            c.ToSDL(ref r);
             suc = SDL_EnclosePoints(sdl_p, points.Length, ref r, out res);
             result = (Rectangle)res;
             return suc is SDL_bool.SDL_TRUE;
@@ -61,8 +61,8 @@ public struct Rectangle : IEquatable<Rectangle>
     {
         SDL_Rect a = default;
         SDL_Rect b = default;
-        ToSDLRect(ref a);
-        ToSDLRect(ref b);
+        ToSDL(ref a);
+        ToSDL(ref b);
 
         if (SDL_IntersectRect(ref a, ref b, out var result) is SDL_bool.SDL_TRUE)
         {
@@ -83,8 +83,8 @@ public struct Rectangle : IEquatable<Rectangle>
     {
         SDL_Rect a = default;
         SDL_Rect b = default;
-        ToSDLRect(ref a);
-        ToSDLRect(ref b);
+        ToSDL(ref a);
+        ToSDL(ref b);
 
         return SDL_HasIntersection(ref a, ref b) is SDL_bool.SDL_TRUE;
     }
@@ -101,7 +101,7 @@ public struct Rectangle : IEquatable<Rectangle>
     public bool Intersect(int ox, int oy, int dx, int dy)
     {
         SDL_Rect a = default;
-        ToSDLRect(ref a);
+        ToSDL(ref a);
         return SDL_IntersectRectAndLine(ref a, ref ox, ref oy, ref dx, ref dy) is SDL_bool.SDL_TRUE;
     }
 
@@ -124,8 +124,8 @@ public struct Rectangle : IEquatable<Rectangle>
     {
         SDL_Rect a = default;
         SDL_Rect b = default;
-        ToSDLRect(ref a);
-        ToSDLRect(ref b);
+        ToSDL(ref a);
+        ToSDL(ref b);
 
         SDL_UnionRect(ref a, ref b, out var result);
         return (Rectangle)result;
@@ -134,7 +134,7 @@ public struct Rectangle : IEquatable<Rectangle>
     public static implicit operator Rectangle(SDL_Rect rect)
         => new(rect.w, rect.h, rect.x, rect.y);
 
-    internal void ToSDLRect(ref SDL_Rect rect)
+    internal void ToSDL(ref SDL_Rect rect)
     {
         rect = new SDL_Rect()
         {

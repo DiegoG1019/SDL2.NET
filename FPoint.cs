@@ -17,7 +17,7 @@ public struct FPoint
     public static implicit operator FPoint(SDL_Point point)
         => new(point.x, point.y);
 
-    internal void ToSDLFPoint(ref SDL_FPoint point)
+    internal void ToSDL(ref SDL_FPoint point)
     {
         point = new SDL_FPoint()
         {

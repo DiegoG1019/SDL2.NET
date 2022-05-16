@@ -22,8 +22,8 @@ public class Hint
     protected bool Set(string value)
         => SDL_SetHint(HintName, value) is SDL_bool.SDL_TRUE;
 
-    protected bool Set(string value, HintPriority priority)
-        => SDL_SetHintWithPriority(HintName, value, priority.ToSDL()) is SDL_bool.SDL_TRUE;
+    protected bool Set(string value, HintPriority priority) 
+        => SDL_SetHintWithPriority(HintName, value, (SDL_HintPriority)priority) is SDL_bool.SDL_TRUE;
 
     protected string? Get()
         => SDL_GetHint(HintName);

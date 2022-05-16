@@ -206,7 +206,7 @@ public class Texture : IDisposable
         }
 
         SDL_Rect rect = default;
-        ((Rectangle)area).ToSDLRect(ref rect);
+        ((Rectangle)area).ToSDL(ref rect);
         SDLTextureException.ThrowIfLessThan(SDL_LockTexture(_handle, ref rect, out pixels, out _), 0);
     }
 
