@@ -4201,12 +4201,18 @@ namespace SDL2.Bindings
 
         /* palette refers to an SDL_Palette* */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SDL_SetPaletteColors(
+        internal unsafe static extern int INTERNAL_SDL_SetPaletteColors(
             IntPtr palette,
-            [In] SDL_Color[] colors,
+            [In] SDL_Color* colors,
             int firstcolor,
             int ncolors
         );
+
+        public unsafe static int SDL_SetPaletteColors(IntPtr palette, ReadOnlySpan<SDL_Color> colors, int firstColor, int ncolors)
+        {
+            fixed (SDL_Color* p = colors)
+                return INTERNAL_SDL_SetPaletteColors(palette, p, firstColor, ncolors);
+        }
 
         /* format and palette refer to an SDL_PixelFormat* and SDL_Palette* */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
