@@ -9,6 +9,24 @@ using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
+public enum ClipRectangleStatus
+{
+	/// <summary>
+	/// The <see cref="Surface"/> has clipping enabled
+	/// </summary>
+	Enabled,
+
+	/// <summary>
+	/// The <see cref="Surface"/> does not have clipping enabled
+	/// </summary>
+	Disabled,
+
+	/// <summary>
+	/// The <see cref="Surface"/> has clipping enabled, but the rectangles do not intersect and blits will be completely clipped
+	/// </summary>
+	Invalid
+}
+
 public enum FullscreenMode : uint
 {
     Windowed = 0,
