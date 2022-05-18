@@ -73,6 +73,22 @@ public class Surface : IDisposable
         => new(SDL_ConvertSurface(_handle, format._handle, 0));
 
     /// <summary>
+    /// Perform a fast fill of a <see cref="Rectangle"/> with a specific <see cref="RGBAColor"/>.
+    /// </summary>
+    /// <param name="rect">The <see cref="Rectangle"/> representing the area to fill, or <see cref="null"/> to fill the entire surface</param>
+    /// <param name="color">The color to fill with</param>
+    public void FillRectangle(RGBAColor color, Rectangle? rect = null)
+    {
+        if (rect is Rectangle re)
+        {
+            SDL_Rect r = default;
+            re.ToSDL(ref r);
+            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(PixelFormatData)), 0);
+        }
+        SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(PixelFormatData)), 0);
+    }
+
+    /// <summary>
     /// Performs a fast surface copy to a destination surface.
     /// </summary>
     /// <remarks>You should call <see cref="Blit"/> unless you know exactly how SDL blitting works internally and how to use the other blit functions. The blit function should not be called on a locked <see cref="Surface"/>.</remarks>
