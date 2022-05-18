@@ -6,4 +6,28 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
+	<!-- This copies all .dll files from the lib folder to the project output root folder -->
+	<ItemGroup>
+		<ContentWithTargetPath Include="lib\*.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>%(Filename)%(Extension)</TargetPath>
+		</ContentWithTargetPath>
+		<None Include="lib\*.dll" />
+	</ItemGroup>
+
+	<!-- This copies all .txt files from the lib folder to the project output Licenses folder -->
+	<ItemGroup>
+		<ContentWithTargetPath Include="lib\*.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>Licenses\%(Filename)%(Extension)</TargetPath>
+		</ContentWithTargetPath>
+		<None Include="lib\*.txt" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Page Include="SDLInit.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+
 </Project>

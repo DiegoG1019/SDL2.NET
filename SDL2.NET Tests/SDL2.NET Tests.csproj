@@ -8,7 +8,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
+	<!-- This makes sure that all the resources get copied to the project output resoruces folder -->
+	<ItemGroup>
+		<Content Include="Resources\*.*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\SDL2.NET\SDL2.NET.csproj" />
   </ItemGroup>
 
