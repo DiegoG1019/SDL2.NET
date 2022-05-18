@@ -16,6 +16,9 @@ public struct Rectangle : IEquatable<Rectangle>
         X = x;
         Y = y;
     }
+    public Rectangle(Size size, int x, int y) : this(size.Width, size.Height, x, y) { }
+    public Rectangle(int width, int height, Point location) : this(width, height, location.X, location.Y) { }
+    public Rectangle(Size size, Point location) : this(size.Width, size.Height, location.X, location.Y) { }
 
     /// <summary>
     /// Gets the <see cref="Rectangle"/>'s <see cref="Size"/>: Its <see cref="Width"/> and <see cref="Height"/> only.
