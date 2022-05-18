@@ -4681,6 +4681,15 @@ namespace SDL2.Bindings
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int SDL_LowerBlit(
             IntPtr src,
+            IntPtr srcrect,
+            IntPtr dst,
+            ref SDL_Rect dstrect
+        );
+
+        /* src and dst refer to an SDL_Surface* */
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SDL_LowerBlit(
+            IntPtr src,
             ref SDL_Rect srcrect,
             IntPtr dst,
             ref SDL_Rect dstrect
@@ -4690,7 +4699,7 @@ namespace SDL2.Bindings
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int SDL_LowerBlitScaled(
             IntPtr src,
-            ref SDL_Rect srcrect,
+            IntPtr srcrect,
             IntPtr dst,
             ref SDL_Rect dstrect
         );
