@@ -4728,6 +4728,13 @@ namespace SDL2.Bindings
 
         /* surface refers to an SDL_Surface* */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern SDL_bool SDL_SetClipRect(
+            IntPtr surface,
+            IntPtr rect
+        );
+
+        /* surface refers to an SDL_Surface* */
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int SDL_SetColorKey(
             IntPtr surface,
             int flag,
