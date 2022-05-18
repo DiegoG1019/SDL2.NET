@@ -65,6 +65,14 @@ public class Surface : IDisposable
         => new(SDL_ConvertSurfaceFormat(_handle, (uint)format, 0));
 
     /// <summary>
+    /// Copy an existing <see cref="Surface"/> to a new <see cref="Surface"/> of the specified format. <see cref="SDL_ConvertSurfaceFormat" href="https://wiki.libsdl.org/SDL_ConvertSurfaceFormat"/>
+    /// </summary>
+    /// <param name="format">the <see cref="PixelFormat"/> that the new surface is optimized for</param>
+    /// <returns>Returns the new <see cref="Surface"/> structure that is created</returns>
+    public Surface Convert(PixelFormatData format)
+        => new(SDL_ConvertSurface(_handle, format._handle, 0));
+
+    /// <summary>
     /// Performs a fast surface copy to a destination surface.
     /// </summary>
     /// <remarks>You should call <see cref="Blit"/> unless you know exactly how SDL blitting works internally and how to use the other blit functions. The blit function should not be called on a locked <see cref="Surface"/>.</remarks>
