@@ -1,6 +1,7 @@
 ﻿using SDL2.Bindings;
 using SDL2.NET.Exceptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,16 +15,37 @@ namespace SDL2.NET;
 /// An object that contains a collection of pixels used in software blitting. <see href="https://wiki.libsdl.org/SDL_Surface"/>
 /// </summary>
 /// <remarks>THIS OBJECT IS NOT FULLY IMPLEMENTED. It is missing the fields the SDL object has. This is a work in progress</remarks>
-#warning not fully implemented
 public class Surface : IDisposable
 {
     protected internal readonly IntPtr _handle = IntPtr.Zero;
+
+    private SDL_Surface ____back;
+    private bool isBacked = false;
+    protected internal SDL_Surface BackingStruct
+    {
+        get
+        {
+            if (isBacked)
+                return ____back;
+            ____back = Marshal.PtrToStructure<SDL_Surface>(_handle);
+            isBacked = true;
+            return ____back;
+        }
+    }
+
+    protected internal void InvalidateBackingStruct()
+        => isBacked = false;
 
     private Surface(IntPtr handle)
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
             throw new SDLSurfaceCreationException(SDL_GetError());
+
+        var str = BackingStruct;
+        Format = PixelFormatData.FetchOrNew(str.format);
+        Pitch = str.pitch;
+        Size = new(str.w, str.h);
     }
 
     /// <summary>
@@ -54,7 +76,22 @@ public class Surface : IDisposable
     /// <summary>
     /// The format of the pixels stored in the surface
     /// </summary>
-    public PixelFormatData PixelFormatData { get; }
+    public PixelFormatData Format { get; }
+
+    /// <summary>
+    /// The length of a row of pixels in <see cref="byte"/>s
+    /// </summary>
+    public int Pitch { get; }
+
+    /// <summary>
+    /// The width and height in pixels
+    /// </summary>
+    public Size Size { get; }
+
+    /// <summary>
+    /// Represents user-defined Data that can be tied to this surface
+    /// </summary>
+    public UserData? UserData { get; set; }
 
     /// <summary>
     /// Copy an existing <see cref="Surface"/> to a new <see cref="Surface"/> of the specified format. <see cref="SDL_ConvertSurfaceFormat" href="https://wiki.libsdl.org/SDL_ConvertSurfaceFormat"/>
@@ -85,9 +122,9 @@ public class Surface : IDisposable
         {
             SDL_Rect r = default;
             re.ToSDL(ref r);
-            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(PixelFormatData)), 0);
+            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(Format)), 0);
         }
-        SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(PixelFormatData)), 0);
+        SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(Format)), 0);
     }
 
     /// <summary>
@@ -197,7 +234,7 @@ public class Surface : IDisposable
         for (int i = 0; i < rectangles.Length; i++)
             rectangles[i].ToSDL(ref rects[i]);
         
-        SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(PixelFormatData)), 0);
+        SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(Format)), 0);
     }
 
     /// <summary>
@@ -213,14 +250,14 @@ public class Surface : IDisposable
             if (r is -1)
                 return null;
             SDLSurfaceException.ThrowIfLessThan(r, 0);
-            return RGBColor.FromUInt32(key, PixelFormatData);
+            return RGBColor.FromUInt32(key, Format);
         }
         set
         {
             ThrowIfDisposed();
             SDLSurfaceException.ThrowIfLessThan(
                 value is RGBColor color ? 
-                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_TRUE, color.ToUInt32(PixelFormatData)) : 
+                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_TRUE, color.ToUInt32(Format)) : 
                     SDL_SetColorKey(_handle, (int)SDL_bool.SDL_FALSE, 0), 
                 0
             );
@@ -283,12 +320,17 @@ public class Surface : IDisposable
     /// <summary>
     /// <see cref="SDL_LockSurface" href="https://wiki.libsdl.org/SDL_LockSurface"/>
     /// </summary>
-    public void Lock();
+    public void Lock()
+    {
+        throw new NotImplementedException();
+#warning Not Implemented
+    }
 
     /// <summary>
-    /// <see cref="SDL_UnlockSurface" href="https://wiki.libsdl.org/SDL_UnlockSurface"/>
+    /// Release a surface after directly accessing the pixels. <see cref="SDL_UnlockSurface" href="https://wiki.libsdl.org/SDL_UnlockSurface"/>
     /// </summary>
-    public void Unlock();
+    public void Unlock()
+        => SDL_UnlockSurface(_handle);
 
     /// <summary>
     /// Perform low-level surface blitting only. <see cref="SDL_LowerBlit" href="https://wiki.libsdl.org/SDL_LowerBlit"/>
@@ -319,55 +361,91 @@ public class Surface : IDisposable
         => source.LowerBlitTo(this, destinationRect, sourceRect);
 
     /// <summary>
-    /// <see cref="SDL_LoadBMP" href="https://wiki.libsdl.org/SDL_LoadBMP_RW"/>
+    /// Load a BMP image from a file path. <see cref="SDL_LoadBMP" href="https://wiki.libsdl.org/SDL_LoadBMP"/>
     /// </summary>
-    public void LoadBMP();
+    public static Surface LoadBMP(string file)
+        => new(SDL_LoadBMP(file));
 
     /// <summary>
-    /// <see cref="SDL_SaveBMP" href="https://wiki.libsdl.org/SDL_SaveBMP_RW"/>
+    /// Save a surface to a BMP file. <see cref="SDL_SaveBMP" href="https://wiki.libsdl.org/SDL_SaveBMP"/>
     /// </summary>
-    public void SaveBMP();
+    /// <remarks>Surfaces with a 24-bit, 32-bit and paletted 8-bit format get saved in the BMP directly. Other RGB formats with 8-bit or higher get converted to a 24-bit surface or, if they have an alpha mask or a colorkey, to a 32-bit surface before they are saved. YUV and paletted 1-bit and 4-bit formats are not supported.</remarks>
+    public void SaveBMP(string file)
+    {
+        ThrowIfDisposed();
+        SDLSurfaceException.ThrowIfLessThan(SDL_SaveBMP(_handle, file), 0);
+    }
 
     /// <summary>
-    /// <see cref="SDL_SetSurfaceRLE" href="https://wiki.libsdl.org/SDL_SetSurfaceRLE"/>
+    /// Set the RLE acceleration hint for a surface. <see cref="SDL_SetSurfaceRLE" href="https://wiki.libsdl.org/SDL_SetSurfaceRLE"/>
     /// </summary>
-    public void SetRLE();
+    /// <remarks>If RLE is enabled, color key and alpha blending blits are much faster, but the surface must be locked before directly accessing the pixels. Since the wiki page is unclear, I'll go for an int for now just to conform to SDL. If a bool would suffice, let me know or PR</remarks>
+    public void SetRLE(int flag)
+    {
+        ThrowIfDisposed();
+        InvalidateBackingStruct();
+        SDLSurfaceException.ThrowIfLessThan(SDL_SetSurfaceRLE(_handle, flag), 0);
+    }
 
     /// <summary>
-    /// <see cref="SDL_MUSTLOCK" href="https://wiki.libsdl.org/SDL_MUSTLOCK"/>
+    /// Whether a surface must be locked for access. <see cref="SDL_MUSTLOCK" href="https://wiki.libsdl.org/SDL_MUSTLOCK"/>
     /// </summary>
-    public void MustLock();
+    public bool MustLock => (BackingStruct.flags & SDL_RLEACCEL) != 0;
 
     /// <summary>
-    /// <see cref="SDL_SoftStretch" href="https://wiki.libsdl.org/SDL_SoftStretch"/>
+    /// Perform a fast, low quality, stretch blit between two surfaces of the same format. <see cref="SDL_SoftStretch" href="https://wiki.libsdl.org/SDL_SoftStretch"/>
     /// </summary>
-    public void SoftStretch();
+    /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledTo"/> instead</remarks>
+    public void SoftStretchTo(Surface destination, Rectangle sourceRect, Rectangle destinationRect)
+    {
+        SDL_Rect src = default;
+        SDL_Rect dst = default;
+        sourceRect.ToSDL(ref src);
+        destinationRect.ToSDL(ref dst);
+
+        SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretch(_handle, ref src, destination._handle, ref dst), 0);
+    }
 
     /// <summary>
-    /// get: <see cref="SDL_GetClipRect" href="https://wiki.libsdl.org/SDL_GetClipRect"/>; set: <see cref="SDL_SetClipRect" href="https://wiki.libsdl.org/SDL_SetClipRect"/>
+    /// Perform a fast, low quality, stretch blit between two surfaces of the same format. <see cref="SDL_SoftStretch" href="https://wiki.libsdl.org/SDL_SoftStretch"/>
     /// </summary>
-    public Rectangle? Clip;
-    //{
-    //    get
-    //    {
-    //        ThrowIfDisposed();
-    //        SDL_RenderGetClipRect(_handle, out var rect);
-    //        Rectangle r = (Rectangle)rect;
-    //        return r.Size != default ? r : null;
-    //    }
-    //    set
-    //    {
-    //        ThrowIfDisposed();
-    //        if (value is Rectangle r)
-    //        {
-    //            SDL_Rect sl = default;
-    //            r.ToSDL(ref sl);
-    //            SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, ref sl), 0);
-    //            return;
-    //        }
-    //        SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, IntPtr.Zero), 0);
-    //    }
-    //}
+    /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledFrom"/> instead</remarks>
+    public void SoftStretchFrom(Surface source, Rectangle sourceRect, Rectangle destinationRect)
+        => source.SoftStretchTo(this, sourceRect, destinationRect);
+
+    /// <summary>
+    /// The clipping rectangle for a surface. get: <see cref="SDL_GetClipRect" href="https://wiki.libsdl.org/SDL_GetClipRect"/>; set: <see cref="SDL_SetClipRect" href="https://wiki.libsdl.org/SDL_SetClipRect"/>
+    /// </summary>
+    /// <remarks>When <see cref="this"/> <see cref="Surface"/> is the destination of a blit, only the area within the clip rectangle is drawn into.</remarks>
+    public Rectangle? Clip
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDL_GetClipRect(_handle, out var rect);
+            Rectangle r = (Rectangle)rect;
+            return r.Size != default ? r : null;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (value is Rectangle r)
+            {
+                r.ToSDL(ref clipRect);
+                ClipStatus = SDL_SetClipRect(_handle, ref clipRect) is SDL_bool.SDL_TRUE ? ClipRectangleStatus.Enabled : ClipRectangleStatus.Invalid;
+                return;
+            }
+            SDL_SetClipRect(_handle, IntPtr.Zero);
+            ClipStatus = ClipRectangleStatus.Disabled;
+        }
+    }
+    private SDL_Rect clipRect;
+
+    /// <summary>
+    /// Represents the current status of <see cref="Clip"/>
+    /// </summary>
+    /// <remarks>Not an SDL property, represents information that could have been missed from <see cref="set_Clip"/>. May not represent the actual status of the backing <see cref="SDL_Surface"/> until the first time <see cref="Clip"/> is set</remarks>
+    public ClipRectangleStatus ClipStatus { get; private set; }
 
     #region IDisposable
 
@@ -377,7 +455,7 @@ public class Surface : IDisposable
     {
         if (!disposedValue)
         {
-            SDL.SDL_FreeSurface(_handle);
+            SDL_FreeSurface(_handle);
             disposedValue = true;
         }
     }
