@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,7 +13,12 @@ namespace SDL2.NET;
 
 public class PixelFormatData : IDisposable
 {
+    private static readonly ConcurrentDictionary<IntPtr, WeakReference<PixelFormatData>> _handleDict = new(2, 10);
+
     internal readonly IntPtr _handle;
+
+    internal static PixelFormatData FetchOrNew(IntPtr handle)
+        => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);
 
     internal PixelFormatData(IntPtr handle)
     {
@@ -85,6 +91,7 @@ public class PixelFormatData : IDisposable
         if (!disposedValue)
         {
             SDL_FreeFormat(_handle);
+            _handleDict.TryRemove(_handle, out _);
             disposedValue = true;
         }
     }
