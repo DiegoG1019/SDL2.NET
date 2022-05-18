@@ -2215,7 +2215,7 @@ namespace SDL2.Bindings
 #warning IF SOMETHING DOES NOT WORK. CHECK THIS FIRST
 
         /* window refers to an SDL_Window* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName,  EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int INTERNAL_SDL_UpdateWindowSurfaceRects(
             IntPtr window,
             [In] SDL_Rect* rects,
@@ -2903,7 +2903,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawLines", CallingConvention = CallingConvention.Cdecl)]
         private static unsafe extern int INTERNAL_SDL_RenderDrawLines(
             IntPtr renderer,
             [In] SDL_Point* points,
@@ -2925,7 +2925,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawPoints", CallingConvention = CallingConvention.Cdecl)]
         internal unsafe static extern int INTERNAL_SDL_RenderDrawPoints(
             IntPtr renderer,
             [In] SDL_Point* points,
@@ -2955,7 +2955,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawRects", CallingConvention = CallingConvention.Cdecl)]
         internal unsafe static extern int INTERNAL_SDL_RenderDrawRects(
             IntPtr renderer,
             [In] SDL_Rect* rects,
@@ -2985,7 +2985,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderFillRects", CallingConvention = CallingConvention.Cdecl)]
         internal unsafe static extern int INTERNAL_SDL_RenderFillRects(
             IntPtr renderer,
             [In] SDL_Rect* rects,
@@ -3182,7 +3182,7 @@ namespace SDL2.Bindings
 		 * texture refers to an SDL_Texture*
 		 * Only available in 2.0.18 or higher.
 		 */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderGeometry", CallingConvention = CallingConvention.Cdecl)]
         internal unsafe static extern int INTERNAL_SDL_RenderGeometry(
             IntPtr renderer,
             IntPtr texture,
@@ -3236,7 +3236,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawPointsF", CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern int INTERNAL_SDL_RenderDrawPointsF(
             IntPtr renderer,
             [In] SDL_FPoint* points,
@@ -3260,7 +3260,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawLinesF", CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern int INTERNAL_SDL_RenderDrawLinesF(
             IntPtr renderer,
             [In] SDL_FPoint* points,
@@ -3290,7 +3290,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawRectsF", CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern int INTERNAL_SDL_RenderDrawRectsF(
             IntPtr renderer,
             [In] SDL_FRect* rects,
@@ -3320,7 +3320,7 @@ namespace SDL2.Bindings
         );
 
         /* renderer refers to an SDL_Renderer* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_RenderFillRectsF", CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern int INTERNAL_SDL_RenderFillRectsF(
             IntPtr renderer,
             [In] SDL_FRect* rects,
@@ -4200,7 +4200,7 @@ namespace SDL2.Bindings
         );
 
         /* palette refers to an SDL_Palette* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_SetPaletteColors", CallingConvention = CallingConvention.Cdecl)]
         internal unsafe static extern int INTERNAL_SDL_SetPaletteColors(
             IntPtr palette,
             [In] SDL_Color* colors,
@@ -4270,7 +4270,7 @@ namespace SDL2.Bindings
                 SDL_bool.SDL_FALSE;
         }
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_EnclosePoints", CallingConvention = CallingConvention.Cdecl)]
         private static unsafe extern SDL_bool INTERNAL_SDL_EnclosePoints(
             [In] SDL_Point* points,
             int count,
@@ -4284,7 +4284,7 @@ namespace SDL2.Bindings
                 return INTERNAL_SDL_EnclosePoints(p, count, ref clip, out result);
         }
 
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "SDL_EnclosePoints", CallingConvention = CallingConvention.Cdecl)]
         private static unsafe extern SDL_bool INTERNAL_SDL_EnclosePoints(
             [In] SDL_Point* points,
             int count,
@@ -4598,13 +4598,19 @@ namespace SDL2.Bindings
         );
 
         /* dst refers to an SDL_Surface* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SDL_FillRects(
+        [DllImport(nativeLibName, EntryPoint = "SDL_FillRects", CallingConvention = CallingConvention.Cdecl)]
+        internal static unsafe extern int INTERNAL_SDL_FillRects(
             IntPtr dst,
-            [In] SDL_Rect[] rects,
+            [In] SDL_Rect* rects,
             int count,
             uint color
         );
+
+        public static unsafe int SDL_FillRects(IntPtr dst, ReadOnlySpan<SDL_Rect> rects, int count, uint color)
+        {
+            fixed (SDL_Rect* r = rects) 
+                return INTERNAL_SDL_FillRects(dst, r, count, color);
+        }
 
         /* surface refers to an SDL_Surface* */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
