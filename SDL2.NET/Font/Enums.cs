@@ -7,10 +7,17 @@ using static SDL2.Bindings.SDL_ttf;
 
 namespace SDL2.NET.Font;
 
+public enum EncodingType
+{
+    Text = 0,
+    Unicode = 1,
+    UTF8 = 2
+}
+
 public enum UnicodeType
 {
     Native = UNICODE_BOM_NATIVE,
-    SWAPPED = UNICODE_BOM_SWAPPED
+    Swapped = UNICODE_BOM_SWAPPED
 }
 
 [Flags]
