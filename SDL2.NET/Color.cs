@@ -44,14 +44,17 @@ public struct RGBAColor : IEquatable<RGBAColor>
     public static implicit operator RGBAColor(SDL_Color color)
         => new(color.r, color.g, color.b, color.a);
 
-    public void ToSDL(ref SDL_Color color)
-        => color = new()
+    public SDL_Color ToSDL()
+        => new()
         {
             a = Alpha,
             r = Red,
             g = Green,
             b = Blue
         };
+
+    public void ToSDL(ref SDL_Color color)
+        => color = ToSDL();
 
     public bool Equals(RGBAColor other)
         => other == this;
