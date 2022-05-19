@@ -277,7 +277,7 @@ public class Window : IDisposable
     /// Sets this <see cref="Window"/>'s icon. <see cref="SDL_SetWindowIcon" href="https://wiki.libsdl.org/SDL_SetWindowIcon"/>
     /// </summary>
     /// <param name="icon"></param>
-    public void SetIcon(Image icon)
+    public void SetIcon(Surface icon)
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(icon); // Rather than throwing if null in a property with a nullable type; is it possible to remove a Window's Icon by setting it to IntPtr.Zero?
