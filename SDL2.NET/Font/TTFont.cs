@@ -151,6 +151,10 @@ public class TTFont : IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets the maximum pixel height of all glyphs of the loaded font.
+    /// </summary>
+    /// <remarks>While you may use tis value to render the drawn text on-screen as closely as possible, you may prefer use of <see cref="LineSkip"/></remarks>
     public int Height
     {
         get
@@ -229,6 +233,12 @@ public class TTFont : IDisposable
         return TTF_GlyphIsProvided32(_handle, character);
     }
 
+    /// <summary>
+    /// Get glyph metrics of the given <see cref="char"/> from the loaded font
+    /// </summary>
+    /// <param name="character">The character to get the metrics of</param>
+    /// <remarks>For a picture detailing what each value means, see: <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_31.html#SEC31"/></remarks>
+    /// <returns></returns>
     public GlyphMetrics GetGlyphMetrics(char character)
     {
         ThrowIfDisposed();
@@ -236,6 +246,12 @@ public class TTFont : IDisposable
         return new GlyphMetrics(minx, miny, maxx, maxy, advance);
     }
 
+    /// <summary>
+    /// Get glyph metrics of the given <see cref="char"/> from the loaded font
+    /// </summary>
+    /// <param name="character">The character to get the metrics of</param>
+    /// <remarks>For a picture detailing what each value means, see: <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_31.html#SEC31"/></remarks>
+    /// <returns></returns>
     /// <param name="character">The character to test. <see cref="char"/> can be implicitly casted (widened) to <see cref="uint"/></param>
     public GlyphMetrics GetGlyphMetrics32(uint character)
     {
@@ -244,6 +260,14 @@ public class TTFont : IDisposable
         return new GlyphMetrics(minx, miny, maxx, maxy, advance);
     }
 
+    /// <summary>
+    /// Calculate the resulting surface size of the encoded text rendered using this font. No actual rendering is done, but correct kerning is applied to get the actual width.
+    /// </summary>
+    /// <remarks>The height returned in <see cref="Size.Height"/> is the same as you get by using <see cref="Height"/></remarks>
+    /// <param name="text"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public Size GetTextSize(string text, EncodingType type)
     {
         ThrowIfDisposed();
@@ -251,7 +275,7 @@ public class TTFont : IDisposable
 
         SDLFontException.ThrowIfLessThan(type switch
         {
-            EncodingType.Text => TTF_SizeText(_handle, text, out w, out h),
+            EncodingType.Latin1 => TTF_SizeText(_handle, text, out w, out h),
             EncodingType.Unicode => TTF_SizeUNICODE(_handle, text, out w, out h),
             EncodingType.UTF8 => TTF_SizeUTF8(_handle, text, out w, out h),
             _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
@@ -260,7 +284,6 @@ public class TTFont : IDisposable
         return new Size(w, h);
     }
 
-
     public TextMeasurement MeasureTextSize(string text, int measureWidth, EncodingType type)
     {
         ThrowIfDisposed();
@@ -268,7 +291,7 @@ public class TTFont : IDisposable
 
         SDLFontException.ThrowIfLessThan(type switch
         {
-            EncodingType.Text => TTF_MeasureText(_handle, text, measureWidth, out e, out c),
+            EncodingType.Latin1 => TTF_MeasureText(_handle, text, measureWidth, out e, out c),
             EncodingType.Unicode => TTF_MeasureUNICODE(_handle, text, measureWidth, out e, out c),
             EncodingType.UTF8 => TTF_MeasureUTF8(_handle, text, measureWidth, out e, out c),
             _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
@@ -277,108 +300,205 @@ public class TTFont : IDisposable
         return new TextMeasurement(e, c);
     }
 
-    public Surface RenderText(string text, RGBAColor color, EncodingType type)
+    /// <summary>
+    /// Render the encoded text using this font with the given color onto a new surface, using the Solid mode
+    /// </summary>
+    /// <param name="text">The text to render</param>
+    /// <param name="color">The color to render the text with</param>
+    /// <param name="type">The encoding type</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
+    public Surface RenderTextSolid(string text, RGBAColor color, EncodingType type)
     {
         ThrowIfDisposed();
         return new Surface(type switch
         {
-            EncodingType.Text => TTF_RenderText_Solid(_handle, text, color.ToSDL()),
+            EncodingType.Latin1 => TTF_RenderText_Solid(_handle, text, color.ToSDL()),
             EncodingType.Unicode => TTF_RenderUNICODE_Solid(_handle, text, color.ToSDL()),
             EncodingType.UTF8 => TTF_RenderUTF8_Solid(_handle, text, color.ToSDL()),
-            _ => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
         });
     }
 
-    public Surface RenderText(string text, RGBAColor color, EncodingType type, uint wrapLength)
+    /// <summary>
+    /// Render the encoded text using this font with the given color onto a new surface, using the Solid mode and text wrapping
+    /// </summary>
+    /// <param name="text">The text to render</param>
+    /// <param name="color">The color to render the text with</param>
+    /// <param name="type">The encoding type</param>
+    /// <param name="wrapLength">The length of text to render before wrapping</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
+    public Surface RenderTextSolid(string text, RGBAColor color, EncodingType type, uint wrapLength)
     {
         ThrowIfDisposed();
         return new Surface(type switch
         {
-            EncodingType.Text => TTF_RenderText_Solid_Wrapped(_handle, text, color.ToSDL(), wrapLength),
+            EncodingType.Latin1 => TTF_RenderText_Solid_Wrapped(_handle, text, color.ToSDL(), wrapLength),
             EncodingType.Unicode => TTF_RenderUNICODE_Solid_Wrapped(_handle, text, color.ToSDL(), wrapLength),
             EncodingType.UTF8 => TTF_RenderUTF8_Solid_Wrapped(_handle, text, color.ToSDL(), wrapLength),
-            _ => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
         });
     }
 
+    /// <summary>
+    /// Render the encoded text using this font with the given color onto a new surface, using the Shaded mode
+    /// </summary>
+    /// <param name="text">The text to render</param>
+    /// <param name="foreground">The foreground color to use</param>
+    /// <param name="background">The background color to use</param>
+    /// <param name="type">The encoding type</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderTextShaded(string text, RGBAColor foreground, RGBAColor background, EncodingType type)
     {
         ThrowIfDisposed();
         return new Surface(type switch
         {
-            EncodingType.Text => TTF_RenderText_Shaded(_handle, text, foreground.ToSDL(), background.ToSDL()),
+            EncodingType.Latin1 => TTF_RenderText_Shaded(_handle, text, foreground.ToSDL(), background.ToSDL()),
             EncodingType.Unicode => TTF_RenderUNICODE_Shaded(_handle, text, foreground.ToSDL(), background.ToSDL()),
             EncodingType.UTF8 => TTF_RenderUTF8_Shaded(_handle, text, foreground.ToSDL(), background.ToSDL()),
-            _ => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
         });
     }
 
+    /// <summary>
+    /// Render the encoded text using this font with the given color onto a new surface, using the Shaded mode and text wrapping
+    /// </summary>
+    /// <param name="text">The text to render</param>
+    /// <param name="foreground">The foreground color to use</param>
+    /// <param name="background">The background color to use</param>
+    /// <param name="type">The encoding type</param>
+    /// <param name="wrapLength">The length of text to render before wrapping</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderTextShaded(string text, RGBAColor foreground, RGBAColor background, EncodingType type, uint wrapLength)
     {
         ThrowIfDisposed();
         return new Surface(type switch
         {
-            EncodingType.Text => TTF_RenderText_Shaded_Wrapped(_handle, text, foreground.ToSDL(), background.ToSDL(), wrapLength),
+            EncodingType.Latin1 => TTF_RenderText_Shaded_Wrapped(_handle, text, foreground.ToSDL(), background.ToSDL(), wrapLength),
             EncodingType.Unicode => TTF_RenderUNICODE_Shaded_Wrapped(_handle, text, foreground.ToSDL(), background.ToSDL(), wrapLength),
             EncodingType.UTF8 => TTF_RenderUTF8_Shaded_Wrapped(_handle, text, foreground.ToSDL(), background.ToSDL(), wrapLength),
-            _ => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
         });
     }
 
+    /// <summary>
+    /// Render the encoded text using this font with the given color onto a new surface, using the Blended mode
+    /// </summary>
+    /// <param name="text">The text to render</param>
+    /// <param name="color">The color to render the text with</param>
+    /// <param name="type">The encoding type</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderTextBlended(string text, RGBAColor color, EncodingType type)
     {
         ThrowIfDisposed();
         return new Surface(type switch
         {
-            EncodingType.Text => TTF_RenderText_Blended(_handle, text, color.ToSDL()),
+            EncodingType.Latin1 => TTF_RenderText_Blended(_handle, text, color.ToSDL()),
             EncodingType.Unicode => TTF_RenderUNICODE_Blended(_handle, text, color.ToSDL()),
             EncodingType.UTF8 => TTF_RenderUTF8_Blended(_handle, text, color.ToSDL()),
-            _ => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
         });
     }
 
+    /// <summary>
+    /// Render the encoded text using this font with the given color onto a new surface, using the Shaded mode and text wrapping
+    /// </summary>
+    /// <param name="text">The text to render</param>
+    /// <param name="color">The color to render the text with</param>
+    /// <param name="type">The encoding type</param>
+    /// <param name="wrapLength">The length of text to render before wrapping</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderTextBlended(string text, RGBAColor color, EncodingType type, uint wrapLength)
     {
         ThrowIfDisposed();
         return new Surface(SDLFontException.ThrowIfPointerNull(type switch
         {
-            EncodingType.Text => TTF_RenderText_Blended_Wrapped(_handle, text, color.ToSDL(), wrapLength),
+            EncodingType.Latin1 => TTF_RenderText_Blended_Wrapped(_handle, text, color.ToSDL(), wrapLength),
             EncodingType.Unicode => TTF_RenderUNICODE_Blended_Wrapped(_handle, text, color.ToSDL(), wrapLength),
             EncodingType.UTF8 => TTF_RenderUTF8_Blended_Wrapped(_handle, text, color.ToSDL(), wrapLength),
-            _ => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException($"Unknown EncodingType {type}")
         }));
     }
 
-    public Surface RenderGlyph(char character, RGBAColor color)
+    /// <summary>
+    /// Render the glyph represented by the given character onto a new surface, using the Solid mode
+    /// </summary>
+    /// <param name="character">The character representing the glyph to render</param>
+    /// <param name="color">The color to render the character with</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered character</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
+    public Surface RenderGlyphSolid(char character, RGBAColor color)
     {
         ThrowIfDisposed();
         return new Surface(SDLFontException.ThrowIfPointerNull(TTF_RenderGlyph_Solid(_handle, character, color.ToSDL())));
     }
 
+    /// <summary>
+    /// Render the glyph represented by the given character onto a new surface, using the Shaded mode
+    /// </summary>
+    /// <param name="character">The character representing the glyph to render</param>
+    /// <param name="foreground">The foreground color to use</param>
+    /// <param name="background">The background color to use</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderGlyphShaded(char character, RGBAColor foreground, RGBAColor background)
     {
         ThrowIfDisposed();
         return new Surface(SDLFontException.ThrowIfPointerNull(TTF_RenderGlyph_Shaded(_handle, character, foreground.ToSDL(), background.ToSDL())));
     }
 
+    /// <summary>
+    /// Render the glyph represented by the given character onto a new surface, using the Blended mode
+    /// </summary>
+    /// <param name="character">The character representing the glyph to render</param>
+    /// <param name="color">The color to render the character with</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderGlyphBlended(char character, RGBAColor color)
     {
         ThrowIfDisposed();
         return new Surface(SDLFontException.ThrowIfPointerNull(TTF_RenderGlyph_Blended(_handle, character, color.ToSDL())));
     }
 
-    public Surface RenderGlyph32(uint character, RGBAColor color)
+    /// <summary>
+    /// Render the glyph represented by the given character onto a new surface, using the Solid mode
+    /// </summary>
+    /// <param name="character">The character representing the glyph to render</param>
+    /// <param name="color">The color to render the character with</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered character</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
+    public Surface RenderGlyphSolid32(uint character, RGBAColor color)
     {
         ThrowIfDisposed();
         return new Surface(SDLFontException.ThrowIfPointerNull(TTF_RenderGlyph32_Solid(_handle, character, color.ToSDL())));
     }
 
+    /// <summary>
+    /// Render the glyph represented by the given character onto a new surface, using the Shaded mode
+    /// </summary>
+    /// <param name="character">The character representing the glyph to render</param>
+    /// <param name="foreground">The foreground color to use</param>
+    /// <param name="background">The background color to use</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderGlyphShaded32(uint character, RGBAColor foreground, RGBAColor background)
     {
         ThrowIfDisposed();
         return new Surface(SDLFontException.ThrowIfPointerNull(TTF_RenderGlyph32_Shaded(_handle, character, foreground.ToSDL(), background.ToSDL())));
     }
 
+    /// <summary>
+    /// Render the glyph represented by the given character onto a new surface, using the Blended mode
+    /// </summary>
+    /// <param name="character">The character representing the glyph to render</param>
+    /// <param name="color">The color to render the character with</param>
+    /// <returns>The generated <see cref="Surface"/> with the rendered text</returns>
+    /// <remarks>See <see href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_35.html#SEC35"/ for more info on render modes></remarks>
     public Surface RenderGlyphBlended32(uint character, RGBAColor color)
     {
         ThrowIfDisposed();
