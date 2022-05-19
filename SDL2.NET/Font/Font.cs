@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDL2.NET.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,6 @@ using static SDL2.Bindings.SDL_ttf;
 namespace SDL2.NET.Font;
 public static class Font
 {
-
     static Font()
     {
         var v = TTF_LinkedVersion();
