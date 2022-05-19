@@ -1,4 +1,5 @@
 ﻿using SDL2.NET.Exceptions;
+using SDL2.NET.Font.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,4 +20,14 @@ public static class Font
     /// The version of SDL_image. <see cref="TTF_LinkedVersion"/>
     /// </summary>
     public static Version SDLTTFVersion { get; }
+
+    public static void SetDirection(int direction)
+    {
+        SDLFontException.ThrowIfLessThan(TTF_SetDirection(direction), 0);
+    }
+
+    public static void SetScript(int script)
+    {
+        SDLFontException.ThrowIfLessThan(TTF_SetScript(script), 0);
+    }
 }
