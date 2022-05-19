@@ -9,7 +9,7 @@ namespace SDL2.NET.Font;
 
 public enum EncodingType
 {
-    Text = 0,
+    Latin1 = 0,
     Unicode = 1,
     UTF8 = 2
 }
