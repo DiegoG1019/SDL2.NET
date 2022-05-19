@@ -11,10 +11,16 @@ namespace SDL2.NET.Image;
 
 public static class Image
 {
+    static Image()
+    {
+        var v = IMG_Linked_Version();
+        SDLImageVersion = new(v.major, v.minor, v.patch);
+    }
+
     /// <summary>
-    /// The version of SDL_image.
+    /// The version of SDL_image. <see cref="IMG_Linked_Version"/>
     /// </summary>
-    public static Version SDLImageVersion { get; } = new(SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+    public static Version SDLImageVersion { get; }
 
     /// <summary>
     /// Loads the given image from disk, and converts it into a <see cref="Surface"/> object. <see cref="IMG_Load" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image_11.html#SEC11"/>
@@ -51,10 +57,11 @@ public static class Image
         => SDLImageException.ThrowIfLessThan(IMG_SavePNG(surface._handle, file), 0);
 
     /// <summary>
-    /// Loads the given file as an Animation
+    /// Loads the given file as an Animation.
     /// </summary>
+    /// <remarks>I'm not sure length should be used that way, but I couldn't really find much documentation on it</remarks>
     /// <param name="file"></param>
     /// <returns></returns>
-    public static Animation LoadAnimation(string file)
-        => new(IMG_LoadAnimation(file));
+    public static SDLAnimation LoadAnimation(string file, int length)
+        => new(IMG_LoadAnimation(file), length);
 }
