@@ -30,4 +30,8 @@ public class SDLFontException : SDLException
         if (value == comparison)
             throw new SDLFontException(SDL_ttf.TTF_GetError());
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IntPtr ThrowIfPointerNull(IntPtr ptr) 
+        => ptr == IntPtr.Zero ? throw new SDLFontException(SDL_ttf.TTF_GetError()) : ptr;
 }
