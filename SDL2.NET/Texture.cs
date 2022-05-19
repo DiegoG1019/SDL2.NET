@@ -35,6 +35,15 @@ public class Texture : IDisposable
     /// </summary>
     public Renderer Renderer { get; }
 
+    internal Texture(IntPtr handle, Renderer renderer)
+    {
+        if (_handle == IntPtr.Zero)
+            throw new SDLTextureCreationException(SDL_GetError());
+        if (_textDict.TryAdd(_handle, new(this)) is false)
+            throw new SDLTextureCreationException("Could not register this Texture's address in .NET (Since SDL sometimes returns pointers, and these objects are only in .NET, they need to be indexed). This is likely a problem with the library, please report this and your code on GitHub. If this texture was created succesfully, it has NOT been destroyed.");
+        Renderer = renderer;
+    }
+
     /// <summary>
     /// Create a <see cref="Texture"/> for a rendering context. <see cref="SDL_CreateTexture" href="https://wiki.libsdl.org/SDL_CreateTexture"/>
     /// </summary>
@@ -46,14 +55,7 @@ public class Texture : IDisposable
     /// <param name="height">The height of the <see cref="Texture"/> in pixels</param>
     /// <exception cref="SDLTextureCreationException"></exception>
     public Texture(Renderer renderer, PixelFormat format, TextureAccess access, int width, int height)
-    {
-        _handle = SDL_CreateTexture(renderer._handle, (uint)format, (int)access, width, height);
-        if (_handle == IntPtr.Zero)
-            throw new SDLTextureCreationException(SDL_GetError());
-        if (_textDict.TryAdd(_handle, new(this)) is false)
-            throw new SDLTextureCreationException("Could not register this Texture's address in .NET (Since SDL sometimes returns pointers, and these objects are only in .NET, they need to be indexed). This is likely a problem with the library, please report this and your code on GitHub. If this texture was created succesfully, it has NOT been destroyed.");
-        Renderer = renderer;
-    }
+        : this(SDL_CreateTexture(renderer._handle, (uint)format, (int)access, width, height), renderer) { }
 
     /// <summary>
     /// Create a <see cref="Texture"/> from an existing <see cref="Surface"/>. <see cref="SDL_CreateTextureFromSurface" href="https://wiki.libsdl.org/SDL_CreateTextureFromSurface"/>
@@ -63,14 +65,7 @@ public class Texture : IDisposable
     /// <param name="surface">The <see cref="Surface"/> containing pixel data used to fill the <see cref="Texture"/></param>
     /// <exception cref="SDLTextureCreationException"></exception>
     public Texture(Renderer renderer, Surface surface)
-    {
-        _handle = SDL_CreateTextureFromSurface(renderer._handle, surface._handle);
-        if (_handle == IntPtr.Zero)
-            throw new SDLTextureCreationException(SDL_GetError());
-        if (_textDict.TryAdd(_handle, new(this)) is false)
-            throw new SDLTextureCreationException("Could not register this Texture's address in .NET (Since SDL sometimes returns pointers, and these objects are only in .NET, they need to be indexed). This is likely a problem with the library, please report this and your code on GitHub. If this texture was created succesfully, it has NOT been destroyed.");
-        Renderer = renderer;
-    }
+        : this(SDL_CreateTextureFromSurface(renderer._handle, surface._handle), renderer) { }
 
     /// <summary>
     /// Render a list of triangles, using <see cref="this"/> <see cref="Texture"/> and optionally <paramref name="indices"/> into the vertex array. Color and alpha modulation is done per vertex (<see cref="Color"/> and <see cref="Alpha"/> are ignored). <see cref="SDL_RenderGeometry"/>
