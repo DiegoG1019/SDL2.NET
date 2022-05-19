@@ -16,11 +16,23 @@ public class TTFont : IDisposable
             throw new SDLFontException(TTF_GetError());
     }
 
+
+    /// <summary>
+    /// Loads a file for use as a font, at <see cref="size"/> . This can load TTF and FON files.
+    /// </summary>
+    /// <param name="file">The name of the file in the disk</param>
+    /// <param name="size">The size of the font</param>
     public TTFont(string file, int size) : this(TTF_OpenFont(file, size))
     {
         _size = size;
     }
 
+    /// <summary>
+    /// Load file, face index, for use as a font, at <see cref="size"/> . This can load TTF and FON files.
+    /// </summary>
+    /// <param name="file">The name of the file in the disk</param>
+    /// <param name="size">The size of the font</param>
+    /// <param name="index">The index of the fontface</param>
     public TTFont(string file, int size, long index) : this(TTF_OpenFontIndex(file, size, index))
     {
         _size = size;
@@ -42,6 +54,10 @@ public class TTFont : IDisposable
         }
     }
 
+    /// <summary>
+    /// The rendering <see cref="TTFStyle"/> of the loaded font. get: <see cref="TTF_GetFontStyle" href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_21.html#SEC21"/>; set: <see cref="TTF_SetFontStyle(IntPtr, int)" href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_22.html#SEC22"/>
+    /// </summary>
+    /// <remarks>Defaults to <see cref="TTFStyle.Normal"/></remarks>
     public TTFStyle Style
     {
         get
@@ -84,7 +100,6 @@ public class TTFont : IDisposable
         }
     }
 
-#warning This sounds like it should be a bool, but I'm not sure.
     public int Kerning
     {
         get
@@ -99,9 +114,10 @@ public class TTFont : IDisposable
         }
     }
 
-
-
-    public string FaceStyleName
+    /// <summary>
+    /// Get the current font face style name from the loaded font, or <see cref="null"/> if it's not available.
+    /// </summary>
+    public string? FaceStyleName
     {
         get
         {
@@ -110,7 +126,10 @@ public class TTFont : IDisposable
         }
     }
 
-    public string FamilyName
+    /// <summary>
+    /// Get the current font family name from the loaded font, or <see cref="null"/> if it's not available.
+    /// </summary>
+    public string? FamilyName
     {
         get
         {
@@ -119,7 +138,10 @@ public class TTFont : IDisposable
         }
     }
 
-#warning Possibly also a bool
+    /// <summary>
+    /// Test if the current font face of the loaded font is a fixed width font.
+    /// </summary>
+    /// <remarks>Fixed width fonts are monospace, meaning every character that exists in the font is the same width, thus you can assume that a rendered string's width is going to be the result of a simple calculation: glyph_width* string_length</remarks>
     public int IsFixedWidth
     {
         get
@@ -138,6 +160,10 @@ public class TTFont : IDisposable
         }
     }
 
+    /// <summary>
+    /// Get the maximum pixel ascent of all glyphs of the loaded font. This can also be interpreted as the distance from the top of the font to the baseline. <see cref="TTF_FontAscent(IntPtr)" href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_24.html#SEC24"/>
+    /// </summary>
+    /// <remarks>It could be used when drawing an individual glyph relative to a top point, by combining it with the glyph's <see cref="GlyphMetrics.MaximumY"/> metric to resolve the top of the <see cref="Rectangle"/> used when blitting the glyph on the screen.</remarks>
     public int Ascent
     {
         get
@@ -147,6 +173,10 @@ public class TTFont : IDisposable
         }
     }
 
+    /// <summary>
+    /// Get the maximum pixel descent of all glyphs of the loaded font. This can also be interpreted as the distance from the baseline to the bottom of the font. <see cref="TTF_FontDescent" href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_25.html#SEC25"/>
+    /// </summary>
+    /// <remarks>It could be used when drawing an individual glyph relative to a bottom point, by combining it with the glyph's <see cref="GlyphMetrics.MaximumY"/> metric to resolve the bottom of the <see cref="Rectangle"/> used when blitting the glyph on the screen.</remarks>
     public int Descent
     {
         get
@@ -156,6 +186,9 @@ public class TTFont : IDisposable
         }
     }
 
+    /// <summary>
+    /// Get the reccomended pixel height of a rendered line of text of the loaded font. This is usually larger than the <see cref="Height"/> of the font. <see cref="TTF_FontLineSkip" href="https://www.libsdl.org/projects/docs/SDL_ttf/SDL_ttf_26.html#SEC26"/>
+    /// </summary>
     public int LineSkip
     {
         get
