@@ -2,6 +2,7 @@
 using SDL2.NET.Exceptions;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,10 +15,14 @@ namespace SDL2.NET;
 /// <summary>
 /// An object that contains a collection of pixels used in software blitting. <see href="https://wiki.libsdl.org/SDL_Surface"/>
 /// </summary>
-/// <remarks>THIS OBJECT IS NOT FULLY IMPLEMENTED. It is missing the fields the SDL object has. This is a work in progress</remarks>
 public class Surface : IDisposable
 {
-    protected internal readonly IntPtr _handle = IntPtr.Zero;
+    private static readonly ConcurrentDictionary<IntPtr, WeakReference<Surface>> _handleDict = new(2, 10);
+
+    protected internal readonly IntPtr _handle;
+
+    internal static Surface FetchOrNew(IntPtr handle)
+        => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);
 
     private SDL_Surface ____back;
     private bool isBacked = false;
@@ -36,7 +41,7 @@ public class Surface : IDisposable
     protected internal void InvalidateBackingStruct()
         => isBacked = false;
 
-    private Surface(IntPtr handle)
+    internal Surface(IntPtr handle)
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
@@ -456,6 +461,7 @@ public class Surface : IDisposable
         if (!disposedValue)
         {
             SDL_FreeSurface(_handle);
+            _handleDict.TryRemove(_handle, out _);
             disposedValue = true;
         }
     }
