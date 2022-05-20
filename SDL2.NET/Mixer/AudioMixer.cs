@@ -10,7 +10,7 @@ using static SDL2.Bindings.SDL_mixer;
 
 namespace SDL2.NET.Mixer;
 
-public static class AudioMixer
+public static partial class AudioMixer
 {
     private static bool isInit;
     private static readonly object _l = new();
