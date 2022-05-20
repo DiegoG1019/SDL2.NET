@@ -1,5 +1,6 @@
 ﻿using SDL2.Bindings;
 using SDL2.NET.Exceptions;
+using SDL2.NET.Mixer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,6 @@ using System.Threading.Tasks;
 namespace SDL2.NET;
 public class SDLApplication : IDisposable
 {
-    private static bool _hasOne = false;
-    private static readonly object _lock = new();
-
     protected ISDLLogger Logger = DefaultSDLLogger.Default;
     protected ISDLLogContext LogContext = SDLAppLogContext.Instance;
 
@@ -52,11 +50,12 @@ public class SDLApplication : IDisposable
         return this;
     }
 
-    public SDLApplication OpenAudioMixer(int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
+    public SDLApplication OpenAudioMixer(MixerInitFlags flags, int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
     {
         ThrowIfDisposed();
-        SDLInitializationException.ThrowIfEquals(SDL_mixer.Mix_OpenAudio(frequency, format ?? SDL_mixer.MIX_DEFAULT_FORMAT, channels, chunksize), -1);
-        Logger.Debug(LogContext, "Initialized SDL2 Audio Mixer: Frequency: {0}; Format: {1}, Channels: {2}; Chunk Size: {3}", frequency, format, channels, chunksize);
+        AudioMixer.InitAudioMixer(flags);
+        AudioMixer.OpenAudioMixer(frequency, channels, chunksize, format);
+        Logger.Debug(LogContext, "Initialized SDL2 Audio Mixer: Frequency: {0}; Format: {1}, Channels: {2}; Chunk Size: {3}", frequency, format ?? SDL_mixer.MIX_DEFAULT_FORMAT, channels, chunksize);
         return this;
     }
 
@@ -102,6 +101,8 @@ public class SDLApplication : IDisposable
             {
                 MainRenderer.Dispose();
                 MainWindow.Dispose();
+                if (AudioMixer.IsInitialized)
+                    AudioMixer.Quit();
             }
 
             disposedValue = true;
@@ -109,12 +110,10 @@ public class SDLApplication : IDisposable
         }
     }
 
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~Application()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
+    ~SDLApplication()
+    {
+        Dispose(disposing: false);
+    }
 
     public void Dispose()
     {
