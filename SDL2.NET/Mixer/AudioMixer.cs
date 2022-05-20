@@ -48,7 +48,7 @@ public static class AudioMixer
     /// <remarks>
     /// This can be set at any time, multiple times; even with sounds playing. If set to a value that is less than the current number of channels, then the higher channels will be stopped, freed, and therefore not mixed any longer.
     /// </remarks>
-    public static int Channels
+    public static int ChannelCount
     {
         get => _chnls;
         set
@@ -140,7 +140,7 @@ public static class AudioMixer
         }
     }
 
-    private static void ThrowIfNotInit()
+    internal static void ThrowIfNotInit()
     {
         if (!isInit)
             throw new InvalidOperationException("The Audio Mixer is not initialized");
