@@ -14,12 +14,27 @@ namespace SDL2.NET;
 public class Window : IDisposable
 {
     internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new(2, 2);
+    internal static readonly ConcurrentDictionary<uint, WeakReference<Window>> _idDict = new(2, 2);
     protected internal readonly IntPtr _handle = IntPtr.Zero;
 
     public static WindowRenderer CreateWindowAndRenderer(string title, int width, int height, int rendererIndex = -1, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
     {
         var win = new Window(title, width, height, flags, centerPointX, centerPointY);
         return new WindowRenderer(win, rendererIndex);
+    }
+
+    /// <summary>
+    /// Attempts to find a <see cref="Window"/>, looking by its numerical <paramref name="id"/>
+    /// </summary>
+    /// <param name="id">The <see cref="WindowId"/> of the <see cref="Window"/> in question</param>
+    /// <param name="window">The <see cref="Window"/> in question, if it was found</param>
+    /// <returns>Whether the <see cref="Window"/> was found or not</returns>
+    public static bool TryGetWindow(uint id, [NotNullWhen(true)] out Window? window)
+    {
+        if (_idDict.TryGetValue(id, out var r) && r.TryGetTarget(out window))
+            return true;
+        window = null;
+        return false;
     }
 
     public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
@@ -34,7 +49,10 @@ public class Window : IDisposable
         );
         if (_handle == IntPtr.Zero)
             throw new SDLWindowCreationException(SDL_GetError());
-        _handleDict[_handle] = new(this);
+
+        var r = new WeakReference<Window>(this);
+        _handleDict[_handle] = r;
+        _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
 
         _hitTestSupported = SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero) == 0;
 
@@ -42,6 +60,12 @@ public class Window : IDisposable
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
             => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : (SDL_HitTestResult)hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData);
     }
+
+    /// <summary>
+    /// The Window Id
+    /// </summary>
+    /// <remarks>Cached in .NET</remarks>
+    public uint WindowId { get; }
 
     /// <summary>
     /// Gets or Sets the <see cref="SDL"/> <see cref="Window"/> <see cref="Title"/>. get: <see cref="SDL_GetWindowTitle" href="https://wiki.libsdl.org/SDL_GetWindowTitle"/>; set: <see cref="SDL_SetWindowTitle" href="https://wiki.libsdl.org/SDL_SetWindowTitle"/>
@@ -521,6 +545,7 @@ public class Window : IDisposable
         {
             SDL_DestroyWindow(_handle);
             _handleDict.TryRemove(_handle, out _);
+            _idDict.TryRemove(WindowId, out _);
             disposedValue = true;
         }
     }
