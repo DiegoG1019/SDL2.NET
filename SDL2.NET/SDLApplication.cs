@@ -68,7 +68,7 @@ public class SDLApplication : IDisposable
         return this;
     }
 
-    public SDLApplication LaunchWindow(string title, int width, int height, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.Presentvsync)
+    public SDLApplication LaunchWindow(string title, int width, int height, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync)
     {
         ThrowIfDisposed();
         if (_mw is not null)

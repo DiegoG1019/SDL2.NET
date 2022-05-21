@@ -209,7 +209,7 @@ public enum RendererFlags : uint
 {
 	Software = SDL_RendererFlags.SDL_RENDERER_SOFTWARE,
 	Accelerated = SDL_RendererFlags.SDL_RENDERER_ACCELERATED,
-	Presentvsync = SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC,
+	PresentVSync = SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC,
 	TargetTexture = SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE
 }
 
