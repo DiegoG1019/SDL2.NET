@@ -20,8 +20,6 @@ public class SDLApplication : IDisposable
     public Window MainWindow => _mw ?? throw new InvalidOperationException("This application's window has not been launched");
     public Renderer MainRenderer => _mr ?? throw new InvalidOperationException("This application's window has not been launched");
 
-    public Hints Hints { get; } = new Hints();
-
     private SDLApplication() { }
 
     public static SDLApplication App { get; } = new();
