@@ -12,9 +12,6 @@ namespace SDL2.NET;
 
 public class SDLApplication : IDisposable
 {
-    protected ISDLLogger Logger = DefaultSDLLogger.Default;
-    protected ISDLLogContext LogContext = SDLAppLogContext.Instance;
-
     private Window? _mw;
     private Renderer? _mr;
     public Window MainWindow => _mw ?? throw new InvalidOperationException("This application's window has not been launched");
@@ -26,18 +23,10 @@ public class SDLApplication : IDisposable
 
     #region Initialization
 
-    public SDLApplication SetLogger(ISDLLogger logger)
-    {
-        ThrowIfDisposed();
-        Logger = logger;
-        return this;
-    }
-
     public SDLApplication InitializeVideo()
     {
         ThrowIfDisposed();
         SDLInitializationException.ThrowIfLessThan(SDL.SDL_Init(SDL.SDL_INIT_VIDEO), 0);
-        Logger.Debug(LogContext, "Initialized SDL2 Video");
         return this;
     }
 
@@ -45,7 +34,6 @@ public class SDLApplication : IDisposable
     {
         ThrowIfDisposed();
         SDLInitializationException.ThrowIfLessThan(SDL.SDL_Init(SDL.SDL_INIT_AUDIO), 0);
-        Logger.Debug(LogContext, "Initialized SDL2 Audio");
         return this;
     }
 
@@ -54,7 +42,6 @@ public class SDLApplication : IDisposable
         ThrowIfDisposed();
         AudioMixer.InitAudioMixer(flags);
         AudioMixer.OpenAudioMixer(frequency, channels, chunksize, format);
-        Logger.Debug(LogContext, "Initialized SDL2 Audio Mixer: Frequency: {0}; Format: {1}, Channels: {2}; Chunk Size: {3}", frequency, format ?? SDL_mixer.MIX_DEFAULT_FORMAT, channels, chunksize);
         return this;
     }
 
@@ -62,7 +49,6 @@ public class SDLApplication : IDisposable
     {
         ThrowIfDisposed();
         SDLInitializationException.ThrowIfLessThan(SDL_ttf.TTF_Init(), 0);
-        Logger.Debug(LogContext, "Initialized SDL2 TTF");
         return this;
     }
 
@@ -72,11 +58,7 @@ public class SDLApplication : IDisposable
         if (_mw is not null)
             throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
         _mw = InsantiateMainWindow(title, width, height);
-        Logger.Debug(LogContext, "Instantiated main SDL2 Window");
         _mr = InstantiateMainRenderer(rendererFlags);
-        Logger.Debug(LogContext, "Instantiated main SDL2 Renderer");
-
-        Logger.Information(LogContext, "Launched Main SDL2 Window");
         return this;
     }
 
@@ -134,11 +116,4 @@ public class SDLApplication : IDisposable
 
     protected virtual Window InsantiateMainWindow(string title, int width, int height)
         => new(title, width, height);
-
-    private sealed class SDLAppLogContext : ISDLLogContext
-    {
-        private SDLAppLogContext() { }
-        public static SDLAppLogContext Instance { get; } = new();
-        public string FormatContext() => nameof(SDLApplication);
-    }
 }
