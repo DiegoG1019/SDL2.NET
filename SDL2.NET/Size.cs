@@ -8,8 +8,8 @@ using static SDL2.Bindings.SDL;
 namespace SDL2.NET;
 public struct Size : IEquatable<Size>
 {
-    public int Width { get; }
-    public int Height { get; }
+    public int Width { get; set; }
+    public int Height { get; set; }
 
     public Size(int width, int height)
     {

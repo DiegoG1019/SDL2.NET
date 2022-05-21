@@ -4,8 +4,8 @@ namespace SDL2.NET;
 
 public struct FPoint
 {
-    public float X { get; }
-    public float Y { get; }
+    public float X { get; set; }
+    public float Y { get; set; }
 
     public FPoint(float x, float y)
     {

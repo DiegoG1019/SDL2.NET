@@ -2,8 +2,8 @@
 
 public struct FSize
 {
-    public float Width { get; }
-    public float Height { get; }
+    public float Width { get; set; }
+    public float Height { get; set; }
 
     public FSize(float width, float height)
     {
