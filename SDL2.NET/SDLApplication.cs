@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SDL2.NET;
+
 public class SDLApplication : IDisposable
 {
     protected ISDLLogger Logger = DefaultSDLLogger.Default;
@@ -67,7 +68,7 @@ public class SDLApplication : IDisposable
         return this;
     }
 
-    public SDLApplication LaunchWindow(string title, int width, int height)
+    public SDLApplication LaunchWindow(string title, int width, int height, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.Presentvsync)
     {
         ThrowIfDisposed();
         if (_mw is not null)
