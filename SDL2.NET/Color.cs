@@ -101,8 +101,8 @@ public struct RGBColor : IEquatable<RGBColor>
     public static explicit operator RGBColor(RGBAColor color)
         => new(color.Red, color.Green, color.Blue);
 
-    public static explicit operator RGBAColor(RGBColor color) //Alpha value might unexpectedly skew colors if the programmer is not careful
-        => new(color.Red, color.Green, color.Blue, 0);
+    public static implicit operator RGBAColor(RGBColor color)
+        => new(color.Red, color.Green, color.Blue, 255);
 
     public bool Equals(RGBColor other)
         => other == this;
