@@ -1,20 +1,15 @@
 ﻿using SDL2.Bindings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SDL2.NET.Mixer.Exceptions;
 
 [Serializable]
-public class SDLMixerException : MixerException
+public class MixerAudioChunkException : MixerException
 {
-    public SDLMixerException() { }
-    public SDLMixerException(string message) : base(message) { }
-    public SDLMixerException(string message, Exception inner) : base(message, inner) { }
-    protected SDLMixerException(
+    public MixerAudioChunkException() { }
+    public MixerAudioChunkException(string message) : base(message) { }
+    public MixerAudioChunkException(string message, Exception inner) : base(message, inner) { }
+    protected MixerAudioChunkException(
       System.Runtime.Serialization.SerializationInfo info,
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 
@@ -22,13 +17,13 @@ public class SDLMixerException : MixerException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLMixerException(SDL_mixer.Mix_GetError());
+            throw new MixerAudioChunkException(SDL_mixer.Mix_GetError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLMixerException(SDL_mixer.Mix_GetError());
+            throw new MixerAudioChunkException(SDL_mixer.Mix_GetError());
     }
 }

@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SDL2.NET.Image.Exceptions;
+
+[Serializable]
 public class SDLImageException : SDLException
 {
     public SDLImageException() { }
