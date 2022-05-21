@@ -24,6 +24,7 @@ public class Song : IDisposable, IAsyncDisposable
 
     internal Song(IntPtr handle)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         _handle = handle;
         if (_handle == IntPtr.Zero)
             throw new MixerAudioChunkCreationException(Mix_GetError());
@@ -66,12 +67,19 @@ public class Song : IDisposable, IAsyncDisposable
     /// <summary>
     /// User defined custom Song data
     /// </summary>
-    public UserData UserData { get; set; }
+    public UserData? UserData { get; set; }
 
     /// <summary>
     /// The file format encoding of the <see cref="Song"/>.
     /// </summary>
-    public MusicType MusicType => (MusicType)Mix_GetMusicType(_handle);
+    public MusicType MusicType
+    {
+        get
+        {
+            AudioMixer.ThrowIfNotInitAndOpen();
+            return (MusicType)Mix_GetMusicType(_handle);
+        }
+    }
 
     /// <summary>
     /// Plays this song, halting (or waiting for, if fading out) any other previous song that may have been playing
@@ -79,6 +87,7 @@ public class Song : IDisposable, IAsyncDisposable
     /// <param name="loops">The amount of times to play the <see cref="Song"/></param>
     public void Play(int loops = 1)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         MixerSongException.ThrowIfLessThan(Mix_PlayMusic(_handle, loops), 0);
         Music.CurrentlyPlaying = this;
@@ -103,6 +112,7 @@ public class Song : IDisposable, IAsyncDisposable
     /// <param name="loops">The amount of times to play the <see cref="Song"/></param>
     public void FadeIn(TimeSpan fadeInTime, int loops = 1)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         MixerSongException.ThrowIfLessThan(Mix_FadeInMusic(_handle, loops, (int)fadeInTime.TotalMilliseconds), 0);
         Music.CurrentlyPlaying = this;
@@ -129,6 +139,7 @@ public class Song : IDisposable, IAsyncDisposable
     /// <param name="position">The position of the song to start from. <see cref="Music.SetPosition(double)"/> for details</param>
     public void FadeIn(TimeSpan fadeInTime, double position, int loops = 1)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         MixerSongException.ThrowIfLessThan(Mix_FadeInMusicPos(_handle, loops, (int)fadeInTime.TotalMilliseconds, position), 0);
         Music.CurrentlyPlaying = this;
