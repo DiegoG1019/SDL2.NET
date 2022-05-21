@@ -189,6 +189,15 @@ public class Texture : IDisposable
     }
 
     /// <summary>
+    /// Gets a <see cref="Rectangle"/> that is positioned at <paramref name="x"/> and <paramref name="y"/> and has the dimensions of the texture
+    /// </summary>
+    /// <param name="x">The x coordinate of the <see cref="Rectangle"/> to create</param>
+    /// <param name="y">The y coordinate of the <see cref="Rectangle"/> to create</param>
+    /// <returns>The resulting <see cref="Rectangle"/></returns>
+    public Rectangle GetRectangle(int x, int y)
+        => new(Size, x, y);
+
+    /// <summary>
     /// Lock a portion of the texture for write-only pixel access. The texture must have been created with <see cref="TextureAccess.Streaming"/>. <see cref="SDL_LockTexture" href="https://wiki.libsdl.org/SDL_LockTexture"/>
     /// </summary>
     /// <remarks>As an optimization, the pixels made available for editing don't necessarily contain the old texture data. This is a write-only operation, and if you need to keep a copy of the texture data you should do that at the application level. You must use SDL_UnlockTexture() to unlock the pixels and apply any changes.</remarks>
