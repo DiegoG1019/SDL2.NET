@@ -23,6 +23,7 @@ public partial class AudioChunk
 
         internal AudioChunkSampleBuffer(IntPtr handle, object sync)
         {
+            AudioMixer.ThrowIfNotInitAndOpen();
             _handle = handle;
             chunkSync = sync;
 
@@ -38,6 +39,7 @@ public partial class AudioChunk
         {
             lock (sync)
             {
+                AudioMixer.ThrowIfNotInitAndOpen();
                 ThrowIfDisposed();
                 lock (chunkSync)
                 {

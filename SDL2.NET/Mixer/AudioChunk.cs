@@ -28,6 +28,7 @@ public partial class AudioChunk : IDisposable
 
     internal AudioChunk(IntPtr handle)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         _handle = handle;
         if (_handle == IntPtr.Zero)
             throw new MixerAudioChunkCreationException(Mix_GetError());
@@ -45,6 +46,7 @@ public partial class AudioChunk : IDisposable
 
     private int _play(int channel, int loops)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         var i = Mix_PlayChannel(-1, _handle, loops);
         MixerAudioChunkException.ThrowIfLessThan(i, 0);
@@ -53,6 +55,7 @@ public partial class AudioChunk : IDisposable
 
     private int _play(int channel, int loops, TimeSpan time)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         var i = Mix_PlayChannelTimed(-1, _handle, loops, (int)time.TotalMilliseconds);
         MixerAudioChunkException.ThrowIfLessThan(i, 0);
@@ -97,6 +100,7 @@ public partial class AudioChunk : IDisposable
 
     private int _fadein(int channel, int loops, TimeSpan fadein)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         var i = Mix_FadeInChannel(-1, _handle, loops, (int)fadein.TotalMilliseconds);
         MixerAudioChunkException.ThrowIfLessThan(i, 0);
@@ -105,6 +109,7 @@ public partial class AudioChunk : IDisposable
 
     private int _fadein(int channel, int loops, TimeSpan fadein, TimeSpan time)
     {
+        AudioMixer.ThrowIfNotInitAndOpen();
         ThrowIfDisposed();
         var i = Mix_FadeInChannelTimed(-1, _handle, loops, (int)fadein.TotalMilliseconds, (int)time.TotalMilliseconds);
         MixerAudioChunkException.ThrowIfLessThan(i, 0);
@@ -160,8 +165,17 @@ public partial class AudioChunk : IDisposable
     /// </summary>
     public int Volume
     {
-        get => Mix_VolumeChunk(_handle, -1);
-        set => Mix_VolumeChunk(_handle, value is >= 0 and <= 128 ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "Volume value must be between 0 and 128"));
+        get
+        {
+            AudioMixer.ThrowIfNotInitAndOpen();
+            return Mix_VolumeChunk(_handle, -1);
+        }
+
+        set
+        {
+            AudioMixer.ThrowIfNotInitAndOpen();
+            Mix_VolumeChunk(_handle, value is >= 0 and <= 128 ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "Volume value must be between 0 and 128"));
+        }
     }
 
     /// <summary>
@@ -208,7 +222,6 @@ public partial class AudioChunk : IDisposable
     }
 
     #endregion
-
 
     #region helpers
 
