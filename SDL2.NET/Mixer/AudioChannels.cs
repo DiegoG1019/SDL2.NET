@@ -54,7 +54,7 @@ public static class AudioChannels
     /// <remarks>
     /// This is not an SDL function, just math-magic
     /// </remarks>
-    public static float GlobalVolumePercentage
+    public static double GlobalVolumePercentage
     {
         get => GlobalVolume / 128f;
         set => GlobalVolume = (int)(128 * Math.Clamp(value, 0, 1));
@@ -79,7 +79,7 @@ public static class AudioChannels
     /// <remarks>
     /// This is not an SDL function, and the volume will not be reset when the song finishes
     /// </remarks>
-    public static float GetChannelVolumePercentage(int channel) => GetChannelVolume(channel) / 128f;
+    public static double GetChannelVolumePercentage(int channel) => GetChannelVolume(channel) / 128f;
 
     /// <summary>
     /// Sets the volume of a specific channel
@@ -102,7 +102,7 @@ public static class AudioChannels
     /// <remarks>
     /// This is not an SDL function, and the volume will not be reset when the song finishes
     /// </remarks>
-    public static float SetChannelVolumePercentage(int channel, float volume) => SetChannelVolume(channel, (int)(128 * Math.Clamp(volume, 0, 1))) / 128f;
+    public static double SetChannelVolumePercentage(int channel, double volume) => SetChannelVolume(channel, (int)(128 * Math.Clamp(volume, 0, 1))) / 128f;
 
     /// <summary>
     /// Pauses a specific channel

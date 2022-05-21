@@ -108,7 +108,7 @@ public static class Music
     /// <remarks>
     /// This is not an SDL function, just math-magic
     /// </remarks>
-    public static float VolumePercentage
+    public static double VolumePercentage
     {
         get => Volume / 128f;
         set => Volume = (int)(128 * Math.Clamp(value, 0, 1));

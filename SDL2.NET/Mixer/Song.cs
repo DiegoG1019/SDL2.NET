@@ -58,10 +58,10 @@ public class Song : IDisposable, IAsyncDisposable
     /// <remarks>
     /// This is not an SDL function, and the volume will not be reset when the song finishes
     /// </remarks>
-    public float? VolumePercentageOverride
+    public double? VolumePercentageOverride
     {
         get => VolumeOverride is int v ? v / 128f : null;
-        set => _vol = value is float v ? (int)(128 * Math.Clamp(v, 0, 1)) : null;
+        set => _vol = value is double v ? (int)(128 * Math.Clamp(v, 0, 1)) : null;
     }
 
     /// <summary>
