@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL_mixer;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 [Flags]
 public enum MixerInitFlags

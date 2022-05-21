@@ -1,9 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 using static SDL2.Bindings.SDL_mixer;
-using static SDL2.NET.Mixer.AudioMixer;
+using static SDL2.NET.SDLMixer.AudioMixer;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 // I really tried to encapsulate these methods into an object, but I couldn't really figure out how.
 // The entire API is very dependant on a state that is not only hidden away from me, but would require a lot of work (and not insignificant CPU) to

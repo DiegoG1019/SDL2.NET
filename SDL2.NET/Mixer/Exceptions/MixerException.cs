@@ -1,6 +1,6 @@
 ﻿using SDL2.NET.Exceptions;
 
-namespace SDL2.NET.Mixer.Exceptions;
+namespace SDL2.NET.SDLMixer.Exceptions;
 
 [Serializable]
 public class MixerException : SDLException 

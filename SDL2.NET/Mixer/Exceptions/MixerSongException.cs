@@ -1,7 +1,7 @@
 ﻿using SDL2.Bindings;
 using System.Runtime.CompilerServices;
 
-namespace SDL2.NET.Mixer.Exceptions;
+namespace SDL2.NET.SDLMixer.Exceptions;
 
 [Serializable]
 public class MixerSongException : MixerException

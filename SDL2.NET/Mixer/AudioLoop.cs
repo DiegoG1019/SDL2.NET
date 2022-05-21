@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 /// <summary>
 /// Represents an amount of loops for an AudioChunk to play

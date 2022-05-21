@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using static SDL2.Bindings.SDL_mixer;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 public partial class AudioChunk
 {

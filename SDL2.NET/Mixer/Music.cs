@@ -1,7 +1,7 @@
-﻿using SDL2.NET.Mixer.Exceptions;
+﻿using SDL2.NET.SDLMixer.Exceptions;
 using static SDL2.Bindings.SDL_mixer;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 public static class Music
 {

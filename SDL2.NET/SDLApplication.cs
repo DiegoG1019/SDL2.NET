@@ -1,6 +1,6 @@
 ﻿using SDL2.Bindings;
 using SDL2.NET.Exceptions;
-using SDL2.NET.Mixer;
+using SDL2.NET.SDLMixer;
 using System;
 using System.Collections.Generic;
 using System.Linq;

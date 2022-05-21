@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using SDL2.NET.Mixer.Exceptions;
+using SDL2.NET.SDLMixer.Exceptions;
 using static SDL2.Bindings.SDL_mixer;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 // I may need to use the hook bindings to build up a system that automatically buffers IDisposable calls and keeps a reference to the chunk if it's still being played
 

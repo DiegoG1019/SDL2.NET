@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SDL2.NET.Mixer.Exceptions;
+namespace SDL2.NET.SDLMixer.Exceptions;
 
 [Serializable]
 public class SDLMixerException : MixerException

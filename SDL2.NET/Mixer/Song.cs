@@ -1,4 +1,4 @@
-﻿using SDL2.NET.Mixer.Exceptions;
+﻿using SDL2.NET.SDLMixer.Exceptions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL_mixer;
 
-namespace SDL2.NET.Mixer;
+namespace SDL2.NET.SDLMixer;
 
 public class Song : IDisposable, IAsyncDisposable
 {
