@@ -170,6 +170,12 @@ public static partial class AudioMixer
             throw new InvalidOperationException("There is no Audio Device open");
     }
 
+    internal static void ThrowIfNotInitAndOpen()
+    {
+        ThrowIfNotInit();
+        ThrowIfNotOpen();
+    }
+
     private static void UpdateProperties()
     {
         TimesOpened = Mix_QuerySpec(out int freq, out ushort f, out int chn);
