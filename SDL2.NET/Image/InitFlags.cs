@@ -1,4 +1,4 @@
-﻿namespace SDL2.NET.Image;
+﻿namespace SDL2.NET.SDLImage;
 
 [Flags]
 public enum InitFlags

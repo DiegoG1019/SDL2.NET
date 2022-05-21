@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using static SDL2.Bindings.SDL_image;
 
-namespace SDL2.NET.Image;
+namespace SDL2.NET.SDLImage;
 
 public class SDLAnimation : IDisposable
 {

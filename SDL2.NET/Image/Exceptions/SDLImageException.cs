@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SDL2.NET.Image.Exceptions;
+namespace SDL2.NET.SDLImage.Exceptions;
 
 [Serializable]
 public class SDLImageException : SDLException

@@ -1,4 +1,4 @@
-﻿namespace SDL2.NET.Image;
+﻿namespace SDL2.NET.SDLImage;
 
 /// <summary>
 /// An animation frame to be used within <see cref="SDLAnimation"/>
