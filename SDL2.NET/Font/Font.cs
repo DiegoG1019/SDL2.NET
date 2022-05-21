@@ -1,5 +1,5 @@
 ﻿using SDL2.NET.Exceptions;
-using SDL2.NET.Font.Exceptions;
+using SDL2.NET.SDLFont.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL_ttf;
 
-namespace SDL2.NET.Font;
+namespace SDL2.NET.SDLFont;
 public static class Font
 {
     static Font()

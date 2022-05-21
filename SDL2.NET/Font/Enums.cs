@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL_ttf;
 
-namespace SDL2.NET.Font;
+namespace SDL2.NET.SDLFont;
 
 public enum EncodingType
 {

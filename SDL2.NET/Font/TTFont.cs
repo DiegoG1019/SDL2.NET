@@ -1,7 +1,7 @@
-﻿using SDL2.NET.Font.Exceptions;
+﻿using SDL2.NET.SDLFont.Exceptions;
 using static SDL2.Bindings.SDL_ttf;
 
-namespace SDL2.NET.Font;
+namespace SDL2.NET.SDLFont;
 
 /// <summary>
 /// Represents a True Type Font (TTF)

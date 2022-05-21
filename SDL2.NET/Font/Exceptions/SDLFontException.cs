@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SDL2.NET.Font.Exceptions;
+namespace SDL2.NET.SDLFont.Exceptions;
 public class SDLFontException : SDLException
 {
     public SDLFontException() { }

@@ -1,4 +1,4 @@
-﻿namespace SDL2.NET.Font;
+﻿namespace SDL2.NET.SDLFont;
 
 public struct TextMeasurement
 {
