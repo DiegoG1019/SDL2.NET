@@ -75,7 +75,7 @@ public class SDLApplication : IDisposable
             throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
         _mw = InsantiateMainWindow(title, width, height);
         Logger.Debug(LogContext, "Instantiated main SDL2 Window");
-        _mr = InstantiateMainRenderer();
+        _mr = InstantiateMainRenderer(rendererFlags);
         Logger.Debug(LogContext, "Instantiated main SDL2 Renderer");
 
         Logger.Information(LogContext, "Launched Main SDL2 Window");
@@ -131,8 +131,8 @@ public class SDLApplication : IDisposable
             throw new ObjectDisposedException(nameof(SDLApplication));
     }
 
-    protected virtual Renderer InstantiateMainRenderer()
-        => new WindowRenderer(MainWindow, -1);
+    protected virtual Renderer InstantiateMainRenderer(RendererFlags flags)
+        => new WindowRenderer(MainWindow, flags, - 1);
 
     protected virtual Window InsantiateMainWindow(string title, int width, int height)
         => new(title, width, height);
