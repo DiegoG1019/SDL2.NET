@@ -2,6 +2,7 @@
 using SDL2.NET.Exceptions;
 using SDL2.NET.Mixer.Exceptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -71,6 +72,16 @@ public static partial class AudioMixer
     public static ushort Format { get; private set; }
 
     /// <summary>
+    /// Get information about the sample chunk decoders available. The chunk decoders and their amount can be different for each run of a program, due to the change in availability of shared libraries that support each format.
+    /// </summary>
+    public static IReadOnlyList<string> ChunkDecoders { get; } = new ChunkDecoderCollection();
+
+    /// <summary>
+    /// Get information about the music decoders available. The music decoders and their amount can be different for each run of a program, due to the change in availability of shared libraries that support each format.
+    /// </summary>
+    public static IReadOnlyList<string> MusicDecoders { get; } = new MusicDecoderCollection();
+
+    /// <summary>
     /// Initializes the Audio Mixer
     /// </summary>
     /// <param name="flags"></param>
@@ -83,8 +94,14 @@ public static partial class AudioMixer
                 throw new InvalidOperationException("The Audio Mixer is already initialized");
 
             SDLMixerException.ThrowIfLessThan(Mix_Init((MIX_InitFlags)flags), 0);
+            Mix_HookMusicFinished(MusicFinishedCallback);
             isInit = true;
         }
+    }
+
+    private static void MusicFinishedCallback()
+    {
+        Music.TriggerSongFinished();
     }
 
     /// <summary>
@@ -96,6 +113,7 @@ public static partial class AudioMixer
         lock (_l)
         {
             ThrowIfNotInit();
+            Mix_HookMusicFinished(null);
             Mix_Quit();
             isInit = false;
         }
@@ -146,6 +164,12 @@ public static partial class AudioMixer
             throw new InvalidOperationException("The Audio Mixer is not initialized");
     }
 
+    internal static void ThrowIfNotOpen()
+    {
+        if (!IsOpen)
+            throw new InvalidOperationException("There is no Audio Device open");
+    }
+
     private static void UpdateProperties()
     {
         TimesOpened = Mix_QuerySpec(out int freq, out ushort f, out int chn);
@@ -153,5 +177,67 @@ public static partial class AudioMixer
         Frequency = freq;
         _chnls = chn;
         Format = f;
+    }
+
+    private class MusicDecoderCollection : IReadOnlyList<string>
+    {
+        internal MusicDecoderCollection() { }
+
+        public int Count
+        {
+            get
+            {
+                ThrowIfNotOpen();
+                return Mix_GetNumMusicDecoders();
+            }
+        }
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++)
+                yield return this[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public string this[int index]
+        {
+            get
+            {
+                ThrowIfNotOpen();
+                return Mix_GetMusicDecoder(index);
+            }
+        }
+    }
+
+    private class ChunkDecoderCollection : IReadOnlyList<string>
+    {
+        internal ChunkDecoderCollection() { }
+
+        public int Count
+        {
+            get
+            {
+                ThrowIfNotOpen();
+                return Mix_GetNumChunkDecoders();
+            }
+        }
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++)
+                yield return this[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public string this[int index]
+        {
+            get
+            {
+                ThrowIfNotOpen();
+                return Mix_GetChunkDecoder(index);
+            }
+        }
     }
 }
