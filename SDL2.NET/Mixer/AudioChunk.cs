@@ -62,7 +62,7 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <returns>The channel the audio is playing on</returns>
     public int Play(int loops = -1) => _play(-1, loops);
 
@@ -70,14 +70,14 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="channel">The channel to play the Audio on</param>
     public void Play(int channel, int loops = -1) => _play(checkCh(channel), loops);
 
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops, and for at most the set amount of time
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="time">The amount of time to play the audio. Will only take effect if it's long enough, or it loops enough times</param>
     /// <returns>The channel the audio is playing on</returns>
     public int Play(TimeSpan time, int loops = -1) => _play(-1, loops, time);
@@ -86,7 +86,7 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops, and for at most the set amount of time
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="channel">The channel to play the Audio on</param>
     /// <param name="time">The amount of time to play the audio. Will only take effect if it's long enough, or it loops enough times</param>
     public void Play(int channel, TimeSpan time, int loops = -1) => _play(checkCh(channel), loops, time);
@@ -114,7 +114,7 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="fadeInTime">The amount of time it takes for the chunk to transition from Volume 0 to full volume</param>
     /// <returns>The channel the audio is playing on</returns>
     public int FadeIn(TimeSpan fadeInTime, int loops = -1) => _fadein(-1, loops, fadeInTime);
@@ -123,7 +123,7 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Fades in the AudioChunk on the first unreserved channel for the set amount of loops
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="fadeInTime">The amount of time it takes for the chunk to transition from Volume 0 to full volume</param>
     /// <param name="channel">The channel to play the Audio on</param>
     public void FadeIn(int channel, TimeSpan fadeInTime, int loops = -1) => _fadein(checkCh(channel), loops, fadeInTime);
@@ -131,7 +131,7 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Fades in the AudioChunk on the first unreserved channel for the set amount of loops, and for at most the set amount of time
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="time">The amount of time to play the audio. Will only take effect if it's long enough, or it loops enough times</param>
     /// <param name="fadeInTime">The amount of time it takes for the chunk to transition from Volume 0 to full volume</param>
     /// <returns>The channel the audio is playing on</returns>
@@ -141,7 +141,7 @@ public partial class AudioChunk : IDisposable
     /// <summary>
     /// Fades in the AudioChunk on the first unreserved channel for the set amount of loops, and for at most the set amount of time
     /// </summary>
-    /// <param name="loops">The amount of times to loop the Audio. See <see cref="LoopAudio"/></param>
+    /// <param name="loops">The amount of times to loop the Audio. See <see cref="AudioLoop"/></param>
     /// <param name="channel">The channel to play the Audio on</param>
     /// <param name="time">The amount of time to play the audio. Will only take effect if it's long enough, or it loops enough times</param>
     /// <param name="fadeInTime">The amount of time it takes for the chunk to transition from Volume 0 to full volume</param>
