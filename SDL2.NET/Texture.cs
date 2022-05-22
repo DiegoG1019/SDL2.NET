@@ -37,8 +37,10 @@ public class Texture : IDisposable
 
     internal Texture(IntPtr handle, Renderer renderer)
     {
+        _handle = handle;
         if (_handle == IntPtr.Zero)
             throw new SDLTextureCreationException(SDL_GetError());
+
         if (_textDict.TryAdd(_handle, new(this)) is false)
             throw new SDLTextureCreationException("Could not register this Texture's address in .NET (Since SDL sometimes returns pointers, and these objects are only in .NET, they need to be indexed). This is likely a problem with the library, please report this and your code on GitHub. If this texture was created succesfully, it has NOT been destroyed.");
         Renderer = renderer;
