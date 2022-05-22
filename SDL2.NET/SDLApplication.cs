@@ -31,6 +31,16 @@ public class SDLApplication : IDisposable
     public delegate void SDLApplicationEvent(SDLApplication application);
 
     /// <summary>
+    /// Fired when the render targets have been reset and their contents need to be updated
+    /// </summary>
+    public event SDLApplicationEvent? RenderTargetsReset;
+
+    /// <summary>
+    /// Fired when the render device has been reset and all textures need to be recreated 
+    /// </summary>
+    public event SDLApplicationEvent? RenderDeviceReset;
+
+    /// <summary>
     /// Fired when the SDL application is terminating
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
@@ -108,6 +118,8 @@ public class SDLApplication : IDisposable
     internal void TriggerDidEnterBackground() => DidEnterBackground?.Invoke(this);
     internal void TriggerSDLQuitting() => Quitting?.Invoke(this);
     internal void TriggerKeyMapChanged() => KeyMapChanged?.Invoke(this);
+    internal void TriggerRenderTargetsReset() => RenderTargetsReset?.Invoke(this);
+    internal void TriggerRenderDeviceReset() => RenderDeviceReset?.Invoke(this);
 
     #endregion
 
