@@ -147,7 +147,7 @@ namespace SDL2.Bindings
             X.patch = SDL_MIXER_PATCHLEVEL;
         }
 
-        [DllImport(nativeLibName, EntryPoint = "MIX_Linked_Version", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(nativeLibName, EntryPoint = "Mix_Linked_Version", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr INTERNAL_MIX_Linked_Version();
         public static SDL.SDL_version MIX_Linked_Version()
         {
