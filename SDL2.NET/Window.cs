@@ -64,6 +64,65 @@ public class Window : IDisposable
 
     #region Events
 
+    #region DragAndDropEvents
+
+    /// <summary>
+    /// Represents a change in the Window's Drop status, it could mean a drop operation just began or just ended.
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> sender</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
+    public delegate void DropStatusEvent(Window sender, TimeSpan timestamp);
+
+    /// <summary>
+    /// A new set of drops is beginning
+    /// </summary>
+    public event DropStatusEvent? DropBegan;
+
+    /// <summary>
+    /// The set of drops is now complete
+    /// </summary>
+    public event DropStatusEvent? DropCompleted;
+
+    internal void TriggerDropBegan(SDL_DropEvent e)
+    {
+        DropBegan?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp));
+    }
+
+    internal void TriggerDropCompleted(SDL_DropEvent e)
+    {
+        DropCompleted?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp));
+    }
+
+    /// <summary>
+    /// Represents the dropping of an object into the window
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> sender</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
+    /// <param name="data">The data of the drop event. Either a filename, or plaintext</param>
+    public delegate void DropEvent(Window sender, TimeSpan timestamp, string data);
+
+    /// <summary>
+    /// Fired when a file is dropped into the app
+    /// </summary>
+    public event DropEvent? FileDropped;
+
+    /// <summary>
+    /// Fired when plaintext was dropped into the app
+    /// </summary>
+    public event DropEvent? TextDropped;
+
+    internal void TriggerDropFile(SDL_DropEvent e)
+    {
+        FileDropped?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), Marshal.PtrToStringAuto(e.file)!);
+    }
+
+    internal void TriggerDropText(SDL_DropEvent e)
+    {
+        TextDropped?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), Marshal.PtrToStringAuto(e.file)!);
+    }
+
+    #endregion
+
     #region MouseEvents
 
     /// <summary>
