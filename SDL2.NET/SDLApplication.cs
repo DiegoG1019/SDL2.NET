@@ -239,6 +239,14 @@ public class SDLApplication : IDisposable
     /// <returns>The remaining events in SDL's queue</returns>
     public int UpdateEventOnce() => Events.UpdateOnce();
 
+    public void Delay(TimeSpan time)
+    {
+        var x = time.TotalMilliseconds;
+        if (x <= 0)
+            throw new ArgumentOutOfRangeException(nameof(time), time, "time must be larger than 0");
+        SDL.SDL_Delay(x >= uint.MaxValue ? uint.MaxValue : (uint)x);
+    }
+
     protected virtual Renderer InstantiateMainRenderer(RendererFlags flags)
         => new WindowRenderer(MainWindow, flags, - 1);
 
