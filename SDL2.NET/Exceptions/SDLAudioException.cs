@@ -4,12 +4,12 @@ using System.Runtime.CompilerServices;
 namespace SDL2.NET.Exceptions;
 
 [Serializable]
-public class SDLMouseException : SDLException
+public class SDLAudioException : SDLException
 {
-    public SDLMouseException() { }
-    public SDLMouseException(string message) : base(message) { }
-    public SDLMouseException(string message, Exception inner) : base(message, inner) { }
-    protected SDLMouseException(
+    public SDLAudioException() { }
+    public SDLAudioException(string message) : base(message) { }
+    public SDLAudioException(string message, Exception inner) : base(message, inner) { }
+    protected SDLAudioException(
       System.Runtime.Serialization.SerializationInfo info,
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 
@@ -17,13 +17,13 @@ public class SDLMouseException : SDLException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLMouseException(SDL.SDL_GetError());
+            throw new SDLAudioException(SDL.SDL_GetError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLMouseException(SDL.SDL_GetError());
+            throw new SDLAudioException(SDL.SDL_GetError());
     }
 }
