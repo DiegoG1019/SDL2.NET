@@ -296,6 +296,19 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
+    /// Gets or Sets whether or VSync is enabled on <see cref="this"/> <see cref="Renderer"/> or not
+    /// </summary>
+    public bool IsVSyncEnabled
+    {
+        get => RendererInfo.Flags.HasFlag(RendererFlags.PresentVSync);
+        set
+        {
+            ThrowIfDisposed();
+            SDLRendererException.ThrowIfNotEquals(SDL_RenderSetVSync(_handle, value ? 1 : 0), 0);
+        }
+    }
+
+    /// <summary>
     /// Gets or sets the drawing area for rendering on the current target. get: <see cref="SDL_RenderGetViewport" href="https://wiki.libsdl.org/SDL_RenderGetViewport"/>; set: <see cref="SDL_RenderSetViewport" href="https://wiki.libsdl.org/SDL_RenderSetViewport"/>
     /// </summary>
     /// <remarks>When the <see cref="Window"/> is resized, the viewport is reset to fill the entire new <see cref="Window"/> size.</remarks>
