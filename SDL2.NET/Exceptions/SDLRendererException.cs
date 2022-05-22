@@ -26,4 +26,11 @@ public class SDLRendererException : SDLException
         if (value == comparison)
             throw new SDLRendererException(SDL.SDL_GetError());
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfNotEquals(int value, int comparison)
+    {
+        if (value != comparison)
+            throw new SDLRendererException(SDL.SDL_GetError());
+    }
 }
