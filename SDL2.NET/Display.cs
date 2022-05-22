@@ -72,4 +72,48 @@ public static class Display
 
     public static string GetVideoDriver(int displayIndex)
         => SDL_GetVideoDriver(displayIndex);
+
+    #region Events
+
+    /// <summary>
+    /// Represents an SDL Display Event
+    /// </summary>
+    /// <param name="timestamp">The amount of time that has passed since SDL's initialization</param>
+    /// <param name="displayIndex">The index of the display</param>
+    public delegate void DisplayEvent(TimeSpan timestamp, int displayIndex);
+
+    /// <summary>
+    /// The orientation of a display changed
+    /// </summary>
+    public static event DisplayEvent? OrientationChanged;
+
+    /// <summary>
+    /// A new display has been connected
+    /// </summary>
+    public static event DisplayEvent? DisplayConnected;
+    
+    /// <summary>
+    /// A display has been disconnected
+    /// </summary>
+    public static event DisplayEvent? DisplayDisconnected;
+
+    internal static void TriggerEvent(SDL_DisplayEvent e)
+    {
+        switch (e.displayEvent)
+        {
+            case SDL_DisplayEventID.SDL_DISPLAYEVENT_ORIENTATION:
+                OrientationChanged?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), (int)e.display);
+                return;
+            case SDL_DisplayEventID.SDL_DISPLAYEVENT_CONNECTED:
+                DisplayConnected?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), (int)e.display);
+                return;
+            case SDL_DisplayEventID.SDL_DISPLAYEVENT_DISCONNECTED:
+                DisplayDisconnected?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), (int)e.display);
+                return;
+        }
+        return;
+    }
+
+    #endregion
+
 }
