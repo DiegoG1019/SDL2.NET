@@ -66,7 +66,7 @@ internal class Program
             deer = new Texture(renderer, _m);
             _m.Dispose();
         }
-        Rectangle deerSrcBox = new(128, 128, 32, 32);
+        Rectangle deerSrcBox = new(0, 0, 32, 32);
         Rectangle deerDstBox = new(128, 128, 32, 32);
         Disposables.Add(deer);
 
