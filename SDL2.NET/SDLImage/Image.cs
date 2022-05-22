@@ -1,4 +1,5 @@
-﻿using SDL2.NET.Exceptions;
+﻿using SDL2.Bindings;
+using SDL2.NET.Exceptions;
 using SDL2.NET.SDLImage.Exceptions;
 using System;
 using System.Collections.Generic;
