@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,95 @@ public class SDLApplication : IDisposable
     private SDLApplication() { }
 
     public static SDLApplication App { get; } = new();
+
+    #region Events
+
+    /// <summary>
+    /// Represents a standard event fired by the application
+    /// </summary>
+    /// <param name="application">The application object</param>
+    public delegate void SDLApplicationEvent(SDLApplication application);
+
+    /// <summary>
+    /// Fired when the SDL application is terminating
+    /// </summary>
+    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    public event SDLApplicationEvent? Terminating;
+
+    /// <summary>
+    /// Fired when SDL detects that the process is running out of memory
+    /// </summary>
+    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    public event SDLApplicationEvent? LowMemory;
+
+    /// <summary>
+    /// Fired when the application is about to go into the background
+    /// </summary>
+    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    public event SDLApplicationEvent? WillEnterBackground;
+
+    /// <summary>
+    /// Fired when the application is about to enter the foreground
+    /// </summary>
+    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    public event SDLApplicationEvent? WillEnterForeground;
+
+    /// <summary>
+    /// Fired when the application entered the foreground
+    /// </summary>
+    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    public event SDLApplicationEvent? DidEnterForeground;
+
+    /// <summary>
+    /// Fired when the application entered into the background
+    /// </summary>
+    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    public event SDLApplicationEvent? DidEnterBackground;
+
+    /// <summary>
+    /// Fired when the locale of the app changed
+    /// </summary>
+    public event SDLApplicationEvent? LocaleChanged;
+
+    /// <summary>
+    /// Fired when the SDLApplication is about to quit
+    /// </summary>
+    public event SDLApplicationEvent? Quitting;
+
+    /// <summary>
+    /// Fired when the key mapping changed, such as when a new keyboard was plugged in, or the language of the keyboard changed
+    /// </summary>
+    public event SDLApplicationEvent? KeyMapChanged;
+
+    internal void TriggerLocaleChanged() => LocaleChanged?.Invoke(this);
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal void TriggerTerminating() => Terminating?.Invoke(this);
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal void TriggerLowMemory() => LowMemory?.Invoke(this);
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal void TriggerWillEnterBackground() => WillEnterBackground?.Invoke(this);
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal void TriggerWillEnterForeground() => WillEnterForeground?.Invoke(this);
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal void TriggerDidEnterForeground() => DidEnterForeground?.Invoke(this);
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal void TriggerDidEnterBackground() => DidEnterBackground?.Invoke(this);
+    internal void TriggerSDLQuitting() => Quitting?.Invoke(this);
+    internal void TriggerKeyMapChanged() => KeyMapChanged?.Invoke(this);
+
+    #endregion
 
     #region Initialization
 
@@ -70,6 +160,17 @@ public class SDLApplication : IDisposable
 
     #endregion
 
+    #region Input
+    
+    public InputEvents InputEvent { get; } = new();
+
+    public class InputEvents
+    {
+
+    }
+
+    #endregion
+
     #region IDisposable
 
     private bool disposedValue;
@@ -103,13 +204,13 @@ public class SDLApplication : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion
-
     private void ThrowIfDisposed()
     {
         if (disposedValue)
             throw new ObjectDisposedException(nameof(SDLApplication));
     }
+
+    #endregion
 
     protected virtual Renderer InstantiateMainRenderer(RendererFlags flags)
         => new WindowRenderer(MainWindow, flags, - 1);
