@@ -1,5 +1,6 @@
 ﻿using SDL2.Bindings;
 using SDL2.NET.Exceptions;
+using SDL2.NET.Input;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -60,6 +61,303 @@ public class Window : IDisposable
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
             => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : (SDL_HitTestResult)hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData);
     }
+
+    #region Events
+
+    #region MouseEvents
+
+    /// <summary>
+    /// Represents an event fired when the mouse wheel moves within the <see cref="Window"/>
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> sender</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
+    /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>
+    /// <param name="verticalScroll">The vertical scroll by the wheel. 
+    /// <param name="sender">The <see cref="Window"/> sender</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
+    /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>Positive values means the wheel was scrolled away from the user, while negative values means the wheel was scrolled towards the user.</param>
+    /// <param name="horizontalScroll">The horizontal scroll by the wheel. Positive values means the wheel was scrolled to the right, while negative values means the wheel was scrolled to the left.</param>
+    /// <remarks>Unlike in native SDL, whether the mouse wheel is inverted or not IS abstracted away. This means that, in the event that the scroll wheel is inverted, the values will be inverted to compensate.</remarks>
+    public delegate void MouseWheelEvent(Window sender, TimeSpan timestamp, uint mouseId, float verticalScroll, float horizontalScroll);
+    public event MouseWheelEvent? MouseWheelScrolled;
+
+    internal void TriggerEvent(SDL_MouseWheelEvent e)
+    {
+        if (MouseWheelScrolled is not null)
+            MouseWheelScrolled(this, TimeSpan.FromMilliseconds(e.timestamp), e.which, e.direction == 1 ? e.preciseY * -1 : e.preciseY, e.direction == 1 ? e.preciseX * -1 : e.preciseX);
+    }
+
+    /// <summary>
+    /// Represents an event fired when the mouse moves within the Window
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> sender</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
+    /// <param name="delta">The difference between the mouse's last recorded position and the new one</param>
+    /// <param name="newPosition">The mouse's actual position within this <see cref="Window"/></param>
+    /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>
+    public delegate void MouseMovedEvent(Window sender, TimeSpan timestamp, Point delta, Point newPosition, uint mouseId, MouseButton pressed);
+    public event MouseMovedEvent? MouseMoved;
+
+    internal void TriggerEvent(SDL_MouseMotionEvent e)
+    {
+        if (MouseMoved is not null)
+            MouseMoved(this, TimeSpan.FromMilliseconds(e.timestamp), new(e.xrel, e.yrel), new(e.x, e.y), e.which, Mouse.CheckButton(e.state));
+    }
+
+    /// <summary>
+    /// Represents an event fired when a mouse's button is interacted with within the Window
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> sender</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
+    /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>
+    /// <param name="state">The mouse's button state</param>
+    /// <param name="clicks">The amount of clicks the user did on this mouse. 1 for a single click, 2 for a double click</param>
+    public delegate void MouseButtonEvent(Window sender, TimeSpan timestamp, uint mouseId, int clicks, MouseButton state);
+    public event MouseButtonEvent? MouseButtonReleased;
+    public event MouseButtonEvent? MouseButtonPressed;
+
+    internal void TriggerEventMBUP(SDL_MouseButtonEvent e)
+    {
+        if (MouseButtonReleased is not null)
+            MouseButtonReleased(this, TimeSpan.FromMilliseconds(e.timestamp), e.which, e.clicks, Mouse.MapButton(e.button));
+    }
+
+    internal void TriggerEventMBDOWN(SDL_MouseButtonEvent e)
+    {
+        if (MouseButtonPressed is not null)
+            MouseButtonPressed(this, TimeSpan.FromMilliseconds(e.timestamp), e.which, e.clicks, Mouse.MapButton(e.button));
+    }
+
+    #endregion
+
+    #region TextEvents
+
+    /// <summary>
+    /// Represents a text input event
+    /// </summary>
+    /// <param name="sender">The Window that fired this event</param>
+    /// <param name="timestamp">The time elapsed between SDL's initialization and this event firing</param>
+    /// <param name="text">The text inputed</param>
+    /// <remarks>
+    /// In a typical GUI application, the OS will be responsible for telling you the candidate text via <see cref="TextEditing"/>, you can choose how (and where) to show it in your UI. Let's say with an input method I typed "abc" and got unicode character "X", the <see cref="Window"/> will first fire three <see cref="TextEditing"/> events with 'a', 'ab' and 'abc', then finally receive SDL_TEXTINPUT event with unicode character 'X'. During this text compositing process, user can press any arbitrary keys such as Function, backspace, both the <see cref="Window"/> and OS input method will receive it and decide whether to deal with these keys or not. For instance when user press backspace, most input methods will delete the last candidate character typed and <see cref="Window"/> will receive a new <see cref="TextEditing"/> event (let's say user typed a, b, backspace, c, then the application will receive 4 events containing 'a', 'ab', 'a', 'ac' each)
+    /// </remarks>
+    public delegate void TextInputEvent(Window sender, TimeSpan timestamp, ReadOnlySpan<char> text);
+
+    /// <summary>
+    /// Represents a text input event
+    /// </summary>
+    /// <remarks>
+    /// In a typical GUI application, the OS will be responsible for telling you the candidate text via <see cref="TextEditing"/>, you can choose how (and where) to show it in your UI. Let's say with an input method I typed "abc" and got unicode character "X", the <see cref="Window"/> will first fire three <see cref="TextEditing"/> events with 'a', 'ab' and 'abc', then finally receive SDL_TEXTINPUT event with unicode character 'X'. During this text compositing process, user can press any arbitrary keys such as Function, backspace, both the <see cref="Window"/> and OS input method will receive it and decide whether to deal with these keys or not. For instance when user press backspace, most input methods will delete the last candidate character typed and <see cref="Window"/> will receive a new <see cref="TextEditing"/> event (let's say user typed a, b, backspace, c, then the application will receive 4 events containing 'a', 'ab', 'a', 'ac' each)
+    /// </remarks>
+    public event TextInputEvent? TextInput;
+
+    internal unsafe void TriggerEvent(SDL_TextInputEvent e)
+    {
+        if (TextEditing != null)
+        {
+            int len = 0;
+            {
+                Span<char> buff = new(e.text, 32);
+                while (buff[len] != 0)
+                    len++;
+            }
+
+            var text = new ReadOnlySpan<char>(e.text, len);
+            TextEditing(this, TimeSpan.FromMilliseconds(e.timestamp), text, 0);
+        }
+    }
+
+    /// <summary>
+    /// Represents a text edit event
+    /// </summary>
+    /// <param name="sender">The Window that fired this event</param>
+    /// <param name="timestamp">The time elapsed between SDL's initialization and this event firing</param>
+    /// <param name="text">The text inputed</param>
+    /// <param name="start">The location to begin editing from</param>
+    /// <remarks>
+    /// In a typical GUI application, the OS will be responsible for telling you the candidate text via <see cref="TextEditing"/>, you can choose how (and where) to show it in your UI. Let's say with an input method I typed "abc" and got unicode character "X", the <see cref="Window"/> will first fire three <see cref="TextEditing"/> events with 'a', 'ab' and 'abc', then finally receive SDL_TEXTINPUT event with unicode character 'X'. During this text compositing process, user can press any arbitrary keys such as Function, backspace, both the <see cref="Window"/> and OS input method will receive it and decide whether to deal with these keys or not. For instance when user press backspace, most input methods will delete the last candidate character typed and <see cref="Window"/> will receive a new <see cref="TextEditing"/> event (let's say user typed a, b, backspace, c, then the application will receive 4 events containing 'a', 'ab', 'a', 'ac' each)
+    /// </remarks>
+    public delegate void TextEditEvent(Window sender, TimeSpan timestamp, ReadOnlySpan<char> text, int start);
+
+    /// <summary>
+    /// Represents a text edit event
+    /// </summary>
+    /// <remarks>
+    /// In a typical GUI application, the OS will be responsible for telling you the candidate text via <see cref="TextEditing"/>, you can choose how (and where) to show it in your UI. Let's say with an input method I typed "abc" and got unicode character "X", the <see cref="Window"/> will first fire three <see cref="TextEditing"/> events with 'a', 'ab' and 'abc', then finally receive SDL_TEXTINPUT event with unicode character 'X'. During this text compositing process, user can press any arbitrary keys such as Function, backspace, both the <see cref="Window"/> and OS input method will receive it and decide whether to deal with these keys or not. For instance when user press backspace, most input methods will delete the last candidate character typed and <see cref="Window"/> will receive a new <see cref="TextEditing"/> event (let's say user typed a, b, backspace, c, then the application will receive 4 events containing 'a', 'ab', 'a', 'ac' each)
+    /// </remarks>
+    public event TextEditEvent? TextEditing;
+
+    internal unsafe void TriggerEvent(SDL_TextEditingEvent e)
+    {
+        if (TextEditing != null)
+        {
+            var text = new ReadOnlySpan<char>(e.text, e.length);
+            TextEditing(this, TimeSpan.FromMilliseconds(e.timestamp), text, e.start);
+        }
+    }
+
+    #endregion
+
+    #region KeyboardEvents
+
+    /// <summary>
+    /// Represents an event of a key in the keyboard, when a key is pressed
+    /// </summary>
+    /// <param name="scancode">The scancode of the pressed key</param>
+    /// <param name="key">The character represented by the key map</param>
+    public delegate void KeyEvent(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, int repeat, uint unicode);
+
+    /// <summary>
+    /// Represents an event of a key in the keyboard, when a key is released
+    /// </summary>
+    public event KeyEvent? KeyReleased;
+
+    /// <summary>
+    /// Represents an event of a key in the keyboard, when a key is pressed
+    /// </summary>
+    public event KeyEvent? KeyPressed;
+
+    internal void TriggerEventKDown(SDL_KeyboardEvent e)
+    {
+        var k = e.keysym;
+        KeyPressed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), (Scancode)k.scancode, (Keycode)k.sym, (KeyModifier)k.mod, e.state == 1, e.repeat, k.unicode);
+    }
+
+    internal void TriggerEventKUp(SDL_KeyboardEvent e)
+    {
+        var k = e.keysym;
+        KeyReleased?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), (Scancode)k.scancode, (Keycode)k.sym, (KeyModifier)k.mod, e.state == 1, e.repeat, k.unicode);
+    }
+
+    #endregion
+
+    #region WindowEvents
+
+    /// <summary>
+    /// Represents a <see cref="Window"/> event
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> that fired the event</param>
+    /// <param name="timestamp">TimeSpan.FromMilliseconds(e.timestamp)</param>
+    public delegate void WindowEvent(Window sender, TimeSpan timestamp);
+
+    /// <summary>
+    /// Represents a <see cref="Window"/> event where the <see cref="Window"/>'s size changed
+    /// </summary>
+    /// <param name="sender">The <see cref="Window"/> that fired the event</param>
+    /// <param name="timestamp">TimeSpan.FromMilliseconds(e.timestamp)</param>
+    /// <param name="newsize">The new size of the <see cref="Window"/></param>
+    public delegate void WindowSizeChangedEvent(Window sender, TimeSpan timestamp, Size newsize);
+
+    /// <summary>
+    /// Represents a <see cref="Window"/> event where the <see cref="Window"/> 's position changed
+    /// </summary>
+    /// <param name="sender">The Window that fired the event</param>
+    /// <param name="timestamp">TimeSpan.FromMilliseconds(e.timestamp)</param>
+    /// <param name="newLocation">The <see cref="Window"/>'s new location</param>
+    public delegate void WindowMovedEvent(Window sender, TimeSpan timestamp, Point newLocation);
+
+    public event WindowEvent? Shown;
+    public event WindowEvent? Hidden;
+    public event WindowEvent? Exposed;
+    public event WindowMovedEvent? Moved;
+    public event WindowSizeChangedEvent? Resized;
+    public event WindowSizeChangedEvent? SizeChanged;
+    public event WindowEvent? Minimized;
+    public event WindowEvent? Maximized;
+    public event WindowEvent? Restored;
+    public event WindowEvent? Entered;
+    public event WindowEvent? Left;
+    public event WindowEvent? FocusGained;
+    public event WindowEvent? FocusLost;
+    public event WindowEvent? Closed;
+    public event WindowEvent? FocusTaken;
+    public event WindowEvent? HitTest;
+    public event WindowEvent? IccprofChanged;
+    public event WindowEvent? DisplayChanged;
+
+    internal void TriggerEvent(SDL_WindowEvent e)
+    {
+        switch (e.windowEvent)
+        {
+            case SDL_WindowEventID.SDL_WINDOWEVENT_SHOWN:
+                Shown?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_HIDDEN:
+                Hidden?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED:
+                Exposed?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_MOVED:
+                Moved?.Invoke(this, time(), new Point(e.data1, e.data2));
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
+                Resized?.Invoke(this, time(), new Size(e.data1, e.data2));
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
+                SizeChanged?.Invoke(this, time(), new Size(e.data1, e.data2));
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_MINIMIZED:
+                Minimized?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_MAXIMIZED:
+                Maximized?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_RESTORED:
+                Restored?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_ENTER:
+                Entered?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_LEAVE:
+                Left?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_GAINED:
+                FocusGained?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_LOST:
+                FocusLost?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
+                Closed?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_TAKE_FOCUS:
+                FocusTaken?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_HIT_TEST:
+                HitTest?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_ICCPROF_CHANGED:
+                IccprofChanged?.Invoke(this, time());
+                return;
+            
+            case SDL_WindowEventID.SDL_WINDOWEVENT_DISPLAY_CHANGED:
+                DisplayChanged?.Invoke(this, time());
+                return;
+        }
+
+        TimeSpan time() => TimeSpan.FromMilliseconds(e.timestamp);
+    }
+
+    #endregion
+
+    #endregion
 
     /// <summary>
     /// The Window Id
@@ -512,9 +810,8 @@ public class Window : IDisposable
     /// </summary>
     /// <returns>Returns the <see cref="Window"/> if input is grabbed or <see cref="null"/> otherwise.</returns>
     /// <exception cref="SDLWindowException"></exception>
-    public Window? GetGrabbedWindow()
+    public static Window? GetGrabbedWindow()
     {
-        ThrowIfDisposed();
         var ptr = SDL_GetGrabbedWindow();
         return ptr == IntPtr.Zero
             ? null
@@ -524,6 +821,9 @@ public class Window : IDisposable
             : throw new SDLWindowException("This window object has already been garbage collected and disposed")
             : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window directly through SDL?");
     }
+
+    internal static Window? GetGrabbedWindow(Window prospective, IntPtr ptr) 
+        => prospective._handle == ptr ? prospective : GetGrabbedWindow();
 
     /// <summary>
     /// Represents a method set as a callback for a <see cref="Window"/>'s hit test
