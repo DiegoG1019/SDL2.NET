@@ -11,6 +11,10 @@ using System.Threading.Tasks;
 
 namespace SDL2.NET;
 
+/// <summary>
+/// Represents an SDL Application, and is the root of this library
+/// </summary>
+/// <remarks>Initialize the app by calling the Initialization methods (all starting with initialize, code-completion should help you) you want, and finally <see cref="LaunchWindow"/>. Then, in your main loop, you should also regularly call <see cref="UpdateEvents"/></remarks>
 public class SDLApplication : IDisposable
 {
     private Window? _mw;
@@ -139,7 +143,7 @@ public class SDLApplication : IDisposable
         return this;
     }
 
-    public SDLApplication OpenAudioMixer(MixerInitFlags flags, int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
+    public SDLApplication InitializeAndOpenAudioMixer(MixerInitFlags flags, int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
     {
         ThrowIfDisposed();
         AudioMixer.InitAudioMixer(flags);
@@ -223,6 +227,17 @@ public class SDLApplication : IDisposable
     }
 
     #endregion
+
+    /// <summary>
+    /// Fetches and reacts to SDL's events
+    /// </summary>
+    public void UpdateEvents() => Events.Update();
+
+    /// <summary>
+    /// Fetches and reacts to a single one of SDL's events, if available
+    /// </summary>
+    /// <returns>The remaining events in SDL's queue</returns>
+    public int UpdateEventOnce() => Events.UpdateOnce();
 
     protected virtual Renderer InstantiateMainRenderer(RendererFlags flags)
         => new WindowRenderer(MainWindow, flags, - 1);
