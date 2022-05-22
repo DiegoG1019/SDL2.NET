@@ -26,12 +26,12 @@ public class Palette : IDisposable
 
         var p = Marshal.PtrToStructure<SDL_Palette>(handle);
 
-        _colors = new RGBAColor[ColorCount = p.ncolors];
+        //_colors = new RGBAColor[ColorCount = p.ncolors];
 
-        IntPtr[] pointers = new IntPtr[ColorCount];
-        Marshal.Copy(p.colors, pointers, 0, ColorCount);
-        for (int i = 0; i < ColorCount; i++)
-            _colors[i] = Marshal.PtrToStructure<SDL_Color>(pointers[i]);
+        //IntPtr[] pointers = new IntPtr[ColorCount];
+        //Marshal.Copy(p.colors, pointers, 0, ColorCount);
+        //for (int i = 0; i < ColorCount; i++)
+        //    _colors[i] = Marshal.PtrToStructure<SDL_Color>(pointers[i]);
 
         _handleDict[_handle] = new(this);
     }
@@ -78,6 +78,7 @@ public class Palette : IDisposable
     {
         get
         {
+            throw new NotImplementedException();
             ThrowIfDisposed();
             return _colors[index];
         }
