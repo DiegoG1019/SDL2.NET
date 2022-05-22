@@ -6,10 +6,37 @@ namespace SDL2.NET;
 
 internal static class Events
 {
+    ///// <summary>
+    ///// Updates the Event Queue asynchronously, using <paramref name="parallelization"/> for an amount of simultaneous tasks to use
+    ///// </summary>
+    ///// <param name="parallelization"></param>
+    ///// <returns></returns>
+    //public static async Task UpdateAsync(byte parallelization = 5)
+    //{
+
+    //}
+    // planned for the future, but I need to cherry pick what events can be parallelized and which ones can only run on the main thread,
+    // and then benchmark it to make sure it's not a waste of CPU
+    // Work, work, work
+
+    /// <summary>
+    /// Updates the Event Queue until no more events are available
+    /// </summary>
+    public static void Update()
+    {
+        while (UpdateOnce() != 0) ;
+    }
+
+    /// <summary>
+    /// Fetches one event from SDL and processes it
+    /// </summary>
+    /// <returns>The remaining events in the queue</returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static int UpdateOnce()
     {
         var i = SDL_PollEvent(out var e);
+        if (i == 0)
+            return 0;
 
         if (OperatingSystem.IsWindows() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS())
             switch (e.type)
