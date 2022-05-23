@@ -56,7 +56,7 @@ public class Window : IDisposable
         _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
 
         hitTestDelegate = htcallback;
-        _hitTestSupported = SDL_SetWindowHitTest(_handle, hitTestDelegate, IntPtr.Zero) == 0;
+        IsHitTestSupported = SDL_SetWindowHitTest(_handle, hitTestDelegate, IntPtr.Zero) == 0;
 
         // local function
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
@@ -820,8 +820,7 @@ public class Window : IDisposable
 
     private UserData? hitTestCallbackData;
     private HitTestCallback? hitTestCallback;
-    private SDL_HitTest hitTestDelegate;
-    private readonly bool _hitTestSupported;
+    private readonly SDL_HitTest hitTestDelegate;
     /// <summary>
     /// Provide a callback that decides if a window region has special properties. <see cref="SDL_SetWindowHitTest" href="https://wiki.libsdl.org/SDL_SetWindowHitTest"/>
     /// </summary>
@@ -834,7 +833,7 @@ public class Window : IDisposable
     public void SetHitTestCallback(HitTestCallback? callback, UserData? userData)
     {
         ThrowIfDisposed();
-        if (!_hitTestSupported)
+        if (!IsHitTestSupported)
             throw new PlatformNotSupportedException($"Assigning a HitTestCallback to a Window is not supported on this platform.");
         hitTestCallback = callback;
         hitTestCallbackData = userData;
@@ -846,7 +845,7 @@ public class Window : IDisposable
     /// <remarks>
     /// This is tested inside .NET as SDL does not provide a way to test this. However, for the purposes of this library, a <see cref="Window"/>'s constructor will always assign a callback to an <see cref="SDL"/>'s window, and manage .NET callbacks from that. If that assignment fails, it'll be assumed to be unsupported.
     /// </remarks>
-    public bool IsHitTestSupported => _hitTestSupported;
+    public bool IsHitTestSupported { get; }
 
     /// <summary>
     /// Request a <see cref="Window"/> to demand attention from the user. <see cref="SDL_FlashWindow" href="https://wiki.libsdl.org/SDL_FlashWindow"/>
