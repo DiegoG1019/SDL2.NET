@@ -145,9 +145,9 @@ public struct Rectangle : IEquatable<Rectangle>
     public static implicit operator Rectangle(SDL_Rect rect)
         => new(rect.w, rect.h, rect.x, rect.y);
 
-    internal void ToSDL(ref SDL_Rect rect)
+    internal SDL_Rect ToSDL()
     {
-        rect = new SDL_Rect()
+        return new SDL_Rect()
         {
             h = Height,
             w = Width,
@@ -155,6 +155,8 @@ public struct Rectangle : IEquatable<Rectangle>
             y = Y
         };
     }
+    internal void ToSDL(ref SDL_Rect rect)
+        => rect = ToSDL();
 
     public bool Equals(Rectangle other) => Height == other.Height && Width == other.Width && X == other.X && Y == other.Y;
     public static bool operator ==(Rectangle a, Rectangle b) => a.Equals(b);
