@@ -55,7 +55,8 @@ public class Window : IDisposable
         _handleDict[_handle] = r;
         _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
 
-        _hitTestSupported = SDL_SetWindowHitTest(_handle, htcallback, IntPtr.Zero) == 0;
+        hitTestDelegate = htcallback;
+        _hitTestSupported = SDL_SetWindowHitTest(_handle, hitTestDelegate, IntPtr.Zero) == 0;
 
         // local function
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
@@ -819,6 +820,7 @@ public class Window : IDisposable
 
     private UserData? hitTestCallbackData;
     private HitTestCallback? hitTestCallback;
+    private SDL_HitTest hitTestDelegate;
     private readonly bool _hitTestSupported;
     /// <summary>
     /// Provide a callback that decides if a window region has special properties. <see cref="SDL_SetWindowHitTest" href="https://wiki.libsdl.org/SDL_SetWindowHitTest"/>
