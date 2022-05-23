@@ -1,5 +1,6 @@
 # SDL2.NET
-### <b>This library is still in early alpha and is not in a usable state yet!</b>
+### <b>This library is still in early alpha!</b>
+But it's currently in a usable state, I invite you to use it, test it out, and perhaps even do a couple of PRs!
 
 Bringing SDL2 into .NET with its code styles and best practices. Based on https://github.com/flibitijibibo/SDL2-CS (and/or https://github.com/ppy/SDL2-CS) and forked from https://github.com/DoogeJ/SDL2Example
 There are probably a lot of beginner mistakes in this; feel free to point them out to me.
