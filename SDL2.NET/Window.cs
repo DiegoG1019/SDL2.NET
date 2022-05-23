@@ -264,7 +264,7 @@ public class Window : IDisposable
     /// </summary>
     /// <param name="scancode">The scancode of the pressed key</param>
     /// <param name="key">The character represented by the key map</param>
-    public delegate void KeyEvent(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, int repeat, uint unicode);
+    public delegate void KeyEvent(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode);
 
     /// <summary>
     /// Represents an event of a key in the keyboard, when a key is released
@@ -279,13 +279,13 @@ public class Window : IDisposable
     internal void TriggerEventKDown(SDL_KeyboardEvent e)
     {
         var k = e.keysym;
-        KeyPressed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), (Scancode)k.scancode, (Keycode)k.sym, (KeyModifier)k.mod, e.state == 1, e.repeat, k.unicode);
+        KeyPressed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), (Scancode)k.scancode, (Keycode)k.sym, (KeyModifier)k.mod, e.state == 1, e.repeat == 1, k.unicode);
     }
 
     internal void TriggerEventKUp(SDL_KeyboardEvent e)
     {
         var k = e.keysym;
-        KeyReleased?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), (Scancode)k.scancode, (Keycode)k.sym, (KeyModifier)k.mod, e.state == 1, e.repeat, k.unicode);
+        KeyReleased?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), (Scancode)k.scancode, (Keycode)k.sym, (KeyModifier)k.mod, e.state == 1, e.repeat == 1, k.unicode);
     }
 
     #endregion
