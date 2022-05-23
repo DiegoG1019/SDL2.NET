@@ -12,6 +12,11 @@ namespace SDL2.NET;
 /// </summary>
 public struct RGBAColor : IEquatable<RGBAColor>
 {
+    private const int ARGBAlphaShift = 24;
+    private const int ARGBRedShift = 16;
+    private const int ARGBGreenShift = 8;
+    private const int ARGBBlueShift = 0;
+
     public byte Red { get; }
     public byte Green { get; }
     public byte Blue { get; }
@@ -74,9 +79,41 @@ public struct RGBAColor : IEquatable<RGBAColor>
     public bool IsOpaque
         => Alpha == 255;
 
+    /// <summary>
+    /// Converts the given <see cref="RGBColor"/> to an uint value specified by <paramref name="format"/>
+    /// </summary>
+    /// <returns></returns>
     public uint ToUInt32(PixelFormatData format) 
         => IsBlack ? 0 : SDL_MapRGBA(format._handle, Red, Green, Blue, Alpha);
 
+    /// <summary>
+    /// Converts the given <see cref="RGBColor"/> to an uint value
+    /// </summary>
+    /// <returns></returns>
+    public uint ToUInt32()
+        => unchecked((uint)(Red << ARGBRedShift |
+                            Green << ARGBGreenShift |
+                            Blue << ARGBBlueShift |
+                            Alpha << ARGBAlphaShift)) & 0xffffffff;
+
+    /// <summary>
+    /// Converts the given <see cref="uint"/> to a color value
+    /// </summary>
+    public static RGBAColor FromUInt32(uint color)
+    {
+        color &= 0xffffffff;
+        return new RGBAColor(
+            (byte)((color & 0x00FF00000) >> ARGBRedShift),
+            (byte)((color & 0x0000FF00) >> ARGBGreenShift),
+            (byte)((color & 0x000000FF) >> ARGBBlueShift),
+            (byte)((color & 0xFF000000) >> ARGBAlphaShift)
+            );
+    }
+
+    /// <summary>
+    /// Converts the given <see cref="uint"/> to an RGBAColor value specified by <paramref name="format"/>
+    /// </summary>
+    /// <returns></returns>
     public static RGBAColor FromUInt32(uint color, PixelFormatData format)
     {
         if (color == 0)
@@ -85,6 +122,11 @@ public struct RGBAColor : IEquatable<RGBAColor>
         return new(r, g, b, a);
     }
 
+    /// <summary>
+    /// Converts the given <see cref="uint"/> to an RGBAColor value
+    /// </summary>
+    /// <param name="color"></param>
+    /// <param name="alpha"></param>
     public RGBAColor(RGBColor color, byte alpha) : this(color.Red, color.Green, color.Blue, alpha) { }
 
     public static implicit operator RGBAColor(SDL_Color color)
@@ -123,10 +165,31 @@ public struct RGBAColor : IEquatable<RGBAColor>
 /// </summary>
 public struct RGBColor : IEquatable<RGBColor>
 {
+    private const int RGBRedShift = 16;
+    private const int RGBGreenShift = 8;
+    private const int RGBBlueShift = 0;
+
+    /// <summary>
+    /// The Red portion of the color
+    /// </summary>
     public byte Red { get; }
+
+    /// <summary>
+    /// The Green portion of the color
+    /// </summary>
     public byte Green { get; }
+
+    /// <summary>
+    /// The Blue portion of the color
+    /// </summary>
     public byte Blue { get; }
 
+    /// <summary>
+    /// Instances a new RGB color
+    /// </summary>
+    /// <param name="red">The Red portion of the color</param>
+    /// <param name="green">The Green portion of the color</param>
+    /// <param name="blue">The Blue portion of the color</param>
     public RGBColor(byte red, byte green, byte blue)
     {
         Red = red;
@@ -134,7 +197,38 @@ public struct RGBColor : IEquatable<RGBColor>
         Blue = blue;
     }
 
+    /// <summary>
+    /// Converts the given <see cref="RGBColor"/> to an uint value specified by the <paramref name="format"/>
+    /// </summary>
+    /// <param name="format"></param>
+    /// <returns></returns>
     public uint ToUInt32(PixelFormatData format) => SDL_MapRGB(format._handle, Red, Green, Blue);
+
+    /// <summary>
+    /// Converts the given <see cref="RGBColor"/> to an uint value
+    /// </summary>
+    /// <returns></returns>
+    public uint ToUInt32() 
+        => unchecked((uint)(Red << RGBRedShift |
+                         Green << RGBGreenShift |
+                         Blue << RGBBlueShift)) & 0xffffffff;
+
+    /// <summary>
+    /// Converts the given <see cref="uint"/> to a color value
+    /// </summary>
+    public static RGBColor FromUInt32(uint color)
+    {
+        color &= 0xffffffff;
+        return new RGBColor(
+            (byte)((color & 0x00FF00000) >> RGBRedShift),
+            (byte)((color & 0x0000FF00) >> RGBGreenShift),
+            (byte)((color & 0x000000FF) >> RGBBlueShift)
+            );
+    }
+
+    /// <summary>
+    /// Converts the given <see cref="uint"/> to a color value specified by the <paramref name="format"/>
+    /// </summary>
     public static RGBColor FromUInt32(uint color, PixelFormatData format)
     {
         SDL_GetRGB(color, format._handle, out var r, out var g, out var b);
