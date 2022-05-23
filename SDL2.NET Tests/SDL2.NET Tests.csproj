@@ -20,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    <ProjectReference Include="..\SDL2.NET.Extensions.Windows\SDL2.NET.Extensions.Windows.csproj" />
     <ProjectReference Include="..\SDL2.NET\SDL2.NET.csproj" />
   </ItemGroup>
 
