@@ -26,7 +26,15 @@ public class Palette : IDisposable
 
         var p = Marshal.PtrToStructure<SDL_Palette>(handle);
 
-        //_colors = new RGBAColor[ColorCount = p.ncolors];
+        _colors = new RGBAColor[ColorCount = p.ncolors];
+
+        IntPtr c = p.colors;
+        int s = Marshal.SizeOf<SDL_Color>();
+
+        for (int i = 0; i < ColorCount; i++)
+        {
+            _colors[i] = Marshal.PtrToStructure<SDL_Color>(c + i * s);
+        }
 
         //IntPtr[] pointers = new IntPtr[ColorCount];
         //Marshal.Copy(p.colors, pointers, 0, ColorCount);
