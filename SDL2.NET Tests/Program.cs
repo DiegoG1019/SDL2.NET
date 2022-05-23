@@ -29,7 +29,7 @@ internal class Program
             .InitializeAudio()
             .InitializeAndOpenAudioMixer(SDLMixer.MixerInitFlags.OGG | SDLMixer.MixerInitFlags.MP3)
             .InitializeTTF()
-            .LaunchWindow("SDL2.NET Test", 800, 600, RendererFlags.Accelerated | RendererFlags.PresentVSync);
+            .LaunchWindow("SDL2.NET Test", 800, 600, rendererFlags: RendererFlags.Accelerated | RendererFlags.PresentVSync);
 
         Disposables.Add(app);
 
