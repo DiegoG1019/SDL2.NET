@@ -15,109 +15,118 @@ public sealed class WindowConfig
     /// The default Window configuration. Feel free to modify this.
     /// </summary>
     /// <remarks>Changes will take effect only on newly created <see cref="Window"/>s</remarks>
-    public static WindowConfig Default { get; } = new WindowConfig().Resizable(true);
+    public static WindowConfig Default
+    {
+        get => _def;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            _def = value;
+        }
+    }
+    private static WindowConfig _def = new WindowConfig().Resizable(true);
 
     #region Properties
 
     /// <summary>
     /// The full screen mode the <see cref="Window"/> should start with
     /// </summary>
-    public FullscreenMode FullscreenType { get; private set; }
+    public FullscreenMode FullscreenType { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should be usable with an OpenGL context
     /// </summary>
-    public bool AllowOpenGL { get; private set; }
+    public bool AllowOpenGL { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should be usable with a Vulkan instance
     /// </summary>
-    public bool AllowVulkan { get; private set; }
+    public bool AllowVulkan { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should be usable with a Metal instance
     /// </summary>
-    public bool AllowMetal { get; private set; }
+    public bool AllowMetal { get; set; }
 
     /// <summary>
     /// Whether to start the <see cref="Window"/> shown or hidden
     /// </summary>
-    public bool Hidden { get; private set; }
+    public bool Hidden { get; set; }
 
     /// <summary>
     /// Whether or not the <see cref="Window"/> should be launched borderless
     /// </summary>
-    public bool IsBorderless { get; private set; }
+    public bool IsBorderless { get; set; }
 
     /// <summary>
     /// Whether or not the <see cref="Window"/> is resizable
     /// </summary>
-    public bool IsResizable { get; private set; }
+    public bool IsResizable { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> is Maximized, Minimized or neither
     /// </summary>
-    public MaximizedType MaximizedOrMinimized { get; private set; }
+    public MaximizedType MaximizedOrMinimized { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should have the mouse grabbed upon spawn
     /// </summary>
-    public bool HasMouseGrabbed { get; private set; }
+    public bool HasMouseGrabbed { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should have input focus
     /// </summary>
-    public bool HasInputFocus { get; private set; }
+    public bool HasInputFocus { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should have mouse focus
     /// </summary>
-    public bool HasMouseFocus { get; private set; }
+    public bool HasMouseFocus { get; set; }
 
     /// <summary>
     /// Whether to enable High DPI if supported
     /// </summary>
-    public bool AllowHighDPI { get; private set; }
+    public bool AllowHighDPI { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> has the mouse captured
     /// </summary>
-    public bool HasMouseCaptured { get; private set; }
+    public bool HasMouseCaptured { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should always be on top
     /// </summary>
-    public bool IsAlwaysOnTop { get; private set; }
+    public bool IsAlwaysOnTop { get; set; }
 
     /// <summary>
     /// Whether the <see cref="Window"/> should not be added to the taskbar if possible
     /// </summary>
-    public bool SkipTaskbar { get; private set; }
+    public bool SkipTaskbar { get; set; }
 
     /// <summary>
     /// Whether this should be treated as an utility Window
     /// </summary>
-    public bool IsUtility { get; private set; }
+    public bool IsUtility { get; set; }
 
     /// <summary>
     /// Whether this should be treated as a tooltip
     /// </summary>
-    public bool IsTooltip { get; private set; }
+    public bool IsTooltip { get; set; }
 
     /// <summary>
     /// Whether this should be treated as a Popup Menu
     /// </summary>
-    public bool IsPopupMenu { get; private set; }
+    public bool IsPopupMenu { get; set; }
 
     /// <summary>
     /// Whether the Keyboard should be grabbed
     /// </summary>
-    public bool HasKeyboardGrabbed { get; private set; }
+    public bool HasKeyboardGrabbed { get; set; }
 
     /// <summary>
     /// Whether the Input should be grabbed
     /// </summary>
-    public bool HasInputGrabbed { get; private set; }
+    public bool HasInputGrabbed { get; set; }
 
     #endregion
 
