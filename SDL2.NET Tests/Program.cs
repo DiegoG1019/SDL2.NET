@@ -82,10 +82,7 @@ internal class Program
         Disposables.Add(deerText);
 
         var deerTextDstBox = deerText.GetRectangle(128, 128 + 35);
-
-        // prepare a color for SDL2_gfx
-        RGBAColor background = Colors.CornflowerBlue;
-
+        
         app.Quitting += App_Quitting;
         window.KeyPressed += Window_KeyPressed;
         window.KeyReleased += Window_KeyReleased;
@@ -99,8 +96,7 @@ internal class Program
 
             app.UpdateEvents();
 
-            renderer.RenderColor = background;
-            renderer.Clear();
+            renderer.Clear(Colors.CornflowerBlue);
 
             deer.Render(null, deerDstBox);
             deerText.Render(null, deerTextDstBox);
