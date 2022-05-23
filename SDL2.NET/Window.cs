@@ -533,6 +533,24 @@ public class Window : IDisposable
     }
 
     /// <summary>
+    /// Maximize the <see cref="Window"/>. <see cref="SDL_MaximizeWindow" href="https://wiki.libsdl.org/SDL_MaximizeWindow"/>
+    /// </summary>
+    public void Maximize()
+    {
+        ThrowIfDisposed();
+        SDL_MaximizeWindow(_handle);
+    }
+
+    /// <summary>
+    /// Minimize the <see cref="Window"/>. <see cref="SDL_MinimizeWindow" href="https://wiki.libsdl.org/SDL_MinimizeWindow"/>
+    /// </summary>
+    public void Minimize()
+    {
+        ThrowIfDisposed();
+        SDL_MinimizeWindow(_handle);
+    }
+
+    /// <summary>
     /// Sets this Window as the OS's input focus. <see cref="SDL_SetWindowInputFocus" href="https://wiki.libsdl.org/SDL_SetWindowInputFocus"/>
     /// </summary>
     /// <remarks>
