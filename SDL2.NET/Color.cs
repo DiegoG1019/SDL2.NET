@@ -16,7 +16,15 @@ public struct RGBAColor : IEquatable<RGBAColor>
     public byte Green { get; }
     public byte Blue { get; }
     public byte Alpha { get; }
+    public double AlphaPercentage => Alpha / 255f;
 
+    /// <summary>
+    /// Creates a new RGBA color
+    /// </summary>
+    /// <param name="red">The red value of the color</param>
+    /// <param name="green">The green value of the color</param>
+    /// <param name="blue">The blue value of the color</param>
+    /// <param name="alpha">The alpha value of the color, from 0 (transparent) to 255 (opaque)</param>
     public RGBAColor(byte red, byte green, byte blue, byte alpha)
     {
         Red = red;
@@ -25,8 +33,46 @@ public struct RGBAColor : IEquatable<RGBAColor>
         Alpha = alpha;
     }
 
-    private bool IsBlack
-        => Red == 0 && Green == 0 && Blue == 0 && Alpha == 0;
+    /// <summary>
+    /// Creates a new RGBA color
+    /// </summary>
+    /// <param name="red">The red value of the color</param>
+    /// <param name="green">The green value of the color</param>
+    /// <param name="blue">The blue value of the color</param>
+    /// <param name="alpha">The alpha value of the color, from 0 (transparent) to 1 (opaque)</param>
+    public RGBAColor(byte red, byte green, byte blue, double alpha)
+        : this(red, green, blue, (byte)(255 * Math.Clamp(alpha, 0, 1))) { }
+
+    /// <summary>
+    /// Whether this color is pure black
+    /// </summary>
+    public bool IsBlack
+        => Red == 0 && Green == 0 && Blue == 0;
+
+    /// <summary>
+    /// Whether this color is pure white
+    /// </summary>
+    public bool IsWhite
+        => Red == 255 && Green == 255 && Blue == 255;
+
+    /// <summary>
+    /// Whether this color is a shade of gray
+    /// </summary>
+    /// <remarks>Whether or not all color values are the same</remarks>
+    public bool IsGray
+        => Red == Green && Green == Blue;
+
+    /// <summary>
+    /// Whether this color is completely transparent
+    /// </summary>
+    public bool IsTransparent
+        => Alpha == 0;
+
+    /// <summary>
+    /// Whether this color is completely opaque
+    /// </summary>
+    public bool IsOpaque
+        => Alpha == 255;
 
     public uint ToUInt32(PixelFormatData format) 
         => IsBlack ? 0 : SDL_MapRGBA(format._handle, Red, Green, Blue, Alpha);
@@ -94,6 +140,25 @@ public struct RGBColor : IEquatable<RGBColor>
         SDL_GetRGB(color, format._handle, out var r, out var g, out var b);
         return new(r, g, b);
     }
+
+    /// <summary>
+    /// Whether this color is pure black
+    /// </summary>
+    public bool IsBlack
+        => Red == 0 && Green == 0 && Blue == 0;
+
+    /// <summary>
+    /// Whether this color is pure white
+    /// </summary>
+    public bool IsWhite
+        => Red == 255 && Green == 255 && Blue == 255;
+
+    /// <summary>
+    /// Whether this color is a shade of gray
+    /// </summary>
+    /// <remarks>Whether or not all color values are the same</remarks>
+    public bool IsGray
+        => Red == Green && Green == Blue;
 
     public static explicit operator RGBColor(SDL_Color color) //This involves a loss of info
         => new(color.r, color.g, color.b);
