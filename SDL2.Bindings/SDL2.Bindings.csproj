@@ -1,9 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Company />
+	<Authors>Diego Garcia</Authors>
+	<Description>Provides native bindings to SDL's library. Modified from https://github.com/flibitijibibo/SDL2-CS</Description>
+	<Copyright>MIT</Copyright>
+	<PackageProjectUrl>https://github.com/DiegoG1019/SDL2.NET</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/DiegoG1019/SDL2.NET</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageTags>sdl;native;window;gui;windows;graphic;gfx;lib-sdl;audio;sound;controller;joystick;keyboard;mouse;gui;game</PackageTags>
   </PropertyGroup>
 
 	<!-- This copies all .dll files from the lib folder to the project output root folder -->
