@@ -55,6 +55,8 @@ public class Window : IDisposable
         _handleDict[_handle] = r;
         _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
 
+        Surface = new Surface(SDL_GetWindowSurface(_handle));
+
         hitTestDelegate = htcallback;
         IsHitTestSupported = SDL_SetWindowHitTest(_handle, hitTestDelegate, IntPtr.Zero) == 0;
 
@@ -802,6 +804,11 @@ public class Window : IDisposable
     }
 
     /// <summary>
+    /// The <see cref="Surface"/> of this <see cref="Window"/>
+    /// </summary>
+    public Surface Surface { get; }
+
+    /// <summary>
     /// Copy areas of the window surface to the screen. <see cref="SDL_UpdateWindowSurfaceRects" href="https://wiki.libsdl.org/SDL_UpdateWindowSurfaceRects"/>
     /// </summary>
     /// <param name="rectangles">The areas of the window's surface to copy to the screen</param>
@@ -880,6 +887,20 @@ public class Window : IDisposable
             SDL_Rect r = default;
             ((Rectangle)value).ToSDL(ref r);
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, ref r), 0);
+        }
+    }
+
+    /// <summary>
+    /// Gets System specific window information
+    /// </summary>
+    public SDL_SysWMinfo SystemInfo
+    {
+        get
+        {
+            SDL_SysWMinfo info = default;
+            SDL_VERSION(out info.version);
+            SDL_GetWindowWMInfo(_handle, ref info);
+            return info;
         }
     }
 
