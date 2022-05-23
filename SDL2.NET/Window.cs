@@ -16,11 +16,28 @@ public class Window : IDisposable
 {
     internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new(2, 2);
     internal static readonly ConcurrentDictionary<uint, WeakReference<Window>> _idDict = new(2, 2);
+    
+    /// <summary>
+    /// The internal handle that points to the <see cref="Window"/> object in SDL
+    /// </summary>
+    /// <remarks>Unless you know exactly what you're doing, and are trying to work directly with SDL, ignore this field. This field is NOT set to <see cref="IntPtr.Zero"/> (null) upon disposal</remarks>
     protected internal readonly IntPtr _handle = IntPtr.Zero;
 
-    public static WindowRenderer CreateWindowAndRenderer(string title, int width, int height, int rendererIndex = -1, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
+    /// <summary>
+    /// Creates a Window and a Renderer together
+    /// </summary>
+    /// <param name="title">The title of the <see cref="Window"/></param>
+    /// <param name="width">The width of the <see cref="Window"/></param>
+    /// <param name="height">The height of the <see cref="Window"/></param>
+    /// <param name="configuration">The configuration parameters of the <see cref="Window"/></param>
+    /// <param name="centerPointX">The center point along the X axis of the <see cref="Window"/></param>
+    /// <param name="centerPointY">The center point along the Y axis of the <see cref="Window"/></param>
+    /// <param name="rendererIndex">The renderer index of the renderer</param>
+    /// <param name="rendererFlags">The RendererFlags of the renderer</param>
+    /// <returns></returns>
+    public static WindowRenderer CreateWindowAndRenderer(string title, int width, int height, int rendererIndex = -1, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync, WindowConfig? configuration = null, int? centerPointX = null, int? centerPointY = null)
     {
-        var win = new Window(title, width, height, flags, centerPointX, centerPointY);
+        var win = new Window(title, width, height, configuration, centerPointX, centerPointY);
         return new WindowRenderer(win, rendererIndex);
     }
 
@@ -38,7 +55,17 @@ public class Window : IDisposable
         return false;
     }
 
-    public Window(string title, int width, int height, SDL_WindowFlags flags = SDL_WindowFlags.SDL_WINDOW_RESIZABLE, int? centerPointX = null, int? centerPointY = null)
+    /// <summary>
+    /// Instantiates a new <see cref="Window"/>
+    /// </summary>
+    /// <param name="title">The title of the <see cref="Window"/></param>
+    /// <param name="width">The width of the <see cref="Window"/></param>
+    /// <param name="height">The height of the <see cref="Window"/></param>
+    /// <param name="configuration">The configuration parameters of the <see cref="Window"/></param>
+    /// <param name="centerPointX">The center point along the X axis of the <see cref="Window"/></param>
+    /// <param name="centerPointY">The center point along the Y axis of the <see cref="Window"/></param>
+    /// <exception cref="SDLWindowCreationException"></exception>
+    public Window(string title, int width, int height, WindowConfig? configuration, int? centerPointX = null, int? centerPointY = null)
     {
         _handle = SDL_CreateWindow(
             title,
@@ -46,7 +73,7 @@ public class Window : IDisposable
             centerPointY ?? SDL_WINDOWPOS_CENTERED,
             width,
             height,
-            flags
+            (configuration ?? WindowConfig.Default).GenerateFlags()
         );
         if (_handle == IntPtr.Zero)
             throw new SDLWindowCreationException(SDL_GetError());
@@ -134,13 +161,14 @@ public class Window : IDisposable
     /// <param name="sender">The <see cref="Window"/> sender</param>
     /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
     /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>
-    /// <param name="verticalScroll">The vertical scroll by the wheel. 
-    /// <param name="sender">The <see cref="Window"/> sender</param>
-    /// <param name="timestamp">The amount of time that has passed since SDL initialized</param>
-    /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>Positive values means the wheel was scrolled away from the user, while negative values means the wheel was scrolled towards the user.</param>
+    /// <param name="verticalScroll">The vertical scroll by the wheel. </param>
     /// <param name="horizontalScroll">The horizontal scroll by the wheel. Positive values means the wheel was scrolled to the right, while negative values means the wheel was scrolled to the left.</param>
     /// <remarks>Unlike in native SDL, whether the mouse wheel is inverted or not IS abstracted away. This means that, in the event that the scroll wheel is inverted, the values will be inverted to compensate.</remarks>
     public delegate void MouseWheelEvent(Window sender, TimeSpan timestamp, uint mouseId, float verticalScroll, float horizontalScroll);
+
+    /// <summary>
+    /// Fired when the Mouse Wheel is scrolled inside this <see cref="Window"/>
+    /// </summary>
     public event MouseWheelEvent? MouseWheelScrolled;
 
     internal void TriggerEvent(SDL_MouseWheelEvent e)
@@ -157,7 +185,12 @@ public class Window : IDisposable
     /// <param name="delta">The difference between the mouse's last recorded position and the new one</param>
     /// <param name="newPosition">The mouse's actual position within this <see cref="Window"/></param>
     /// <param name="mouseId">The mouse's id, or <see cref="Mouse.TouchMouseId"/></param>
+    /// <param name="pressed">The mouse button that was pressed at the time of the mouse being moved</param>
     public delegate void MouseMovedEvent(Window sender, TimeSpan timestamp, Point delta, Point newPosition, uint mouseId, MouseButton pressed);
+
+    /// <summary>
+    /// Fired when the mouse is moved inside this <see cref="Window"/>
+    /// </summary>
     public event MouseMovedEvent? MouseMoved;
 
     internal void TriggerEvent(SDL_MouseMotionEvent e)
@@ -175,7 +208,15 @@ public class Window : IDisposable
     /// <param name="state">The mouse's button state</param>
     /// <param name="clicks">The amount of clicks the user did on this mouse. 1 for a single click, 2 for a double click</param>
     public delegate void MouseButtonEvent(Window sender, TimeSpan timestamp, uint mouseId, int clicks, MouseButton state);
+
+    /// <summary>
+    /// Fired when a mouse button is released inside this <see cref="Window"/>
+    /// </summary>
     public event MouseButtonEvent? MouseButtonReleased;
+
+    /// <summary>
+    /// Fired when a mouse button is pressed inside this <see cref="Window"/>
+    /// </summary>
     public event MouseButtonEvent? MouseButtonPressed;
 
     internal void TriggerEventMBUP(SDL_MouseButtonEvent e)
@@ -267,6 +308,12 @@ public class Window : IDisposable
     /// </summary>
     /// <param name="scancode">The scancode of the pressed key</param>
     /// <param name="key">The character represented by the key map</param>
+    /// <param name="isPressed">Whether the key is pressed at the time of the event firing or not</param>
+    /// <param name="modifiers">The active keyboard modifiers modifying the key pressed</param>
+    /// <param name="repeat">Whether the key is a repeat press (Most usually a held key) or not</param>
+    /// <param name="sender">The <see cref="Window"/> that fired this event</param>
+    /// <param name="timestamp">The amount of time that has passed since SDL's initialization and this event firing</param>
+    /// <param name="unicode">The unicode value of the character pressed</param>
     public delegate void KeyEvent(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode);
 
     /// <summary>
@@ -765,7 +812,7 @@ public class Window : IDisposable
     /// Gets the <see cref="Window"/>'s border sizes. <see cref="SDL_GetWindowBordersSize" href="https://wiki.libsdl.org/SDL_GetWindowBordersSize"/>
     /// </summary>
     /// <remarks>
-    /// This function may fail on systems where the window has not yet been decorated by the display server (for example, immediately after instantiating a <see cref="new"/> <see cref="Window"/>). It is recommended that you wait at least until the window has been presented and composited, so that the window system has a chance to decorate the window and provide the border dimensions to SDL.
+    /// This function may fail on systems where the window has not yet been decorated by the display server (for example, immediately after instantiating a new <see cref="Window"/>). It is recommended that you wait at least until the window has been presented and composited, so that the window system has a chance to decorate the window and provide the border dimensions to SDL.
     /// </remarks>
     /// <param name="top">The size of the top border</param>
     /// <param name="left">The size of the left border</param>
@@ -847,7 +894,7 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// <see cref="true"/> if setting a HitTestCallback is supported in this platform. <see cref="false"/> otherwise.
+    /// true if setting a HitTestCallback is supported in this platform. false otherwise.
     /// </summary>
     /// <remarks>
     /// This is tested inside .NET as SDL does not provide a way to test this. However, for the purposes of this library, a <see cref="Window"/>'s constructor will always assign a callback to an <see cref="SDL"/>'s window, and manage .NET callbacks from that. If that assignment fails, it'll be assumed to be unsupported.
@@ -907,7 +954,7 @@ public class Window : IDisposable
     /// <summary>
     /// Get the <see cref="Window"/> that currently has an input grab enabled. <see cref="SDL_GetGrabbedWindow" href="https://wiki.libsdl.org/SDL_GetGrabbedWindow"/>
     /// </summary>
-    /// <returns>Returns the <see cref="Window"/> if input is grabbed or <see cref="null"/> otherwise.</returns>
+    /// <returns>Returns the <see cref="Window"/> if input is grabbed or null otherwise.</returns>
     /// <exception cref="SDLWindowException"></exception>
     public static Window? GetGrabbedWindow()
     {
@@ -938,6 +985,10 @@ public class Window : IDisposable
 
     private bool disposedValue;
 
+    /// <summary>
+    /// Disposes the object, freeing unmanaged SDL resources
+    /// </summary>
+    /// <remarks>Try not to call this directly</remarks>
     protected virtual void Dispose(bool disposing)
     {
         if (!disposedValue)
@@ -949,11 +1000,17 @@ public class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Finalizes the object, in case it wasn't disposed
+    /// </summary>
     ~Window()
     {
         Dispose(disposing: false);
     }
 
+    /// <summary>
+    /// Disposes the object, freeing unmanaged SDL resources
+    /// </summary>
     public void Dispose()
     {
         Dispose(disposing: true);
