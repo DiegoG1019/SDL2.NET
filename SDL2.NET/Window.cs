@@ -450,7 +450,7 @@ public class Window : IDisposable
     /// </remarks>
     /// <exception cref="SDLWindowException"/>
     /// <exception cref="PlatformNotSupportedException"/>
-    public float Opacity
+    public double Opacity
     {
         get
         {
@@ -461,7 +461,7 @@ public class Window : IDisposable
         set
         {
             ThrowIfDisposed();
-            var error = SDL_SetWindowOpacity(_handle, value);
+            var error = SDL_SetWindowOpacity(_handle, (float)value);
             if (error is -1)
                 throw new PlatformNotSupportedException(SDL_GetError());
             SDLWindowException.ThrowIfLessThan(error, 0);
