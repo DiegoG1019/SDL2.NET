@@ -66,12 +66,11 @@ internal class Program
             deer = new Texture(renderer, _m);
             _m.Dispose();
         }
-        Rectangle deerSrcBox = new(0, 0, 32, 32);
-        Rectangle deerDstBox = new(128, 128, 32, 32);
+        var deerDstBox = deer.GetRectangle(128, 128);
         Disposables.Add(deer);
 
         var VCRFont = new TTFont("Resources\\VCR_OSD_MONO_1.001.ttf", 32);
-        var fontColor = new RGBColor(255, 127, 32);
+        var fontColor = Colors.Red;
         Disposables.Add(VCRFont);
 
         Texture deerText;
@@ -82,12 +81,10 @@ internal class Program
         }
         Disposables.Add(deerText);
 
-        var deerTextSrcBox = deerText.GetRectangle(0, 0);
-        var deerTextDstBox = deerText.GetRectangle(64, 64);
+        var deerTextDstBox = deerText.GetRectangle(128, 128 + 35);
 
         // prepare a color for SDL2_gfx
-        RGBAColor SolidRed = new(255, 0, 0, 255);
-        RGBAColor background = new(32, 32, 64, 255);
+        RGBAColor background = Colors.CornflowerBlue;
 
         app.Quitting += App_Quitting;
         window.KeyPressed += Window_KeyPressed;
@@ -105,8 +102,8 @@ internal class Program
             renderer.RenderColor = background;
             renderer.Clear();
 
-            deer.Render(deerSrcBox, deerDstBox);
-            deerText.Render(deerTextSrcBox, deerTextDstBox);
+            deer.Render(null, deerDstBox);
+            deerText.Render(null, deerTextDstBox);
 
             // underline the font with SDL_gfx
             //SDL_gfx.lineColor(Renderer, (short)FontTarget.x, (short)(FontTarget.y + FontTarget.h + 10), (short)(FontTarget.x + FontTarget.w), (short)(FontTarget.y + FontTarget.h + 10), SolidRed);
