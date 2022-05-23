@@ -5,7 +5,17 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks> <!-- This is a requirement to use unsafe code / pointers -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Company />
+    <Authors>Diego Garcia</Authors>
+    <Description>A OOP Library that binds to SDL's native library</Description>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://github.com/DiegoG1019/SDL2.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DiegoG1019/SDL2.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>sdl;native;window;gui;windows;graphic;gfx;lib-sdl;audio;sound;controller;joystick;keyboard;mouse;gui;game</PackageTags> <!-- This is a requirement to use unsafe code / pointers -->
   </PropertyGroup>
 
   <ItemGroup>
