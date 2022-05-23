@@ -19,12 +19,59 @@ public class SDLApplication : IDisposable
 {
     private Window? _mw;
     private Renderer? _mr;
+
+    /// <summary>
+    /// The current Main Window of the application.
+    /// </summary>
     public Window MainWindow => _mw ?? throw new InvalidOperationException("This application's window has not been launched");
+
+    /// <summary>
+    /// The current Main Renderer of the application.
+    /// </summary>
     public Renderer MainRenderer => _mr ?? throw new InvalidOperationException("This application's window has not been launched");
 
-    private SDLApplication() { }
+    private static readonly object sync = new();
 
-    public static SDLApplication App { get; } = new();
+    /// <summary>
+    /// Instances the SDLApplication
+    /// </summary>
+    /// <remarks>
+    /// This class can only be instanced once, and will throw if multiple instances are attempted, even if attempted outside <see cref="Instance"/> or <see cref="Instance{TApp}"/> which should be avoided. If you want to override the behaviours of this class, feel free to inherit it and use <see cref="Instance{TApp}"/>. Otherwise, simply use <see cref="Instance"/>
+    /// </remarks>
+    protected SDLApplication() 
+    {
+        lock (sync)
+        {
+            if (_inst is null)
+                return;
+            throw new InvalidOperationException("SDLApplication, or any of its sub-types can only be instanced once.");
+        }
+    }
+
+    private static SDLApplication? _inst;
+
+    /// <summary>
+    /// Fetches the instance of <see cref="SDLApplication"/>, or instances a new one if not available
+    /// </summary>
+    /// <returns>The singleton instance of <see cref="SDLApplication"/></returns>
+    public static SDLApplication Instance()
+    {
+        if (_inst is null)
+            _inst = new SDLApplication();
+        return _inst;
+    }
+
+    /// <summary>
+    /// Fetches the instance of the <see cref="SDLApplication"/> of <typeparamref name="TApp"/> child type, or instances a new one if not available.
+    /// </summary>
+    /// <typeparam name="TApp">The type the <see cref="SDLApplication"/> is meant to be</typeparam>
+    /// <returns>The singleton instance of <typeparamref name="TApp"/></returns>
+    public static TApp Instance<TApp>() where TApp : SDLApplication, new()
+    {
+        if (_inst is null)
+            _inst = new TApp();
+        return (TApp)_inst;
+    }
 
     #region Events
 
@@ -129,6 +176,10 @@ public class SDLApplication : IDisposable
 
     #region Initialization
 
+    /// <summary>
+    /// Initializes SDL's Video Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication InitializeVideo()
     {
         ThrowIfDisposed();
@@ -136,6 +187,10 @@ public class SDLApplication : IDisposable
         return this;
     }
 
+    /// <summary>
+    /// Initializes SDL's Audio Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication InitializeAudio()
     {
         ThrowIfDisposed();
@@ -143,6 +198,10 @@ public class SDLApplication : IDisposable
         return this;
     }
 
+    /// <summary>
+    /// Initializes SDL's Audio Mixing Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication InitializeAndOpenAudioMixer(MixerInitFlags flags, int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
     {
         ThrowIfDisposed();
@@ -151,6 +210,10 @@ public class SDLApplication : IDisposable
         return this;
     }
 
+    /// <summary>
+    /// Initializes SDL's TrueTypeFont Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication InitializeTTF()
     {
         ThrowIfDisposed();
@@ -158,31 +221,48 @@ public class SDLApplication : IDisposable
         return this;
     }
 
+    /// <summary>
+    /// Instantiates and Launches both <see cref="MainRenderer"/> and <see cref="MainWindow"/>, should be called last
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication LaunchWindow(string title, int width, int height, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync)
     {
         ThrowIfDisposed();
         if (_mw is not null)
             throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
-        _mw = InsantiateMainWindow(title, width, height);
+        _mw = InstantiateMainWindow(title, width, height);
         _mr = InstantiateMainRenderer(rendererFlags);
         return this;
     }
 
-    public void SetMainWindow(WindowRenderer renderer)
+    /// <summary>
+    /// Replaces this app's <see cref="MainWindow"/> and <see cref="MainRenderer"/>
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to replace <see cref="MainRenderer"/> with, which also contains the <see cref="Window"/> to replace <see cref="MainWindow"/> with</param>
+    /// <param name="disposePrevious">Whether or not to dispose of the replaced <see cref="Window"/> or <see cref="Renderer"/></param>
+    /// <remarks>Since a <see cref="WindowRenderer"/> always belongs to one specific <see cref="Window"/>, there's no parameter to replace the <see cref="Window"/>. This method checks if <see cref="MainWindow"/> needs to be replaced (for example, it may be the same <see cref="Window"/>), and if it doesn't, it won't try to dispose of it or update events</remarks>
+    public void SetMainWindow(WindowRenderer renderer, bool disposePrevious)
     {
-        _mw = renderer.AttachedWindow;
+        if (_mr is null || _mw is null)
+            throw new InvalidOperationException("A Main Window for this app has not been launched. Try LaunchMainWindow instead. Consider overriding InstantiateMainRenderer and InstantiateMainWindow");
+
+        var prevr = _mr;
         _mr = renderer;
-    }
 
-    #endregion
+        if (ReferenceEquals(_mw, renderer.AttachedWindow))
+        {
+            if (disposePrevious)
+                prevr?.Dispose();
+            return;
+        }
 
-    #region Input
-    
-    public InputEvents InputEvent { get; } = new();
-
-    public class InputEvents
-    {
-
+        var prevw = _mw;
+        _mw = renderer.AttachedWindow;
+        if (disposePrevious)
+        {
+            prevr?.Dispose();
+            prevw?.Dispose();
+        }
     }
 
     #endregion
@@ -239,6 +319,11 @@ public class SDLApplication : IDisposable
     /// <returns>The remaining events in SDL's queue</returns>
     public int UpdateEventOnce() => Events.UpdateOnce();
 
+    /// <summary>
+    /// Blocks the current thread for <paramref name="time"/> amount of time
+    /// </summary>
+    /// <param name="time">The amount of time to block the current thread</param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public void Delay(TimeSpan time)
     {
         var x = time.TotalMilliseconds;
@@ -247,9 +332,21 @@ public class SDLApplication : IDisposable
         SDL.SDL_Delay(x >= uint.MaxValue ? uint.MaxValue : (uint)x);
     }
 
+    /// <summary>
+    /// The procedure that instantiates <see cref="MainRenderer"/>
+    /// </summary>
+    /// <param name="flags">The preferred flags of the <see cref="Renderer"/></param>
+    /// <returns>The instantiated <see cref="Renderer"/></returns>
     protected virtual Renderer InstantiateMainRenderer(RendererFlags flags)
         => new WindowRenderer(MainWindow, flags, - 1);
 
-    protected virtual Window InsantiateMainWindow(string title, int width, int height)
+    /// <summary>
+    /// The procedure that instantiates <see cref="MainWindow"/>
+    /// </summary>
+    /// <param name="title">The preferred title of the <see cref="Window"/></param>
+    /// <param name="width">The preferred width of the <see cref="Window"/></param>
+    /// <param name="height">The preferred height of the <see cref="Window"/></param>
+    /// <returns>The instantiated <see cref="Window"/></returns>
+    protected virtual Window InstantiateMainWindow(string title, int width, int height)
         => new(title, width, height);
 }
