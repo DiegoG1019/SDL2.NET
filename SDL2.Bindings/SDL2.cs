@@ -2212,8 +2212,6 @@ namespace SDL2.Bindings
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int SDL_UpdateWindowSurface(IntPtr window);
 
-#warning IF SOMETHING DOES NOT WORK. CHECK THIS FIRST
-
         /* window refers to an SDL_Window* */
         [DllImport(nativeLibName,  EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl)]
         public static unsafe extern int INTERNAL_SDL_UpdateWindowSurfaceRects(
