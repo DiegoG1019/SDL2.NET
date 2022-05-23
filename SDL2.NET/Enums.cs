@@ -16,11 +16,11 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
-public enum BackendType : uint
+public enum MaximizedType : uint
 {
-    OpenGL = SDL_WindowFlags.SDL_WINDOW_OPENGL,
-    Vulkan = SDL_WindowFlags.SDL_WINDOW_VULKAN,
-    Metal = SDL_WindowFlags.SDL_WINDOW_METAL
+    Default = 0,
+    Maximized = SDL_WindowFlags.SDL_WINDOW_MAXIMIZED,
+    Minimized = SDL_WindowFlags.SDL_WINDOW_MINIMIZED
 }
 
 public enum WindowFlags : uint
