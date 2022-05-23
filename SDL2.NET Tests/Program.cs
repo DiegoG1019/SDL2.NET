@@ -136,17 +136,21 @@ internal class Program
 
     private static void Window_TextInput(Window sender, TimeSpan timestamp, ReadOnlySpan<char> text)
     {
-        Console.WriteLine($"Caught TextInput event: {new string(text)}", ConsoleColor.Yellow);
+        Log.Debug("Window receiving text input: {text}", new string(text));
     }
 
     private static void Window_Resized(Window sender, TimeSpan timestamp, Size newsize)
     {
+        Log.Debug("Window resized to {newsize.Width} and {newsize.Height}. Resetting", newsize);
         if (sender.Size is not { Width: 640, Height: 480 })
+        {
             sender.Size = new(640, 480);
+        }
     }
 
-    private static void Window_KeyReleased(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, int repeat, uint unicode)
+    private static void Window_KeyReleased(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode)
     {
+        Log.Debug("The key {key} of scancode {scancode} with modifiers {modifiers} was released. Repeat? {repeat}", key, scancode, modifiers, repeat);
         if (scancode is Scancode.Return or Scancode.Return2)
             Pew.Play();
     }
@@ -157,8 +161,9 @@ internal class Program
         Stop = true;
     }
 
-    private static void Window_KeyPressed(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, int repeat, uint unicode)
+    private static void Window_KeyPressed(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode)
     {
+        Log.Debug("The key {key} of scancode {scancode} with modifiers {modifiers} was pressed. Repeat? {repeat}", key, scancode, modifiers, repeat);
         if (scancode is Scancode.Escape)
         {
             Log.Information("Quitting");
