@@ -24,7 +24,7 @@ internal class Program
             .WriteTo.Console(LogEventLevel.Verbose)
             .CreateLogger();
             
-        var app = SDLApplication.App
+        var app = SDLApplication.Instance()
             .InitializeVideo()
             .InitializeAudio()
             .InitializeAndOpenAudioMixer(SDLMixer.MixerInitFlags.OGG | SDLMixer.MixerInitFlags.MP3)
