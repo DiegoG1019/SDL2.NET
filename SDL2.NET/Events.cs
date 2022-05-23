@@ -31,7 +31,7 @@ internal static class Events
     /// Fetches one event from SDL and processes it
     /// </summary>
     /// <returns>The remaining events in the queue</returns>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    //[MethodImpl(MethodImplOptions.AggressiveOptimization)] // Profile before enabling
     public static int UpdateOnce()
     {
         var i = SDL_PollEvent(out var e);
