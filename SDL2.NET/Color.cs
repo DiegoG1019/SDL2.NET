@@ -204,14 +204,21 @@ public struct RGBColor : IEquatable<RGBColor>
     /// <returns></returns>
     public uint ToUInt32(PixelFormatData format) => SDL_MapRGB(format._handle, Red, Green, Blue);
 
+    ///// <summary>
+    ///// Converts the given <see cref="RGBColor"/> to an uint value
+    ///// </summary>
+    ///// <returns></returns>
+    //public uint ToUInt32() 
+    //    => unchecked((uint)(Red << RGBRedShift |
+    //                     Green << RGBGreenShift |
+    //                     Blue << RGBBlueShift)) & 0xffffffff;
+
     /// <summary>
     /// Converts the given <see cref="RGBColor"/> to an uint value
     /// </summary>
     /// <returns></returns>
-    public uint ToUInt32() 
-        => unchecked((uint)(Red << RGBRedShift |
-                         Green << RGBGreenShift |
-                         Blue << RGBBlueShift)) & 0xffffffff;
+    public uint ToUInt32()
+        => unchecked(((uint)Red | (((uint)Green) << 8) | (((uint)Blue) << 16)) & 0x00FFFFFF);
 
     /// <summary>
     /// Converts the given <see cref="uint"/> to a color value
