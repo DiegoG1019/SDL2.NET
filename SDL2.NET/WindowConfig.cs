@@ -11,60 +11,66 @@ namespace SDL2.NET;
 /// </remarks>
 public sealed class WindowConfig
 {
+    /// <summary>
+    /// The default Window configuration. Feel free to modify this.
+    /// </summary>
+    /// <remarks>Changes will take effect only on newly created <see cref="Window"/>s</remarks>
+    public static WindowConfig Default { get; } = new WindowConfig().Resizable(true);
+
     #region Properties
 
     /// <summary>
-    /// The full screen mode the Window should start with
+    /// The full screen mode the <see cref="Window"/> should start with
     /// </summary>
     public FullscreenMode FullscreenType { get; private set; }
 
     /// <summary>
-    /// Whether the Window should be usable with an OpenGL context
+    /// Whether the <see cref="Window"/> should be usable with an OpenGL context
     /// </summary>
     public bool AllowOpenGL { get; private set; }
 
     /// <summary>
-    /// Whether the Window should be usable with a Vulkan instance
+    /// Whether the <see cref="Window"/> should be usable with a Vulkan instance
     /// </summary>
     public bool AllowVulkan { get; private set; }
 
     /// <summary>
-    /// Whether the Window should be usable with a Metal instance
+    /// Whether the <see cref="Window"/> should be usable with a Metal instance
     /// </summary>
     public bool AllowMetal { get; private set; }
 
     /// <summary>
-    /// Whether to start the Window shown or hidden
+    /// Whether to start the <see cref="Window"/> shown or hidden
     /// </summary>
     public bool Hidden { get; private set; }
 
     /// <summary>
-    /// Whether or not the Window should be launched borderless
+    /// Whether or not the <see cref="Window"/> should be launched borderless
     /// </summary>
     public bool IsBorderless { get; private set; }
 
     /// <summary>
-    /// Whether or not the Window is resizable
+    /// Whether or not the <see cref="Window"/> is resizable
     /// </summary>
     public bool IsResizable { get; private set; }
 
     /// <summary>
-    /// Whether the Window is Maximized, Minimized or neither
+    /// Whether the <see cref="Window"/> is Maximized, Minimized or neither
     /// </summary>
     public MaximizedType MaximizedOrMinimized { get; private set; }
 
     /// <summary>
-    /// Whether the Window should have the mouse grabbed upon spawn
+    /// Whether the <see cref="Window"/> should have the mouse grabbed upon spawn
     /// </summary>
     public bool HasMouseGrabbed { get; private set; }
 
     /// <summary>
-    /// Whether the Window should have input focus
+    /// Whether the <see cref="Window"/> should have input focus
     /// </summary>
     public bool HasInputFocus { get; private set; }
 
     /// <summary>
-    /// Whether the Window should have mouse focus
+    /// Whether the <see cref="Window"/> should have mouse focus
     /// </summary>
     public bool HasMouseFocus { get; private set; }
 
@@ -74,17 +80,17 @@ public sealed class WindowConfig
     public bool AllowHighDPI { get; private set; }
 
     /// <summary>
-    /// Whether the Window has the mouse captured
+    /// Whether the <see cref="Window"/> has the mouse captured
     /// </summary>
     public bool HasMouseCaptured { get; private set; }
 
     /// <summary>
-    /// Whether the Window should always be on top
+    /// Whether the <see cref="Window"/> should always be on top
     /// </summary>
     public bool IsAlwaysOnTop { get; private set; }
 
     /// <summary>
-    /// Whether the Window should not be added to the taskbar if possible
+    /// Whether the <see cref="Window"/> should not be added to the taskbar if possible
     /// </summary>
     public bool SkipTaskbar { get; private set; }
 
@@ -118,7 +124,7 @@ public sealed class WindowConfig
     #region Setter Methods
 
     /// <summary>
-    /// Whether the Window should be usable with an OpenGL context
+    /// Whether the <see cref="Window"/> should be usable with an OpenGL context
     /// </summary>
     /// <param name="allowOpenGL"></param>
     /// <returns></returns>
@@ -129,7 +135,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should be usable with a Vulkan instance
+    /// Whether the <see cref="Window"/> should be usable with a Vulkan instance
     /// </summary>
     /// <param name="allowVulkan"></param>
     /// <returns></returns>
@@ -140,7 +146,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should be usable with a Metal instance
+    /// Whether the <see cref="Window"/> should be usable with a Metal instance
     /// </summary>
     /// <param name="allowMetal"></param>
     /// <returns></returns>
@@ -151,7 +157,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should be allowed to have High DPI enabled
+    /// Whether the <see cref="Window"/> should be allowed to have High DPI enabled
     /// </summary>
     /// <param name="allowHighDPI"></param>
     /// <returns></returns>
@@ -162,7 +168,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should have the mouse captured
+    /// Whether the <see cref="Window"/> should have the mouse captured
     /// </summary>
     /// <param name="hasMouseCaptured"></param>
     /// <returns></returns>
@@ -173,7 +179,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should always be on top
+    /// Whether the <see cref="Window"/> should always be on top
     /// </summary>
     /// <param name="isAlwaysOnTop"></param>
     /// <returns></returns>
@@ -184,7 +190,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should skip being added to the Taskbar
+    /// Whether the <see cref="Window"/> should skip being added to the Taskbar
     /// </summary>
     /// <param name="skipTaskbar"></param>
     /// <returns></returns>
@@ -195,7 +201,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should be treated as an utility Window
+    /// Whether the <see cref="Window"/> should be treated as an utility Window
     /// </summary>
     /// <param name="isUtility"></param>
     /// <returns></returns>
@@ -206,7 +212,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should be treated as a Tooltip
+    /// Whether the <see cref="Window"/> should be treated as a Tooltip
     /// </summary>
     /// <param name="isTooltip"></param>
     /// <returns></returns>
@@ -217,7 +223,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should be treated as a PopupMenu
+    /// Whether the <see cref="Window"/> should be treated as a PopupMenu
     /// </summary>
     /// <param name="isPopupMenu"></param>
     /// <returns></returns>
@@ -228,7 +234,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should have keyboard grab on launch
+    /// Whether the <see cref="Window"/> should have keyboard grab on launch
     /// </summary>
     /// <param name="hasKeyboardGrabbed"></param>
     /// <returns></returns>
@@ -239,7 +245,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should have input grabbed on launch
+    /// Whether the <see cref="Window"/> should have input grabbed on launch
     /// </summary>
     /// <param name="hasInputGrabbed"></param>
     /// <returns></returns>
@@ -250,7 +256,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should have mouse focus on launch
+    /// Whether the <see cref="Window"/> should have mouse focus on launch
     /// </summary>
     /// <param name="hasMouseFocus"></param>
     /// <returns></returns>
@@ -261,7 +267,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should have Input Focus on launch
+    /// Whether the <see cref="Window"/> should have Input Focus on launch
     /// </summary>
     /// <param name="hasInputFocus"></param>
     /// <returns></returns>
@@ -272,7 +278,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether the Window should have the mouse grabbed
+    /// Whether the <see cref="Window"/> should have the mouse grabbed
     /// </summary>
     /// <param name="hasMouseGrabbed"></param>
     /// <returns></returns>
@@ -283,7 +289,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// The mode in which the Window should be spawned
+    /// The mode in which the <see cref="Window"/> should be spawned
     /// </summary>
     /// <param name="type">The Maximization type to use</param>
     /// <returns></returns>
@@ -294,7 +300,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether to allow resizing of the Window
+    /// Whether to allow resizing of the <see cref="Window"/>
     /// </summary>
     /// <param name="resizable"></param>
     /// <returns></returns>
@@ -305,7 +311,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether or not the Window should be hidden on launch
+    /// Whether or not the <see cref="Window"/> should be hidden on launch
     /// </summary>
     /// <param name="hideOnStartup"></param>
     /// <returns></returns>
@@ -316,7 +322,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// The fullscreen mode of the Window
+    /// The fullscreen mode of the <see cref="Window"/>
     /// </summary>
     /// <param name="fs"></param>
     /// <returns></returns>
@@ -327,7 +333,7 @@ public sealed class WindowConfig
     }
 
     /// <summary>
-    /// Whether or not the Window is borderless
+    /// Whether or not the <see cref="Window"/> is borderless
     /// </summary>
     /// <param name="isBorderless"></param>
     /// <returns></returns>

@@ -225,12 +225,12 @@ public class SDLApplication : IDisposable
     /// Instantiates and Launches both <see cref="MainRenderer"/> and <see cref="MainWindow"/>, should be called last
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication LaunchWindow(string title, int width, int height, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync)
+    public SDLApplication LaunchWindow(string title, int width, int height, WindowConfig? windowConfig = null, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync)
     {
         ThrowIfDisposed();
         if (_mw is not null)
             throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
-        _mw = InstantiateMainWindow(title, width, height);
+        _mw = InstantiateMainWindow(title, width, height, windowConfig);
         _mr = InstantiateMainRenderer(rendererFlags);
         return this;
     }
@@ -346,7 +346,8 @@ public class SDLApplication : IDisposable
     /// <param name="title">The preferred title of the <see cref="Window"/></param>
     /// <param name="width">The preferred width of the <see cref="Window"/></param>
     /// <param name="height">The preferred height of the <see cref="Window"/></param>
+    /// <param name="configuration">The preferred configuration of the <see cref="Window"/></param>
     /// <returns>The instantiated <see cref="Window"/></returns>
-    protected virtual Window InstantiateMainWindow(string title, int width, int height)
-        => new(title, width, height);
+    protected virtual Window InstantiateMainWindow(string title, int width, int height, WindowConfig? configuration)
+        => new(title, width, height, configuration);
 }
