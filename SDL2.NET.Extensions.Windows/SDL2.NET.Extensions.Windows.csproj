@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SDL2.NET\SDL2.NET.csproj" />
+  </ItemGroup>
+
 </Project>

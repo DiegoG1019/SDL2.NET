@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDL2.NET", "SDL2.NET\SDL2.N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDL2.NET Tests", "SDL2.NET Tests\SDL2.NET Tests.csproj", "{E0332BB7-AA02-460F-8F9B-7A456E054EE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDL2.NET.Extensions.Windows", "SDL2.NET.Extensions.Windows\SDL2.NET.Extensions.Windows.csproj", "{E8729184-77DB-407D-9B1C-B95C0AC1D4F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E0332BB7-AA02-460F-8F9B-7A456E054EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0332BB7-AA02-460F-8F9B-7A456E054EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0332BB7-AA02-460F-8F9B-7A456E054EE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8729184-77DB-407D-9B1C-B95C0AC1D4F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8729184-77DB-407D-9B1C-B95C0AC1D4F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8729184-77DB-407D-9B1C-B95C0AC1D4F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8729184-77DB-407D-9B1C-B95C0AC1D4F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
