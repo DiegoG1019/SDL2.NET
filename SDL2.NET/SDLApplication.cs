@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace SDL2.NET;
 
@@ -79,15 +80,12 @@ public class SDLApplication : IDisposable
     public TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL.SDL_GetTicks64());
 
     /// <summary>
-    /// The amount of time that has elapsed since the last call to <see cref="CheckElapsedTime"/>
+    /// The amount of time that has elapsed since the last call to <see cref="UpdateEvents"/> or <see cref="UpdateEventOnce"/>
     /// </summary>
-    public TimeSpan LastElapsedTime { get; private set; }
+    public TimeSpan LastEventElapsedTime { get; private set; }
 
-    /// <summary>
-    /// Updates and returns the amount of time that has elapsed since the last call to <see cref="CheckElapsedTime"/>
-    /// </summary>
-    public TimeSpan CheckElapsedTime()
-        => LastElapsedTime = TotalTime - LastElapsedTime;
+    private void UpdateEventElapsedTime()
+        => LastEventElapsedTime = TotalTime - LastEventElapsedTime;
 
     #region Events
 
@@ -327,13 +325,22 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// Fetches and reacts to SDL's events
     /// </summary>
-    public void UpdateEvents() => Events.Update();
+    public void UpdateEvents()
+    {
+        Events.Update();
+        UpdateEventElapsedTime();
+    }
 
     /// <summary>
     /// Fetches and reacts to a single one of SDL's events, if available
     /// </summary>
     /// <returns>The remaining events in SDL's queue</returns>
-    public int UpdateEventOnce() => Events.UpdateOnce();
+    public int UpdateEventOnce()
+    {
+        var i = Events.UpdateOnce();
+        UpdateEventElapsedTime();
+        return i;
+    }
 
     /// <summary>
     /// Blocks the current thread for <paramref name="time"/> amount of time
