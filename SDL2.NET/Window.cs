@@ -68,7 +68,7 @@ public class Window : IDisposable
     public Window(string title, int width, int height, WindowConfig? configuration, int? centerPointX = null, int? centerPointY = null)
     {
         _handle = SDL_CreateWindow(
-            title,
+            title, 
             centerPointX ?? SDL_WINDOWPOS_CENTERED,
             centerPointY ?? SDL_WINDOWPOS_CENTERED,
             width,
@@ -515,6 +515,20 @@ public class Window : IDisposable
                 throw new PlatformNotSupportedException(SDL_GetError());
             SDLWindowException.ThrowIfLessThan(error, 0);
         }
+    }
+
+    /// <summary>
+    /// Gets or Sets the <see cref="Window"/>'s <see cref="Opacity"/>. Calculated with Math-Magic
+    /// </summary>
+    /// <remarks>
+    /// If transparency isn't supported on this platform, <see cref="Opacity"/> will be reported as 255 without error. The value will be clamped internally between 0 (transparent) and 255 (opaque).
+    /// </remarks>
+    /// <exception cref="SDLWindowException"/>
+    /// <exception cref="PlatformNotSupportedException"/>
+    public byte OpacityByte
+    {
+        get => (byte)(255 * Opacity);
+        set => Opacity = value / 255;
     }
 
     /// <summary>
