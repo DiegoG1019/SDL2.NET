@@ -23,9 +23,9 @@ public static class WindowBindings
     public const int LWA_COLORKEY = 0x1;
 
     [DllImport("user32.dll")]
-    public static extern long GetWindowLong(IntPtr hWnd, long nIndex);
+    public static extern long GetWindowLong(IntPtr hWnd, int nIndex);
     [DllImport("user32.dll")]
-    public static extern long SetWindowLong(IntPtr hWnd, long nIndex, long dwNewLong);
+    public static extern long SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
     [DllImport("user32.dll")]
-    public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
+    public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, int dwFlags);
 }
