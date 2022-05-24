@@ -78,10 +78,6 @@ public class Window : IDisposable
         if (_handle == IntPtr.Zero)
             throw new SDLWindowCreationException(SDL_GetError());
 
-        var r = new WeakReference<Window>(this);
-        _handleDict[_handle] = r;
-        _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
-
         Surface = new Surface(SDL_GetWindowSurface(_handle));
 
         hitTestDelegate = htcallback;
@@ -90,6 +86,12 @@ public class Window : IDisposable
         // local function
         SDL_HitTestResult htcallback(IntPtr win, IntPtr area, IntPtr data)
             => hitTestCallback is null ? SDL_HitTestResult.SDL_HITTEST_NORMAL : (SDL_HitTestResult)hitTestCallback(this, Marshal.PtrToStructure<SDL_Point>(area), hitTestCallbackData);
+
+        UpdateCenterPoint();
+
+        var r = new WeakReference<Window>(this);
+        _handleDict[_handle] = r;
+        _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
     }
 
     #region Events
@@ -410,6 +412,7 @@ public class Window : IDisposable
             
             case SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
                 SizeChanged?.Invoke(this, time(), new Size(e.data1, e.data2));
+                UpdateCenterPoint();
                 return;
             
             case SDL_WindowEventID.SDL_WINDOWEVENT_MINIMIZED:
@@ -467,6 +470,17 @@ public class Window : IDisposable
     #endregion
 
     #endregion
+
+    /// <summary>
+    /// Represents the center <see cref="Point"/> of the <see cref="Window"/>
+    /// </summary>
+    public Point CenterPoint { get; private set; }
+
+    private void UpdateCenterPoint()
+    {
+        var size = Size;
+        CenterPoint = new(size.Width / 2, size.Height / 2);
+    }
 
     /// <summary>
     /// The Window Id
