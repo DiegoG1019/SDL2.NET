@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -204,32 +205,51 @@ public struct RGBColor : IEquatable<RGBColor>
     /// <returns></returns>
     public uint ToUInt32(PixelFormatData format) => SDL_MapRGB(format._handle, Red, Green, Blue);
 
-    ///// <summary>
-    ///// Converts the given <see cref="RGBColor"/> to an uint value
-    ///// </summary>
-    ///// <returns></returns>
-    //public uint ToUInt32() 
-    //    => unchecked((uint)(Red << RGBRedShift |
-    //                     Green << RGBGreenShift |
-    //                     Blue << RGBBlueShift)) & 0xffffffff;
-
     /// <summary>
     /// Converts the given <see cref="RGBColor"/> to an uint value
     /// </summary>
     /// <returns></returns>
     public uint ToUInt32()
-        => unchecked(((uint)Red | (((uint)Green) << 8) | (((uint)Blue) << 16)) & 0x00FFFFFF);
+        => unchecked((uint)Red << RGBRedShift |
+                     (uint)Green << RGBGreenShift |
+                     (uint)Blue << RGBBlueShift) & 0xFFFFFFFF;
+
+    /// <summary>
+    /// Converts the given <see cref="RGBColor"/> to an int value
+    /// </summary>
+    /// <returns></returns>
+    public int ToInt32()
+        => unchecked(Red << RGBRedShift |
+                     Green << RGBGreenShift |
+                     Blue << RGBBlueShift);
+
+    /// <summary>
+    /// Converts the given <see cref="int"/> to a color value
+    /// </summary>
+    /// <param name="color"></param>
+    /// <returns></returns>
+    public static RGBColor FromInt32(int color)
+    {
+        return new RGBColor(
+                (byte)((color & 0x00FF0000) >> RGBRedShift),
+                (byte)((color & 0x0000FF00) >> RGBGreenShift),
+                (byte)((color & 0x000000FF) >> RGBBlueShift)
+            );
+    }
+
+    //public int ToInt32()
+    //    => unchecked((int)(Red << RGBR))
 
     /// <summary>
     /// Converts the given <see cref="uint"/> to a color value
     /// </summary>
     public static RGBColor FromUInt32(uint color)
     {
-        color &= 0xffffffff;
+        color &= 0xFFFFFFFF;
         return new RGBColor(
-            (byte)((color & 0x00FF00000) >> RGBRedShift),
-            (byte)((color & 0x0000FF00) >> RGBGreenShift),
-            (byte)((color & 0x000000FF) >> RGBBlueShift)
+                (byte)((color & 0x00FF0000) >> RGBRedShift),
+                (byte)((color & 0x0000FF00) >> RGBGreenShift),
+                (byte)((color & 0x000000FF) >> RGBBlueShift)
             );
     }
 
