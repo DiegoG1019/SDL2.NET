@@ -73,6 +73,22 @@ public class SDLApplication : IDisposable
         return (TApp)_inst;
     }
 
+    /// <summary>
+    /// The total amount of time that has elapsed since SDL was initialized
+    /// </summary>
+    public TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL.SDL_GetTicks64());
+
+    /// <summary>
+    /// The amount of time that has elapsed since the last call to <see cref="CheckElapsedTime"/>
+    /// </summary>
+    public TimeSpan LastElapsedTime { get; private set; }
+
+    /// <summary>
+    /// Updates and returns the amount of time that has elapsed since the last call to <see cref="CheckElapsedTime"/>
+    /// </summary>
+    public TimeSpan CheckElapsedTime()
+        => LastElapsedTime = TotalTime - LastElapsedTime;
+
     #region Events
 
     /// <summary>
