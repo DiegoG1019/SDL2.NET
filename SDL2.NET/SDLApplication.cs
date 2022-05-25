@@ -237,7 +237,7 @@ public class SDLApplication : IDisposable
         if (_mw is not null)
             throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
         _mw = InstantiateMainWindow(title, width, height, windowConfig);
-        _mr = InstantiateMainRenderer(rendererFlags);
+        _mr = InstantiateMainRenderer(_mw, rendererFlags);
         return this;
     }
 
@@ -348,10 +348,11 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// The procedure that instantiates <see cref="MainRenderer"/>
     /// </summary>
+    /// <param name="mainWindow">The Main <see cref="Window"/></param>
     /// <param name="flags">The preferred flags of the <see cref="Renderer"/></param>
     /// <returns>The instantiated <see cref="Renderer"/></returns>
-    protected virtual Renderer InstantiateMainRenderer(RendererFlags flags)
-        => new WindowRenderer(MainWindow, flags, - 1);
+    protected virtual Renderer InstantiateMainRenderer(Window mainWindow, RendererFlags flags)
+        => new WindowRenderer(mainWindow, flags, - 1);
 
     /// <summary>
     /// The procedure that instantiates <see cref="MainWindow"/>
