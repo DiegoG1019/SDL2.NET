@@ -629,6 +629,15 @@ public class Window : IDisposable
     }
 
     /// <summary>
+    /// Restore the size and position of a minimized or maximized <see cref="Window"/>. <see cref="SDL_RestoreWindow" href="https://wiki.libsdl.org/SDL_RestoreWindow"/>
+    /// </summary>
+    public void Restore()
+    {
+        ThrowIfDisposed();
+        SDL_RestoreWindow(_handle);
+    }
+
+    /// <summary>
     /// Sets this Window as the OS's input focus. <see cref="SDL_SetWindowInputFocus" href="https://wiki.libsdl.org/SDL_SetWindowInputFocus"/>
     /// </summary>
     /// <remarks>
