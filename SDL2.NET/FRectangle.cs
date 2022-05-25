@@ -17,6 +17,34 @@ public struct FRectangle
         Y = y;
     }
 
+    public void Deconstruct(out float width, out float height, out float x, out float y)
+    {
+        x = X;
+        y = Y;
+        width = Width;
+        height = Height;
+    }
+
+    public void Deconstruct(out float width, out float height, out FPoint position)
+    {
+        width = Width;
+        height = Height;
+        position = new(X, Y);
+    }
+
+    public void Deconstruct(out FSize size, out float x, out float y)
+    {
+        size = new(Width, Height);
+        x = X;
+        y = Y;
+    }
+
+    public void Deconstruct(out FSize size, out FPoint position)
+    {
+        size = new(Width, Height);
+        position = new(X, Y);
+    }
+
     /// <summary>
     /// Verifies if the given <see cref="FPoint"/> <paramref name="point"/> is contained within this <see cref="FRectangle"/>
     /// </summary>

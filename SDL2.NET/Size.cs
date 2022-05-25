@@ -29,6 +29,12 @@ public struct Size : IEquatable<Size>
         };
     }
 
+    public void Deconstruct(out float width, out float height)
+    {
+        width = Width;
+        height = Height;
+    }
+
     public bool Equals(Size other) => Height == other.Height && Width == other.Width;
     public static bool operator ==(Size a, Size b) => a.Equals(b);
     public static bool operator !=(Size a, Size b) => !a.Equals(b);

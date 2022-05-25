@@ -24,6 +24,15 @@ public struct FPoint
     public static implicit operator FPoint(SDL_Point point)
         => new(point.x, point.y);
 
+    public static explicit operator Point(FPoint point)
+        => new((int)point.X, (int)point.Y);
+
+    public void Deconstruct(out float x, out float y)
+    {
+        x = X;
+        y = Y;
+    }
+
     internal void ToSDL(ref SDL_FPoint point)
     {
         point = new SDL_FPoint()

@@ -1,4 +1,4 @@
-﻿using static SDL2.Bindings.SDL;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -16,6 +16,7 @@ public struct Rectangle : IEquatable<Rectangle>
         X = x;
         Y = y;
     }
+
     public Rectangle(Size size, int x, int y) : this(size.Width, size.Height, x, y) { }
     public Rectangle(int width, int height, Point location) : this(width, height, location.X, location.Y) { }
     public Rectangle(Size size, Point location) : this(size.Width, size.Height, location.X, location.Y) { }
@@ -24,6 +25,34 @@ public struct Rectangle : IEquatable<Rectangle>
     /// Gets the <see cref="Rectangle"/>'s <see cref="Size"/>: Its <see cref="Width"/> and <see cref="Height"/> only.
     /// </summary>
     public Size Size => new(Width, Height);
+
+    public void Deconstruct(out int width, out int height, out int x, out int y)
+    {
+        x = X;
+        y = Y;
+        width = Width;
+        height = Height;
+    }
+
+    public void Deconstruct(out int width, out int height, out Point position)
+    {
+        width = Width;
+        height = Height;
+        position = new(X, Y);
+    }
+
+    public void Deconstruct(out Size size, out int x, out int y)
+    {
+        size = Size;
+        x = X;
+        y = Y;
+    }
+
+    public void Deconstruct(out Size size, out Point position)
+    {
+        size = Size;
+        position = new(X, Y);
+    }
 
     /// <summary>
     /// Calculate a minimal <see cref="Rectangle"/> enclosing a set of <see cref="Point"/>s. <see cref="SDL_EnclosePoints" href="https://wiki.libsdl.org/SDL_EnclosePoints"/>

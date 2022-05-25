@@ -18,10 +18,10 @@ public struct RGBAColor : IEquatable<RGBAColor>
     private const int ARGBGreenShift = 8;
     private const int ARGBBlueShift = 0;
 
-    public byte Red { get; }
-    public byte Green { get; }
-    public byte Blue { get; }
-    public byte Alpha { get; }
+    public byte Red { get; set; }
+    public byte Green { get; set; }
+    public byte Blue { get; set; }
+    public byte Alpha { get; set; }
     public double AlphaPercentage => Alpha / 255f;
 
     /// <summary>
@@ -48,6 +48,22 @@ public struct RGBAColor : IEquatable<RGBAColor>
     /// <param name="alpha">The alpha value of the color, from 0 (transparent) to 1 (opaque)</param>
     public RGBAColor(byte red, byte green, byte blue, double alpha)
         : this(red, green, blue, (byte)(255 * Math.Clamp(alpha, 0, 1))) { }
+
+    public void Deconstruct(out byte red, out byte green, out byte blue, out double alpha)
+    {
+        red = Red;
+        green = Green;
+        blue = Blue;
+        alpha = AlphaPercentage;
+    }
+
+    public void Deconstruct(out byte red, out byte green, out byte blue, out byte alpha)
+    {
+        red = Red;
+        green = Green;
+        blue = Blue;
+        alpha = Alpha;
+    }
 
     /// <summary>
     /// Whether this color is pure black
@@ -173,17 +189,17 @@ public struct RGBColor : IEquatable<RGBColor>
     /// <summary>
     /// The Red portion of the color
     /// </summary>
-    public byte Red { get; }
+    public byte Red { get; set; }
 
     /// <summary>
     /// The Green portion of the color
     /// </summary>
-    public byte Green { get; }
+    public byte Green { get; set; }
 
     /// <summary>
     /// The Blue portion of the color
     /// </summary>
-    public byte Blue { get; }
+    public byte Blue { get; set; }
 
     /// <summary>
     /// Instances a new RGB color
@@ -251,6 +267,13 @@ public struct RGBColor : IEquatable<RGBColor>
                 (byte)((color & 0x0000FF00) >> RGBGreenShift),
                 (byte)((color & 0x000000FF) >> RGBBlueShift)
             );
+    }
+
+    public void Deconstruct(out byte red, out byte green, out byte blue)
+    {
+        red = Red;
+        green = Green;
+        blue = Blue;
     }
 
     /// <summary>
