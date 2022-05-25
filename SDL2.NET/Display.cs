@@ -14,25 +14,26 @@ public static class Display
     public static void DisableScreenSaver()
         => SDL_DisableScreenSaver();
 
-    public static SDL_DisplayMode GetCurrentDisplayMode(int displayIndex)
+    public static DisplayMode GetCurrentDisplayMode(int displayIndex)
     {
         SDLDisplayException.ThrowIfLessThan(SDL_GetCurrentDisplayMode(displayIndex, out var mode), 0);
-        return mode;
+        return (DisplayMode)mode;
     }
 
-    public static SDL_DisplayMode GetClosestDisplayMode(int displayIndex, SDL_DisplayMode mode)
+    public static DisplayMode GetClosestDisplayMode(int displayIndex, DisplayMode mode)
     {
-        SDL_GetClosestDisplayMode(displayIndex, ref mode, out var closest);
-        return closest;
+        SDL_DisplayMode m = (SDL_DisplayMode)mode;
+        SDL_GetClosestDisplayMode(displayIndex, ref m, out var closest);
+        return (DisplayMode)closest;
     }
 
     public static string GetCurrentVideoDriver()
         => SDL_GetCurrentVideoDriver();
 
-    public static SDL_DisplayMode GetDesktopDisplayMode(int displayIndex)
+    public static DisplayMode GetDesktopDisplayMode(int displayIndex)
     {
         SDLDisplayException.ThrowIfLessThan(SDL_GetDesktopDisplayMode(displayIndex, out var mode), 0);
-        return mode;
+        return (DisplayMode)mode;
     }
 
     public static string GetDisplayName(int displayIndex)
