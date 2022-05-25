@@ -1,4 +1,5 @@
-﻿using static SDL2.Bindings.SDL;
+﻿using System.Text.Json.Serialization;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -34,6 +35,12 @@ public struct DisplayMode
     /// The refresh rate of the display in Hz, or 0 if unspecified
     /// </summary>
     public int RefreshRate { get; }
+
+    /// <summary>
+    /// The Size of the desktop screen
+    /// </summary>
+    [JsonIgnore]
+    public Size Size => new(Width, Height);
 
     public static explicit operator DisplayMode(SDL_DisplayMode mode)
         => new((PixelFormat)mode.format, mode.w, mode.h, mode.refresh_rate);
