@@ -79,14 +79,6 @@ public class SDLApplication : IDisposable
     /// </summary>
     public TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL.SDL_GetTicks64());
 
-    /// <summary>
-    /// The amount of time that has elapsed since the last call to <see cref="UpdateEvents"/> or <see cref="UpdateEventOnce"/>
-    /// </summary>
-    public TimeSpan LastEventElapsedTime { get; private set; }
-
-    private void UpdateEventElapsedTime()
-        => LastEventElapsedTime = TotalTime - LastEventElapsedTime;
-
     #region Events
 
     /// <summary>
@@ -328,7 +320,6 @@ public class SDLApplication : IDisposable
     public void UpdateEvents()
     {
         Events.Update();
-        UpdateEventElapsedTime();
     }
 
     /// <summary>
@@ -338,7 +329,6 @@ public class SDLApplication : IDisposable
     public int UpdateEventOnce()
     {
         var i = Events.UpdateOnce();
-        UpdateEventElapsedTime();
         return i;
     }
 
