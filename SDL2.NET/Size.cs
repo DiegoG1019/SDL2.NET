@@ -29,7 +29,7 @@ public struct Size : IEquatable<Size>
         };
     }
 
-    public void Deconstruct(out float width, out float height)
+    public void Deconstruct(out int width, out int height)
     {
         width = Width;
         height = Height;
