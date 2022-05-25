@@ -798,7 +798,7 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// Gets or sets this <see cref="Window"/>'s actual size. get: <see cref="SDL_GetWindowMinimumSize" href="https://wiki.libsdl.org/SDL_GetWindowMinimumSize"/>; set: <see cref="SDL_SetWindowMinimumSize" href="https://wiki.libsdl.org/SDL_SetWindowMinimumSize"/>
+    /// Gets or sets this <see cref="Window"/>'s actual size. get: <see cref="SDL_GetWindowSize" href="https://wiki.libsdl.org/SDL_GetWindowSize"/>; set: <see cref="SDL_SetWindowMinimumSize" href="https://wiki.libsdl.org/SDL_SetWindowMinimumSize"/>
     /// </summary>
     public Size Size
     {
