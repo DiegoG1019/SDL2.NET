@@ -15,6 +15,13 @@ namespace SDL2.NET.Input;
 public static class Mouse
 {
     /// <summary>
+    /// Gets the current state of the mouse
+    /// </summary>
+    /// <returns></returns>
+    public static MouseState GetMouseState()
+        => new MouseState(CheckButton(SDL_GetRelativeMouseState(out int x, out int y)), new(x, y));
+
+    /// <summary>
     /// Move the mouse cursor to the given position within the window
     /// </summary>
     /// <param name="window">The window to warp the mouse cursor in</param>
