@@ -1,3 +1,4 @@
+﻿using System.Text.Json.Serialization;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -24,6 +25,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <summary>
     /// Gets the <see cref="Rectangle"/>'s <see cref="Size"/>: Its <see cref="Width"/> and <see cref="Height"/> only.
     /// </summary>
+    [JsonIgnore]
     public Size Size => new(Width, Height);
 
     public void Deconstruct(out int width, out int height, out int x, out int y)
