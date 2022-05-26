@@ -9,6 +9,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -72,6 +73,53 @@ public class SDLApplication : IDisposable
         if (_inst is null)
             _inst = new TApp();
         return (TApp)_inst;
+    }
+
+    /// <summary>
+    /// The default Message box scheme for this Application
+    /// </summary>
+    /// <remarks>If null, falls back to system default</remarks>
+    public MessageBoxColorScheme? MessageBoxColorScheme { get; set; }
+
+    /// <summary>
+    /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags, MessageBoxButton[], MessageBoxColorScheme?)"/>
+    /// </summary>
+    /// <param name="title">The title of the message box</param>
+    /// <param name="message">The message to be shown in the messagebox</param>
+    /// <param name="flags">The flags of the message box</param>
+    /// <param name="buttons">An array of buttons to display in the Message Box</param>
+    /// <param name="scheme">The color scheme of the Message Box. Leave null to use <see cref="MessageBoxColorScheme"/></param>
+    /// <returns>The button that was pressed, or null if none was pressed</returns>
+    public MessageBoxButton? ShowMessageBox(string title, string message, MessageBoxFlags flags, MessageBoxButton[] buttons, MessageBoxColorScheme? scheme = null)
+    {
+        var butts = new SDL_MessageBoxButtonData[buttons.Length];
+        for (int i = 0; i < butts.Length; i++)
+            butts[i] = buttons[i].ToSDL(i);
+
+        SDL_MessageBoxData dat = new()
+        {
+            flags = (SDL_MessageBoxFlags)flags,
+            numbuttons = buttons.Length,
+            message = message,
+            title = title,
+            buttons = butts,
+            colorScheme = scheme?.ToSDL() ?? MessageBoxColorScheme?.ToSDL()
+        };
+
+        SDLWindowException.ThrowIfLessThan(SDL_ShowMessageBox(ref dat, out int buttonPressed), 0);
+        return buttonPressed is -1 ? null : buttons[buttonPressed];
+    }
+
+    /// <summary>
+    /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags)"/>
+    /// </summary>
+    /// <param name="title">The title of the message box</param>
+    /// <param name="message">The message to be shown in the messagebox</param>
+    /// <param name="flags">The flags of the message box</param>
+    /// <remarks>This method may be called at any time, even before Initialization. This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.</remarks>
+    public static void ShowMessageBox(string title, string message, MessageBoxFlags flags)
+    {
+        SDLApplicationException.ThrowIfLessThan(SDL.SDL_ShowSimpleMessageBox((SDL.SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
     }
 
     /// <summary>
