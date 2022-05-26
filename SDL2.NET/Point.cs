@@ -20,6 +20,7 @@ public struct Point
     /// <returns>Whether <see cref="this"/> <see cref="Point"/> <paramref name="point"/> resides within <see cref="Rectangle"/> <paramref name="rectangle"/></returns>
     public bool IsContainedIn(Rectangle rectangle)
         => X >= rectangle.X && X < rectangle.X + rectangle.Width && Y >= rectangle.Y && Y < rectangle.Y + rectangle.Height;
+    // It's better to just calc it here instead of bothering with marshalling and converting the types to their SDL counterparts. Not like native code has any advantage over compiled arithmetic expressions anyway
 
     /// <summary>
     /// Whether this <see cref="Point"/> is to the left of <paramref name="b"/>
