@@ -13,6 +13,7 @@ namespace SDL2.NET;
 /// <summary>
 /// An object that contains a rendering state. <see href="https://wiki.libsdl.org/SDL_Renderer"/>
 /// </summary>
+/// <remarks>Warning: Forgetting to call <see cref="Present"/> will build up memory usage, which will suddenly drop when <see cref="Present"/> is finally called</remarks>
 public abstract class Renderer : IDisposable
 {
     protected internal readonly IntPtr _handle = IntPtr.Zero;
@@ -218,7 +219,7 @@ public abstract class Renderer : IDisposable
     /// Update the screen with any rendering performed since the previous call. <see cref="SDL_RenderPresent" href="https://wiki.libsdl.org/SDL_RenderPresent"/>
     /// </summary>
     /// <remarks>
-    /// SDL's rendering functions operate on a backbuffer; that is, calling a rendering function such as <see cref="DrawLine"/> does not directly put a line on the screen, but rather updates the backbuffer. As such, you compose your entire scene and present the composed backbuffer to the screen as a complete picture.
+    /// SDL's rendering functions operate on a backbuffer; that is, calling a rendering function such as <see cref="DrawLine"/> does not directly put a line on the screen, but rather updates the backbuffer. As such, you compose your entire scene and present the composed backbuffer to the screen as a complete picture. 
     /// </remarks>
     public void Present()
     {
