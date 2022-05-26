@@ -21,6 +21,12 @@ public struct FPoint
     public bool IsContainedIn(FRectangle rectangle)
         => X >= rectangle.X && X < rectangle.X + rectangle.Width && Y >= rectangle.Y && Y < rectangle.Y + rectangle.Height;
 
+    /// <summary>
+    /// Whether this <see cref="FPoint"/> is to the left of <paramref name="b"/>
+    /// </summary>
+    /// <returns>true if this is to the left of <paramref name="b"/></returns>
+    public bool IsToLeft(FPoint b) => -b.X + X > 0;
+
     public static implicit operator FPoint(SDL_Point point)
         => new(point.x, point.y);
 
