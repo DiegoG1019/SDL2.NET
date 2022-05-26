@@ -195,10 +195,39 @@ public class Window : IDisposable
     /// </summary>
     public event MouseMovedEvent? MouseMoved;
 
+    /// <summary>
+    /// Fired when the mouse enters the bounds of this <see cref="Window"/>
+    /// </summary>
+    public event MouseMovedEvent? MouseEntered;
+
+    /// <summary>
+    /// Fired when the mouse exits the bounds of this <see cref="Window"/>
+    /// </summary>
+    public event MouseMovedEvent? MouseExited;
+
     internal void TriggerEvent(SDL_MouseMotionEvent e)
     {
+        TimeSpan tm = TimeSpan.FromMilliseconds(e.timestamp);
+        Point delta = new(e.xrel, e.yrel);
+        Point np = new(e.x, e.y);
+        uint mouse = e.which;
+        MouseButton pressed = Mouse.CheckButton(e.state);
+
         if (MouseMoved is not null)
-            MouseMoved(this, TimeSpan.FromMilliseconds(e.timestamp), new(e.xrel, e.yrel), new(e.x, e.y), e.which, Mouse.CheckButton(e.state));
+            MouseMoved(this, tm, delta, np, mouse, pressed);
+
+        if (IsMouseOver && !Rectangle.Contains(np))
+        {
+            IsMouseOver = false;
+            MouseExited?.Invoke(this, tm, delta, np, mouse, pressed);
+            return;
+        }
+        
+        if (!IsMouseOver && Rectangle.Contains(np))
+        {
+            IsMouseOver = true;
+            MouseEntered?.Invoke(this, tm, delta, np, mouse, pressed);
+        }
     }
 
     /// <summary>
@@ -844,6 +873,24 @@ public class Window : IDisposable
             SDL_SetWindowPosition(_handle, value.X, value.Y);
         }
     }
+
+    /// <summary>
+    /// Gets or sets a Rectangle that represents the this <see cref="Window"/>. The same as getting or setting <see cref="Position"/> and <see cref="Size"/>
+    /// </summary>
+    public Rectangle Rectangle
+    {
+        get => new(Size, Position);
+        set
+        {
+            Position = new(value.X, value.Y);
+            Size = value.Size;
+        }
+    }
+
+    /// <summary>
+    /// Gets whether or not the mouse is over this <see cref="Window"/>
+    /// </summary>
+    public bool IsMouseOver { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="Window"/>'s border sizes. <see cref="SDL_GetWindowBordersSize" href="https://wiki.libsdl.org/SDL_GetWindowBordersSize"/>
