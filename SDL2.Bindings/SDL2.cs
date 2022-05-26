@@ -1214,7 +1214,7 @@ namespace SDL2.Bindings
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct SDL_MessageBoxData
+        public ref struct SDL_MessageBoxData
         {
             public SDL_MessageBoxFlags flags;
             public IntPtr window;               /* Parent window, can be NULL */
@@ -1252,7 +1252,7 @@ namespace SDL2.Bindings
                 numbuttons = messageboxdata.numbuttons,
             };
 
-            var buttons = new INTERNAL_SDL_MessageBoxButtonData[messageboxdata.numbuttons];
+            var buttons = stackalloc INTERNAL_SDL_MessageBoxButtonData[messageboxdata.numbuttons];
             for (int i = 0; i < messageboxdata.numbuttons; i++)
             {
                 buttons[i] = new INTERNAL_SDL_MessageBoxButtonData()
@@ -1270,11 +1270,9 @@ namespace SDL2.Bindings
             }
 
             int result;
-            fixed (INTERNAL_SDL_MessageBoxButtonData* buttonsPtr = &buttons[0])
-            {
-                data.buttons = (IntPtr)buttonsPtr;
-                result = INTERNAL_SDL_ShowMessageBox(ref data, out buttonid);
-            }
+            INTERNAL_SDL_MessageBoxButtonData* buttonsPtr = &buttons[0];
+            data.buttons = (IntPtr)buttonsPtr;
+            result = INTERNAL_SDL_ShowMessageBox(ref data, out buttonid);
 
             Marshal.FreeHGlobal(data.colorScheme);
             for (int i = 0; i < messageboxdata.numbuttons; i++)
