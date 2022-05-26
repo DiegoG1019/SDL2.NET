@@ -344,7 +344,7 @@ public class Window : IDisposable
     /// <param name="repeat">Whether the key is a repeat press (Most usually a held key) or not</param>
     /// <param name="sender">The <see cref="Window"/> that fired this event</param>
     /// <param name="timestamp">The amount of time that has passed since SDL's initialization and this event firing</param>
-    /// <param name="unicode">The unicode value of the character pressed</param>
+    /// <param name="unicode">WARNING: This parameter is deprecated by SDL. The unicode value of the character pressed</param>
     public delegate void KeyEvent(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode);
 
     /// <summary>
@@ -575,23 +575,39 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// Gets the <see cref="Window"/>'s Brightness. get: <see cref="SDL_GetWindowBrightness" href="https://wiki.libsdl.org/SDL_GetWindowBrightness"/>
+    /// Gets or Sets the <see cref="Window"/>'s Brightness, ranging from 0.0 to 1.0. get: <see cref="SDL_GetWindowBrightness" href="https://wiki.libsdl.org/SDL_GetWindowBrightness"/>; set: <see cref="SDL_SetWindowBrightness" href="https://wiki.libsdl.org/SDL_SetWindowBrightness"/>
     /// </summary>
     /// <remarks>
     /// Despite the name, this method retrieves the brightness of the entire <see cref="Display"/>, not an individual <see cref="Window"/>. A <see cref="Window"/> is considered to be owned by the <see cref="Display"/> that contains the <see cref="Window"/>'s center pixel. (The index of this display can be retrieved with <see cref="DisplayIndex"/>.)
     /// </remarks>
     /// <returns></returns>
-    public float GetBrightness
+    public float Brightness
     {
         get
         {
             ThrowIfDisposed();
             return SDL_GetWindowBrightness(_handle);
         }
+        [Obsolete("Many platforms will refuse to set the display brightness in modern times. You are better off using a shader to adjust gamma during rendering, or something similar.")]
+        set
+        {
+            ThrowIfDisposed();
+            SDLWindowException.ThrowIfLessThan(SDL_SetWindowBrightness(_handle, value), 0);
+        }
     }
 
     /// <summary>
-    /// Sets <see cref="this"/> <see cref="Window"/> as another <see cref="Window"/>'s modal. <see cref="SDL_SetWindowModalFor" href="https://wiki.libsdl.org/SDL_SetWindowModalFor"/>
+    /// The flags currently active for this <see cref="Window"/>
+    /// </summary>
+    public WindowFlags Flags => (WindowFlags)SDL_GetWindowFlags(_handle);
+
+    /// <summary>
+    /// The pixel format this <see cref="Window"/> uses
+    /// </summary>
+    public PixelFormat PixelFormat => (PixelFormat)SDL_GetWindowPixelFormat(_handle);
+
+    /// <summary>
+    /// Sets this <see cref="Window"/> as another <see cref="Window"/>'s modal. <see cref="SDL_SetWindowModalFor" href="https://wiki.libsdl.org/SDL_SetWindowModalFor"/>
     /// </summary>
     /// <param name="parent">The parent <see cref="Window"/> to set this window as a modal for</param>
     public void SetAsModalFor(Window parent)
@@ -603,13 +619,59 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// Sets <paramref name="modal"/> as <see cref="this"/> <see cref="Window"/>'s modal.
+    /// Sets <paramref name="modal"/> as this <see cref="Window"/>'s modal.
     /// </summary>
-    /// <param name="parent">The parent <see cref="Window"/> to set this <see cref="Window"/> as a modal for</param>
+    /// <param name="modal">The modal <see cref="Window"/> to set this <see cref="Window"/> as a parent for</param>
     public void SetAsModal(Window modal)
     {
-        ThrowIfDisposed();
         modal.SetAsModalFor(this);
+    }
+
+    /// <summary>
+    /// Display a simple modal message box over this <see cref="Window"/>. Not to be confused with <see cref="SDLApplication.ShowMessageBox(string, string, MessageBoxFlags)"/>
+    /// </summary>
+    /// <param name="title">The title of the message box</param>
+    /// <param name="message">The message to be shown in the messagebox</param>
+    /// <param name="flags">The flags of the message box</param>
+    public void ShowMessageBox(string title, string message, MessageBoxFlags flags) 
+    {
+        SDLWindowException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, _handle), 0);
+    }
+
+    /// <summary>
+    /// The default Message box scheme for this Window
+    /// </summary>
+    /// <remarks>If null, falls back to system default. If you want to use <see cref="SDLApplication.MessageBoxColorScheme"/>, pass it explicitly</remarks>
+    public MessageBoxColorScheme? MessageBoxColorScheme { get; set; }
+
+    /// <summary>
+    /// Display a simple modal message box over this <see cref="Window"/>. Not to be confused with <see cref="SDLApplication.ShowMessageBox(string, string, MessageBoxFlags, MessageBoxButton[], MessageBoxColorScheme?)"/>
+    /// </summary>
+    /// <param name="title">The title of the message box</param>
+    /// <param name="message">The message to be shown in the messagebox</param>
+    /// <param name="flags">The flags of the message box</param>
+    /// <param name="buttons">An array of buttons to display in the Message Box</param>
+    /// <param name="scheme">The color scheme of the Message Box. Leave null to use <see cref="MessageBoxColorScheme"/></param>
+    /// <returns>The button that was pressed, or null if none was pressed</returns>
+    public MessageBoxButton? ShowMessageBox(string title, string message, MessageBoxFlags flags, MessageBoxButton[] buttons, MessageBoxColorScheme? scheme = null)
+    {
+        var butts = new SDL_MessageBoxButtonData[buttons.Length];
+        for (int i = 0; i < butts.Length; i++)
+            butts[i] = buttons[i].ToSDL(i);
+
+        SDL_MessageBoxData dat = new()
+        {
+            flags = (SDL_MessageBoxFlags)flags,
+            numbuttons = buttons.Length,
+            message = message,
+            title = title,
+            window = _handle,
+            buttons = butts,
+            colorScheme = scheme?.ToSDL() ?? MessageBoxColorScheme?.ToSDL()
+        };
+
+        SDLWindowException.ThrowIfLessThan(SDL_ShowMessageBox(ref dat, out int buttonPressed), 0);
+        return buttonPressed is -1 ? null : buttons[buttonPressed];
     }
 
     /// <summary>
