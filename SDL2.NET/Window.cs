@@ -396,23 +396,94 @@ public class Window : IDisposable
     /// <param name="newLocation">The <see cref="Window"/>'s new location</param>
     public delegate void WindowMovedEvent(Window sender, TimeSpan timestamp, Point newLocation);
 
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is shown
+    /// </summary>
     public event WindowEvent? Shown;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is hidden
+    /// </summary>
     public event WindowEvent? Hidden;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> exposed
+    /// </summary>
     public event WindowEvent? Exposed;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is moved
+    /// </summary>
     public event WindowMovedEvent? Moved;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is resized
+    /// </summary>
     public event WindowSizeChangedEvent? Resized;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/>'s size is changed
+    /// </summary>
     public event WindowSizeChangedEvent? SizeChanged;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is minimized
+    /// </summary>
     public event WindowEvent? Minimized;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is maximized
+    /// </summary>
     public event WindowEvent? Maximized;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is restored (from being minimized or maximized)
+    /// </summary>
     public event WindowEvent? Restored;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is entered
+    /// </summary>
     public event WindowEvent? Entered;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is left
+    /// </summary>
     public event WindowEvent? Left;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> obtains input focus
+    /// </summary>
     public event WindowEvent? FocusGained;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> loses input focus
+    /// </summary>
     public event WindowEvent? FocusLost;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> is closed
+    /// </summary>
     public event WindowEvent? Closed;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> takes input focus
+    /// </summary>
     public event WindowEvent? FocusTaken;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> gets a hit test
+    /// </summary>
     public event WindowEvent? HitTest;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/>'s ICC profile changes
+    /// </summary>
     public event WindowEvent? IccprofChanged;
+
+    /// <summary>
+    /// Fired when the <see cref="Window"/> migrates displays
+    /// </summary>
     public event WindowEvent? DisplayChanged;
 
     internal void TriggerEvent(SDL_WindowEvent e)
@@ -758,7 +829,7 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// Gets or Sets the Display mode of this window. Getter never returns null. get: <see cref="SDL_GetWindowDisplayMode" href="https://wiki.libsdl.org/SDL_GetWindowDisplayMode"/>; set: <see cref="SDL_SetWindowDisplayMode" href="https://wiki.libsdl.org/SDL_SetWindowDisplayMode"/>
+    /// Gets or Sets the Display mode of this window. Getter never returns null. get: <see cref="SDL_GetWindowDisplayMode(IntPtr, out SDL_DisplayMode)" href="https://wiki.libsdl.org/SDL_GetWindowDisplayMode"/>; set: <see cref="SDL_SetWindowDisplayMode(IntPtr, IntPtr)" href="https://wiki.libsdl.org/SDL_SetWindowDisplayMode"/>
     /// </summary>
     /// <remarks>
     /// This only affects the display mode used when the window is fullscreen. To change the window size when the window is not fullscreen, use <see cref="Size" />.
