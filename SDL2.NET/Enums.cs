@@ -16,6 +16,21 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+[Flags]
+public enum MessageBoxButtonFlags : uint
+{
+    ReturnKeyDefault = SDL_MessageBoxButtonFlags.SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT,
+    EscapeKeyDefault = SDL_MessageBoxButtonFlags.SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+}
+
+[Flags]
+public enum MessageBoxFlags : uint
+{
+    Error = SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR,
+    Warning = SDL_MessageBoxFlags.SDL_MESSAGEBOX_WARNING,
+    Information = SDL_MessageBoxFlags.SDL_MESSAGEBOX_INFORMATION,
+}
+
 public enum MaximizedType : uint
 {
     Default = 0,
