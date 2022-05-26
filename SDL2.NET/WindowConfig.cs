@@ -201,11 +201,11 @@ public sealed class WindowConfig
     /// <summary>
     /// Whether the <see cref="Window"/> should skip being added to the Taskbar
     /// </summary>
-    /// <param name="skipTaskbar"></param>
+    /// <param name="showInTaskbar"></param>
     /// <returns></returns>
-    public WindowConfig Taskbar(bool skipTaskbar)
+    public WindowConfig Taskbar(bool showInTaskbar)
     {
-        SkipTaskbar = skipTaskbar;
+        SkipTaskbar = !showInTaskbar;
         return this;
     }
 
