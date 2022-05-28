@@ -16,6 +16,70 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+
+public enum SystemCursor
+{
+    /// <summary>
+    /// Arrow (standard) cursor
+    /// </summary>
+    Arrow,   
+
+    /// <summary>
+    /// I-Beam cursor
+    /// </summary>
+    IBeam,   
+
+    /// <summary>
+    /// Wait cursor
+    /// </summary>
+    Wait,    
+
+    /// <summary>
+    /// Crosshair cursor
+    /// </summary>
+    Crosshair,   
+
+    /// <summary>
+    /// Small wait cursor, or <see cref="Wait"/> if unavailable
+    /// </summary>
+    WaitArrow,   
+
+    /// <summary>
+    /// Double arrow pointing up and to the left, and down and to the right ( \ )
+    /// </summary>
+    SizeUpLeft,
+
+    /// <summary>
+    /// Double arrow pointing up and to the right, and down and to the left ( / )
+    /// </summary>
+    SizeUpRight,
+
+    /// <summary>
+    /// Double arrow pointing left and right ( - )
+    /// </summary>
+    SizeLeftRight,  
+
+    /// <summary>
+    /// Double arrow pointing up and down ( | )
+    /// </summary>
+    SizeUpDown,  
+    
+    /// <summary>
+    /// Four pointed arrow pointing up, down, left and right ( + )
+    /// </summary>
+    SizeAll, 
+
+    /// <summary>
+    /// Slashed circle or crossbones
+    /// </summary>
+    No,      
+
+    /// <summary>
+    /// Hand cursor
+    /// </summary>
+    Hand
+}
+
 [Flags]
 public enum MessageBoxButtonFlags : uint
 {
