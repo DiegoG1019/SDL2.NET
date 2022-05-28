@@ -6,15 +6,20 @@ using SDL2.NET.SDLImage;
 using Serilog;
 using Serilog.Events;
 using SDL2.NET.SDLFont;
+using System.Reflection;
+using System.Linq;
 
 namespace SDL2.NET.Tests;
 
+// HOW TO USE THIS PROJECT
+// This is a quick and dirty way of having multiple tests at once: I did not put much though into this, and it's not intended to be the best way of doing things
+// You may create a class, decorate it with `SDLTestRepositoryAttribute` and fill it with STATIC methods (whose ONLY parameter is an instance of `RunControl`)
+// and fill it with methods that are, too, decorated with `SDLTestMethodAttribute` and the """"GUI"""" I set up here will do the rest, have fun
+// Each test is completely and entirely responsible for which SDL SubSystems they use, but they should NOT dispose of the app object
+// It's probably better if you just call QuitSubSystem
+
 internal class Program
 {
-    private static bool Stop;
-    private static readonly List<IDisposable> Disposables = new(10);
-    private static AudioChunk Pew;
-
     static void Main(string[] args)
     {
         Hints.DisableThreadNaming.IsEnabled = true;
@@ -23,144 +28,92 @@ internal class Program
             .MinimumLevel.Verbose()
             .WriteTo.Console(LogEventLevel.Verbose)
             .CreateLogger();
-            
-        var app = SDLApplication.Instance()
-            .InitializeVideo()
-            .InitializeAudio()
-            .InitializeAndOpenAudioMixer(SDLMixer.MixerInitFlags.OGG | SDLMixer.MixerInitFlags.MP3)
-            .InitializeTTF()
-            .LaunchWindow("SDL2.NET Test", 800, 600, rendererFlags: RendererFlags.Accelerated | RendererFlags.PresentVSync);
 
-        Disposables.Add(app);
+        var app = SDLApplication.Instance();
 
-        Log.Debug("Succesfully launched app and Window");
+        var runControl = new RunControl();
+        var runControlParam = new object[1] { runControl };
 
-        var window = app.MainWindow;
-        var renderer = app.MainRenderer;
-
+        MessageBoxButton[] tests;
         {
-            var icon = Image.Load("Resources\\Icon.png");
-            window.SetIcon(icon);
-            icon.Dispose();  // Even if it isn't disposed, it'll be finalized and freed. Still better to dispose, though
-            Log.Verbose("Set Window Icon");
-        }
+            var repos = new List<TestRepoDesc>();
 
-        // log some renderer information
-        {
-            var info = renderer.RendererInfo;
-            Log.Verbose("Rendering using: {currentVideoDriver}", info.Name);
-        }
-
-        Pew = new AudioChunk("Resources\\laserpew.ogg");
-        var music = new Song("Resources\\loop.wav");
-        Disposables.Add(music);
-        Disposables.Add(Pew);
-
-        Music.VolumePercentage = .5;
-        music.FadeIn(TimeSpan.FromMilliseconds(200), AudioLoop.Infinite);
-
-        Texture deer = Image.LoadTexture(renderer, "Resources\\deer.png");
-
-        {
-            var _m = Image.Load("Resources\\deer.png");
-            deer = new Texture(renderer, _m);
-            _m.Dispose();
-        }
-        var deerDstBox = deer.GetRectangle(128, 128);
-        Disposables.Add(deer);
-
-        var VCRFont = new TTFont("Resources\\VCR_OSD_MONO_1.001.ttf", 32);
-        var fontColor = Colors.Red;
-        Disposables.Add(VCRFont);
-
-        Texture deerText;
-        {
-            var _dt = VCRFont.RenderTextSolid("This is a deer!", fontColor, EncodingType.Latin1);
-            deerText = new Texture(renderer, _dt);
-            _dt.Dispose();
-        }
-        Disposables.Add(deerText);
-
-        var deerTextDstBox = deerText.GetRectangle(128, 128 + 35);
-        
-        app.Quitting += App_Quitting;
-        window.KeyPressed += Window_KeyPressed;
-        window.KeyReleased += Window_KeyReleased;
-        window.Resized += Window_Resized;
-        window.TextInput += Window_TextInput;
-
-        // main loop
-        while (!Stop)
-        {
-            ulong start = Performance.PerformanceCounter;
-
-            app.UpdateEvents();
-
-            renderer.Clear(Colors.CornflowerBlue);
-
-            deer.Render(null, deerDstBox);
-            deerText.Render(null, deerTextDstBox);
-
-            // underline the font with SDL_gfx
-            //SDL_gfx.lineColor(Renderer, (short)FontTarget.x, (short)(FontTarget.y + FontTarget.h + 10), (short)(FontTarget.x + FontTarget.w), (short)(FontTarget.y + FontTarget.h + 10), SolidRed);
-
-            // end render batch
-            renderer.Present();
-
-            // limit framerate to ~120 fps when vSync is disabled
-            if (!renderer.IsVSyncEnabled)
+            foreach (var tp in from type in Assembly.GetCallingAssembly().GetTypes()
+                               let attr = type.GetCustomAttribute<SDLTestRepositoryAttribute>()
+                               where attr is not null
+                               select (type, attr))
             {
-                ulong end = Performance.PerformanceCounter;
-                double elapsed = (end - start) / (double)Performance.PerformanceFrequency * 1000.0f;
-                double delay = Math.Floor(8.333f - elapsed);
+                var methods = new List<TestMethodDesc>();
+                foreach (var m in from meth in tp.type.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                                  let attr = meth.GetCustomAttribute<SDLTestMethodAttribute>()
+                                  where attr is not null
+                                  let par = meth.GetParameters()
+                                  where par.Length == 1 && par[0].ParameterType == typeof(RunControl)
+                                  select (meth, attr))
+                    methods.Add(new(m.attr.Name, m.meth));
 
-                // this check avoids a huge delay when the window can't be drawn during for example moving it
-                if (delay < 32)
-                    app.Delay(TimeSpan.FromMilliseconds(delay));
+                repos.Add(new TestRepoDesc(tp.attr.Name, methods.ToArray()));
             }
-        } // end of main loop
+            tests = repos.ToArray();
+        }
 
-        for (int i = 0; i < Disposables.Count; i++)
-            Disposables[i].Dispose();
+        while (true)
+        {
+            var pressed = app.ShowMessageBox("SDL.NET Tests", "Pick a test group", MessageBoxFlags.Information, tests);
+            if (pressed is QuitMessageBoxButton or null)
+                break;
 
-        Log.Information("Program ended, bye! Press any key to continue");
+            if (pressed is TestRepoDesc tr)
+            {
+                var test = app.ShowMessageBox(tr.Name, "Pick a test", MessageBoxFlags.Information, tr.Methods);
+                if (test is not null)
+                {
+                    runControl.IsRunning = true;
+                    ((TestMethodDesc)test).Method.Invoke(null, runControlParam);
+                    runControl.IsRunning = false;
+                }
+                continue;
+            }
+
+            throw new InvalidOperationException($"Can not handle a button of type {pressed?.GetType()} being pressed");
+        }
+        app.Dispose();
+
+        Console.WriteLine("SDL2.NET Tests is now finished, press any key to continue");
         Console.ReadKey();
     }
+}
 
-    private static void Window_TextInput(Window sender, TimeSpan timestamp, ReadOnlySpan<char> text)
-    {
-        Log.Debug("Window receiving text input: {text}", new string(text));
-    }
+public class QuitMessageBoxButton : MessageBoxButton
+{
+    public QuitMessageBoxButton() : base("Quit") { }
+}
 
-    private static void Window_Resized(Window sender, TimeSpan timestamp, Size newsize)
-    {
-        Log.Debug("Window resized to {newsize.Width} and {newsize.Height}. Resetting", newsize);
-        if (sender.Size is not { Width: 640, Height: 480 })
-        {
-            sender.Size = new(640, 480);
-        }
-    }
+public class TestRepoDesc : MessageBoxButton
+{
+    public string Name { get; }
+    public TestMethodDesc[] Methods { get; }
 
-    private static void Window_KeyReleased(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode)
+    public TestRepoDesc(string name, TestMethodDesc[] methods) : base(name)
     {
-        Log.Debug("The key {key} of scancode {scancode} with modifiers {modifiers} was released. Repeat? {repeat}", key, scancode, modifiers, repeat);
-        if (scancode is Scancode.Return or Scancode.Return2)
-            Pew.Play();
+        Name = name;
+        Methods = methods;
     }
+}
 
-    private static void App_Quitting(SDLApplication application)
-    {
-        Log.Information("Quitting");
-        Stop = true;
-    }
+public class TestMethodDesc : MessageBoxButton
+{
+    public string Name { get; }
+    public MethodInfo Method { get; }
 
-    private static void Window_KeyPressed(Window sender, TimeSpan timestamp, Scancode scancode, Keycode key, KeyModifier modifiers, bool isPressed, bool repeat, uint unicode)
+    public TestMethodDesc(string name, MethodInfo method) : base(name)
     {
-        Log.Debug("The key {key} of scancode {scancode} with modifiers {modifiers} was pressed. Repeat? {repeat}", key, scancode, modifiers, repeat);
-        if (scancode is Scancode.Escape)
-        {
-            Log.Information("Quitting");
-            Stop = true;
-        }
+        Name = name;
+        Method = method;
     }
+}
+
+public class RunControl
+{
+    public bool IsRunning { get; set; }
 }
