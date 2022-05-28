@@ -106,36 +106,11 @@ namespace SDL2.Bindings
                 ptr++;
             }
 
-            /* TODO: This #ifdef is only here because the equivalent
-			 * .NET 2.0 constructor appears to be less efficient?
-			 * Here's the pretty version, maybe steal this instead:
-			 *
-			string result = new string(
-				(sbyte*) s, // Also, why sbyte???
-				0,
-				(int) (ptr - (byte*) s),
-				System.Text.Encoding.UTF8
-			);
-			 * See the CoreCLR source for more info.
-			 * -flibit
-			 */
-#if NETSTANDARD2_0
 			/* Modern C# lets you just send the byte*, nice! */
 			string result = System.Text.Encoding.UTF8.GetString(
 				(byte*) s,
 				(int) (ptr - (byte*) s)
 			);
-#else
-            /* Old C# requires an extra memcpy, bleh! */
-            int len = (int)(ptr - (byte*)s);
-            if (len == 0)
-            {
-                return string.Empty;
-            }
-            char* chars = stackalloc char[len];
-            int strLen = Encoding.UTF8.GetChars((byte*)s, len, chars, len);
-            string result = new string(chars, 0, strLen);
-#endif
 
             /* Some SDL functions will malloc, we have to free! */
             if (freePtr)
@@ -163,10 +138,10 @@ namespace SDL2.Bindings
         /* malloc/free are used by the marshaler! -flibit */
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr SDL_malloc(IntPtr size);
+        public static extern IntPtr SDL_malloc(IntPtr size);
 
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void SDL_free(IntPtr memblock);
+        public static extern void SDL_free(IntPtr memblock);
 
         /* Buffer.BlockCopy is not available in every runtime yet. Also,
 		 * using memcpy directly can be a compatibility issue in other
@@ -6280,6 +6255,10 @@ namespace SDL2.Bindings
         /* Set the rectangle used for text input, hint for IME */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SDL_SetTextInputRect(ref SDL_Rect rect);
+
+        /* Set the rectangle used for text input, hint for IME */
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SDL_SetTextInputRect(IntPtr rect);
 
         /* Does the platform support an on-screen keyboard? */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
