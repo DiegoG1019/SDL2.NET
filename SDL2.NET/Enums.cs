@@ -16,6 +16,15 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum DisplayOrientation
+{
+    Unknown = SDL_ORIENTATION_UNKNOWN,
+    Landscape = SDL_ORIENTATION_LANDSCAPE,
+    LandscapeFlipped = SDL_ORIENTATION_LANDSCAPE_FLIPPED,
+    Portrait = SDL_ORIENTATION_PORTRAIT,
+    PortraitFlipped = SDL_ORIENTATION_PORTRAIT_FLIPPED
+}
+
 public enum ScalingQuality
 {
     /// <summary>
