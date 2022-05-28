@@ -18,11 +18,11 @@ public static class EnumExtensions
 
 public enum DisplayOrientation
 {
-    Unknown = SDL_ORIENTATION_UNKNOWN,
-    Landscape = SDL_ORIENTATION_LANDSCAPE,
-    LandscapeFlipped = SDL_ORIENTATION_LANDSCAPE_FLIPPED,
-    Portrait = SDL_ORIENTATION_PORTRAIT,
-    PortraitFlipped = SDL_ORIENTATION_PORTRAIT_FLIPPED
+    Unknown = SDL_DisplayOrientation.SDL_ORIENTATION_UNKNOWN,
+    Landscape = SDL_DisplayOrientation.SDL_ORIENTATION_LANDSCAPE,
+    LandscapeFlipped = SDL_DisplayOrientation.SDL_ORIENTATION_LANDSCAPE_FLIPPED,
+    Portrait = SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT,
+    PortraitFlipped = SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT_FLIPPED
 }
 
 public enum ScalingQuality
