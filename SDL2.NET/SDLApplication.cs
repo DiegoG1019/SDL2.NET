@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using static SDL2.Bindings.SDL;
+using System.Reflection.PortableExecutable;
 
 namespace SDL2.NET;
 
@@ -119,13 +120,13 @@ public class SDLApplication : IDisposable
     /// <remarks>This method may be called at any time, even before Initialization. This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.</remarks>
     public static void ShowMessageBox(string title, string message, MessageBoxFlags flags)
     {
-        SDLApplicationException.ThrowIfLessThan(SDL.SDL_ShowSimpleMessageBox((SDL.SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
+        SDLApplicationException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
     }
 
     /// <summary>
     /// The total amount of time that has elapsed since SDL was initialized
     /// </summary>
-    public TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL.SDL_GetTicks64());
+    public static TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
 
     #region Events
 
@@ -230,27 +231,83 @@ public class SDLApplication : IDisposable
 
     #region Initialization
 
+    private SDLApplication Initialize(SDLSubSystem sys)
+    {
+        ThrowIfDisposed();
+        if ((InitializedSystems & sys) > 0)
+            return this;
+        SDLInitializationException.ThrowIfLessThan(SDL_Init((uint)sys), 0);
+        return this;
+    }
+
     /// <summary>
     /// Initializes SDL's Video Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication InitializeVideo()
-    {
-        ThrowIfDisposed();
-        SDLInitializationException.ThrowIfLessThan(SDL.SDL_Init(SDL.SDL_INIT_VIDEO), 0);
-        return this;
-    }
+        => Initialize(SDLSubSystem.Video);
 
     /// <summary>
     /// Initializes SDL's Audio Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
     public SDLApplication InitializeAudio()
-    {
-        ThrowIfDisposed();
-        SDLInitializationException.ThrowIfLessThan(SDL.SDL_Init(SDL.SDL_INIT_AUDIO), 0);
-        return this;
-    }
+        => Initialize(SDLSubSystem.Audio);
+
+    /// <summary>
+    /// Initializes SDL's Timer Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
+    public SDLApplication InitializeTimer()
+        => Initialize(SDLSubSystem.Timer);
+
+    /// <summary>
+    /// Initializes SDL's Joystick Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
+    public SDLApplication InitializeJoystick()
+        => Initialize(SDLSubSystem.Joystick);
+
+    /// <summary>
+    /// Initializes SDL's Haptic Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
+    public SDLApplication InitializeHaptic()
+        => Initialize(SDLSubSystem.Haptic);
+
+    /// <summary>
+    /// Initializes SDL's GameController Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
+    public SDLApplication InitializeGameController()
+        => Initialize(SDLSubSystem.GameController);
+
+    /// <summary>
+    /// Initializes SDL's Events Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
+    public SDLApplication InitializeEvents()
+        => Initialize(SDLSubSystem.Events);
+
+    /// <summary>
+    /// Initializes SDL's Sensor Library
+    /// </summary>
+    /// <returns>This instance of the SDLApplication for chaining calls</returns>
+    public SDLApplication InitializeSensor()
+        => Initialize(SDLSubSystem.Sensor);
+
+    /// <summary>
+    /// Quits the passed SDL Libraries
+    /// </summary>
+    /// <param name="subSystem">An enum mask describing the libraries to quit</param>
+    public void Quit(SDLSubSystem subSystem)
+        => SDL_QuitSubSystem((uint)subSystem);
+
+    /// <summary>
+    /// Get a mask of the specified subsystems which are currently initialized.
+    /// </summary>
+    public SDLSubSystem InitializedSystems
+        => (SDLSubSystem)SDL_WasInit(0);
 
     /// <summary>
     /// Initializes SDL's Audio Mixing Library
@@ -338,7 +395,7 @@ public class SDLApplication : IDisposable
             }
 
             disposedValue = true;
-            SDL.SDL_Quit();
+            SDL_Quit();
         }
     }
 
@@ -365,7 +422,7 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// Fetches and reacts to SDL's events
     /// </summary>
-    public void UpdateEvents()
+    public static void UpdateEvents()
     {
         Events.Update();
     }
@@ -374,7 +431,7 @@ public class SDLApplication : IDisposable
     /// Fetches and reacts to a single one of SDL's events, if available
     /// </summary>
     /// <returns>The remaining events in SDL's queue</returns>
-    public int UpdateEventOnce()
+    public static int UpdateEventOnce()
     {
         var i = Events.UpdateOnce();
         return i;
@@ -385,12 +442,12 @@ public class SDLApplication : IDisposable
     /// </summary>
     /// <param name="time">The amount of time to block the current thread</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void Delay(TimeSpan time)
+    public static void Delay(TimeSpan time)
     {
         var x = time.TotalMilliseconds;
         if (x <= 0)
             throw new ArgumentOutOfRangeException(nameof(time), time, "time must be larger than 0");
-        SDL.SDL_Delay(x >= uint.MaxValue ? uint.MaxValue : (uint)x);
+        SDL_Delay(x >= uint.MaxValue ? uint.MaxValue : (uint)x);
     }
 
     /// <summary>
