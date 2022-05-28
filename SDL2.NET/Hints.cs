@@ -4,8 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
+
+/// <summary>
+/// SDL Library hints
+/// </summary>
 public static class Hints
 {
     public static DisableThreadNaming DisableThreadNaming { get; } = new();
@@ -94,6 +99,8 @@ public static class Hints
     /// By default relative mouse deltas are affected by DPI and renderer scaling
     /// </remarks>
     public static MouseRelativeScaling MouseRelativeScaling { get; } = new();
+
+    public static IMEShowUI IMEShowUI { get; } = new();
 
 #warning finish up the rest of the hints
 }
