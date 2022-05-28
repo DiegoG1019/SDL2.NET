@@ -182,12 +182,5 @@ public partial class AudioChunk
             if (disposedValue)
                 throw new ObjectDisposedException(nameof(AudioChunkSampleBuffer));
         }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~AudioChunkSampleBuffer()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
     }
 }
