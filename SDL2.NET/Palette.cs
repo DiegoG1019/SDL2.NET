@@ -65,7 +65,7 @@ public class Palette : IDisposable
 
         Span<SDL_Color> sdl_c = stackalloc SDL_Color[colors.Length];
         for (int i = 0; i < colors.Length; i++)
-            (_colors[i + firstColor] = colors[i]).ToSDL(ref sdl_c[i]);
+            (_colors[i + firstColor] = colors[i]).ToSDL(out sdl_c[i]);
         SDLPaletteException.ThrowIfLessThan(SDL_SetPaletteColors(_handle, sdl_c, firstColor, colors.Length), 0);
     }
 

@@ -37,7 +37,7 @@ public struct Point
         y = Y;
     }
 
-    internal void ToSDL(ref SDL_Point point)
+    internal void ToSDL(out SDL_Point point)
     {
         point = new SDL_Point()
         {

@@ -66,14 +66,13 @@ public struct Rectangle : IEquatable<Rectangle>
     {
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(ref sdl_p[i]);
+            points[i].ToSDL(out sdl_p[i]);
 
         SDL_Rect res = default;
         SDL_bool suc = SDL_bool.SDL_FALSE;
         if (clip is Rectangle c)
         {
-            SDL_Rect r = default;
-            c.ToSDL(ref r);
+            c.ToSDL(out var r);
             suc = SDL_EnclosePoints(sdl_p, points.Length, ref r, out res);
             result = (Rectangle)res;
             return suc is SDL_bool.SDL_TRUE;
@@ -93,10 +92,8 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns>Whether there exists an intersection between the two rectangles</returns>
     public bool Intersect(Rectangle other, out Rectangle intersection)
     {
-        SDL_Rect a = default;
-        SDL_Rect b = default;
-        ToSDL(ref a);
-        ToSDL(ref b);
+        ToSDL(out var a);
+        ToSDL(out var b);
 
         if (SDL_IntersectRect(ref a, ref b, out var result) is SDL_bool.SDL_TRUE)
         {
@@ -115,10 +112,8 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns>Whether there exists an intersection between the two rectangles</returns>
     public bool Intersect(Rectangle other)
     {
-        SDL_Rect a = default;
-        SDL_Rect b = default;
-        ToSDL(ref a);
-        ToSDL(ref b);
+        ToSDL(out var a);
+        ToSDL(out var b);
 
         return SDL_HasIntersection(ref a, ref b) is SDL_bool.SDL_TRUE;
     }
@@ -134,8 +129,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns>Whether there exists an intersection between the <see cref="Rectangle"/> and the line</returns>
     public bool Intersect(int ox, int oy, int dx, int dy)
     {
-        SDL_Rect a = default;
-        ToSDL(ref a);
+        ToSDL(out var a);
         return SDL_IntersectRectAndLine(ref a, ref ox, ref oy, ref dx, ref dy) is SDL_bool.SDL_TRUE;
     }
 
@@ -156,10 +150,8 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <param name="rect"></param>
     public Rectangle Union(Rectangle other)
     {
-        SDL_Rect a = default;
-        SDL_Rect b = default;
-        ToSDL(ref a);
-        ToSDL(ref b);
+        ToSDL(out var a);
+        ToSDL(out var b);
 
         SDL_UnionRect(ref a, ref b, out var result);
         return (Rectangle)result;
@@ -186,7 +178,8 @@ public struct Rectangle : IEquatable<Rectangle>
             y = Y
         };
     }
-    internal void ToSDL(ref SDL_Rect rect)
+
+    internal void ToSDL(out SDL_Rect rect)
         => rect = ToSDL();
 
     public bool Equals(Rectangle other) => Height == other.Height && Width == other.Width && X == other.X && Y == other.Y;

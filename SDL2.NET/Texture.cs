@@ -220,8 +220,7 @@ public class Texture : IDisposable
             return;
         }
 
-        SDL_Rect rect = default;
-        ((Rectangle)area).ToSDL(ref rect);
+        ((Rectangle)area).ToSDL(out var rect);
         SDLTextureException.ThrowIfLessThan(SDL_LockTexture(_handle, ref rect, out pixels, out _), 0);
     }
 
@@ -334,8 +333,7 @@ public class Texture : IDisposable
                 Marshal.StructureToPtr(d, drect, false);
             }
 
-            SDL_Point sdl_p = default;
-            center.ToSDL(ref sdl_p);
+            center.ToSDL(out var sdl_p);
 
             SDLTextureException.ThrowIfLessThan(SDL_RenderCopyEx(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
         }

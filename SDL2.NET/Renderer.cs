@@ -80,7 +80,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(ref sdl_p[i]);
+            points[i].ToSDL(out sdl_p[i]);
 
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLines(_handle, sdl_p, points.Length), 0);
@@ -95,7 +95,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(ref sdl_p[i]);
+            points[i].ToSDL(out sdl_p[i]);
 
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLinesF(_handle, sdl_p, points.Length), 0);
@@ -137,7 +137,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(ref sdl_p[i]);
+            points[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoints(_handle, sdl_p, points.Length), 0);
     }
@@ -152,8 +152,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         if (rectangle is Rectangle r)
         {
-            SDL_Rect rect = default;
-            r.ToSDL(ref rect);
+            r.ToSDL(out var rect);
             TrySetColor(color);
             SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRect(_handle, ref rect), 0);
             return;
@@ -175,8 +174,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         if (rectangle is Rectangle r)
         {
-            SDL_Rect rect = default;
-            r.ToSDL(ref rect);
+            r.ToSDL(out var rect);
             TrySetColor(color);
             SDLRendererException.ThrowIfLessThan(SDL_RenderFillRect(_handle, ref rect), 0);
             return;
@@ -195,7 +193,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            rectangles[i].ToSDL(ref sdl_p[i]);
+            rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRects(_handle, sdl_p, rectangles.Length), 0);
     }
@@ -210,7 +208,7 @@ public abstract class Renderer : IDisposable
         ThrowIfDisposed();
         Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
         for (int i = 0; i < sdl_p.Length; i++)
-            rectangles[i].ToSDL(ref sdl_p[i]);
+            rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderFillRects(_handle, sdl_p, rectangles.Length), 0);
     }
@@ -327,8 +325,7 @@ public abstract class Renderer : IDisposable
             ThrowIfDisposed();
             if (value is Rectangle r)
             {
-                SDL_Rect sdl_r = default;
-                r.ToSDL(ref sdl_r);
+                r.ToSDL(out var sdl_r);
                 SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, ref sdl_r), 0);
             }
             SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, IntPtr.Zero), 0);
@@ -385,8 +382,7 @@ public abstract class Renderer : IDisposable
             ThrowIfDisposed();
             if (value is Rectangle r)
             {
-                SDL_Rect sl = default;
-                r.ToSDL(ref sl);
+                r.ToSDL(out var sl);
                 SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, ref sl), 0);
                 return;
             }

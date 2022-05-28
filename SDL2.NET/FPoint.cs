@@ -39,7 +39,7 @@ public struct FPoint
         y = Y;
     }
 
-    internal void ToSDL(ref SDL_FPoint point)
+    internal void ToSDL(out SDL_FPoint point)
     {
         point = new SDL_FPoint()
         {

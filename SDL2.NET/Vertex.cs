@@ -32,13 +32,9 @@ public struct Vertex
 
     internal void ToSDL(ref SDL_Vertex vertex)
     {
-        SDL_FPoint pos = default;
-        SDL_Color color = default;
-        SDL_FPoint tex_coord = default;
-
-        Position.ToSDL(ref pos);
-        Color.ToSDL(ref color);
-        TextureOffset.ToSDL(ref tex_coord);
+        Position.ToSDL(out var pos);
+        Color.ToSDL(out var color);
+        TextureOffset.ToSDL(out var tex_coord);
 
         vertex = new SDL_Vertex()
         {

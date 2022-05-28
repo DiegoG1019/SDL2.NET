@@ -1090,7 +1090,7 @@ public class Window : IDisposable
         ThrowIfDisposed();
         Span<SDL_Rect> rects = stackalloc SDL_Rect[numrect ?? rectangles.Length];
         for (int i = 0; i < rects.Length; i++)
-            rectangles[i].ToSDL(ref rects[i]);
+            rectangles[i].ToSDL(out rects[i]);
         SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurfaceRects(_handle, rects, rects.Length), 0);
     }
 
@@ -1153,8 +1153,7 @@ public class Window : IDisposable
                 return;
             }
 
-            SDL_Rect r = default;
-            ((Rectangle)value).ToSDL(ref r);
+            ((Rectangle)value).ToSDL(out var r);
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, ref r), 0);
         }
     }

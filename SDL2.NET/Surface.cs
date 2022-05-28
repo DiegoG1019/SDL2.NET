@@ -125,8 +125,7 @@ public class Surface : IDisposable
         ThrowIfDisposed();
         if (rect is Rectangle re)
         {
-            SDL_Rect r = default;
-            re.ToSDL(ref r);
+            re.ToSDL(out var r);
             SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(Format)), 0);
         }
         SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(Format)), 0);
@@ -237,7 +236,7 @@ public class Surface : IDisposable
         ThrowIfDisposed();
         Span<SDL_Rect> rects = stackalloc SDL_Rect[rectangles.Length];
         for (int i = 0; i < rectangles.Length; i++)
-            rectangles[i].ToSDL(ref rects[i]);
+            rectangles[i].ToSDL(out rects[i]);
         
         SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(Format)), 0);
     }
@@ -345,13 +344,11 @@ public class Surface : IDisposable
     {
         ThrowIfDisposed();
 
-        SDL_Rect d = default;
-        destinationRect.ToSDL(ref d);
+        destinationRect.ToSDL(out var d);
 
         if(sourceRect is Rectangle src)
         {
-            SDL_Rect r = default;
-            src.ToSDL(ref r);
+            src.ToSDL(out var r);
             SDLTextureException.ThrowIfLessThan(SDL_LowerBlit(_handle, ref r, destination._handle, ref d), 0);
         }
         else
@@ -403,10 +400,8 @@ public class Surface : IDisposable
     /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledTo"/> instead</remarks>
     public void SoftStretchTo(Surface destination, Rectangle sourceRect, Rectangle destinationRect)
     {
-        SDL_Rect src = default;
-        SDL_Rect dst = default;
-        sourceRect.ToSDL(ref src);
-        destinationRect.ToSDL(ref dst);
+        sourceRect.ToSDL(out var src);
+        destinationRect.ToSDL(out var dst);
 
         SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretch(_handle, ref src, destination._handle, ref dst), 0);
     }
@@ -436,7 +431,7 @@ public class Surface : IDisposable
             ThrowIfDisposed();
             if (value is Rectangle r)
             {
-                r.ToSDL(ref clipRect);
+                r.ToSDL(out var clipRect);
                 ClipStatus = SDL_SetClipRect(_handle, ref clipRect) is SDL_bool.SDL_TRUE ? ClipRectangleStatus.Enabled : ClipRectangleStatus.Invalid;
                 return;
             }
