@@ -16,6 +16,18 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum SDLSubSystem : uint
+{
+    Timer = SDL_INIT_TIMER,
+    Audio = SDL_INIT_AUDIO,
+    Video = SDL_INIT_VIDEO,
+    Joystick = SDL_INIT_JOYSTICK,
+    Haptic = SDL_INIT_HAPTIC,
+    GameController = SDL_INIT_GAMECONTROLLER,
+    Events = SDL_INIT_EVENTS,
+    Sensor = SDL_INIT_SENSOR
+}
+
 public enum PowerState
 {
     Unknown = 0,
