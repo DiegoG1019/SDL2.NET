@@ -118,7 +118,7 @@ public class SDLApplication : IDisposable
     /// <param name="message">The message to be shown in the messagebox</param>
     /// <param name="flags">The flags of the message box</param>
     /// <remarks>This method may be called at any time, even before Initialization. This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.</remarks>
-    public static void ShowMessageBox(string title, string message, MessageBoxFlags flags)
+    public void ShowMessageBox(string title, string message, MessageBoxFlags flags)
     {
         SDLApplicationException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
     }
@@ -126,7 +126,7 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// The total amount of time that has elapsed since SDL was initialized
     /// </summary>
-    public static TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
+    public TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
 
     #region Events
 
@@ -422,7 +422,7 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// Fetches and reacts to SDL's events
     /// </summary>
-    public static void UpdateEvents()
+    public void UpdateEvents()
     {
         Events.Update();
     }
@@ -431,7 +431,7 @@ public class SDLApplication : IDisposable
     /// Fetches and reacts to a single one of SDL's events, if available
     /// </summary>
     /// <returns>The remaining events in SDL's queue</returns>
-    public static int UpdateEventOnce()
+    public int UpdateEventOnce()
     {
         var i = Events.UpdateOnce();
         return i;
@@ -442,7 +442,7 @@ public class SDLApplication : IDisposable
     /// </summary>
     /// <param name="time">The amount of time to block the current thread</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static void Delay(TimeSpan time)
+    public void Delay(TimeSpan time)
     {
         var x = time.TotalMilliseconds;
         if (x <= 0)
