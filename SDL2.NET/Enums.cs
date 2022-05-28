@@ -16,6 +16,14 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum PowerState
+{
+    Unknown = 0,
+    OnBattery,
+    NoBattery,
+    Charging,
+    Charged
+}
 
 public enum SystemCursor
 {
