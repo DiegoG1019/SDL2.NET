@@ -16,6 +16,24 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum ScalingQuality
+{
+    /// <summary>
+    /// Nearest pixel sampling
+    /// </summary>
+    Nearest,
+
+    /// <summary>
+    /// Linear filtering (supported by OpenGL and Direct3D)
+    /// </summary>
+    Linear,
+
+    /// <summary>
+    /// Anisotropic filtering (supported by Direct3D)
+    /// </summary>
+    Best
+}
+
 public enum SDLSubSystem : uint
 {
     Timer = SDL_INIT_TIMER,

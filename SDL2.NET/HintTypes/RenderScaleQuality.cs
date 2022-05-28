@@ -28,21 +28,3 @@ public sealed class RenderScaleQuality : Hint
         set => Set(((int)value).ToString());
     }
 }
-
-public enum ScalingQuality
-{
-    /// <summary>
-    /// Nearest pixel sampling
-    /// </summary>
-    Nearest,
-
-    /// <summary>
-    /// Linear filtering (supported by OpenGL and Direct3D)
-    /// </summary>
-    Linear,
-
-    /// <summary>
-    /// Anisotropic filtering (supported by Direct3D)
-    /// </summary>
-    Best
-}
