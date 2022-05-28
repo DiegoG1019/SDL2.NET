@@ -649,7 +649,7 @@ public class Window : IDisposable
     /// Gets or Sets the <see cref="Window"/>'s Brightness, ranging from 0.0 to 1.0. get: <see cref="SDL_GetWindowBrightness" href="https://wiki.libsdl.org/SDL_GetWindowBrightness"/>; set: <see cref="SDL_SetWindowBrightness" href="https://wiki.libsdl.org/SDL_SetWindowBrightness"/>
     /// </summary>
     /// <remarks>
-    /// Despite the name, this method retrieves the brightness of the entire <see cref="Display"/>, not an individual <see cref="Window"/>. A <see cref="Window"/> is considered to be owned by the <see cref="Display"/> that contains the <see cref="Window"/>'s center pixel. (The index of this display can be retrieved with <see cref="DisplayIndex"/>.)
+    /// Despite the name, this method retrieves the brightness of the entire <see cref="Display"/>, not an individual <see cref="Window"/>. A <see cref="Window"/> is considered to be owned by the <see cref="Display"/> that contains the <see cref="Window"/>'s center pixel. (The info of this display can be retrieved with <see cref="DisplayInfo"/>.)
     /// </remarks>
     /// <returns></returns>
     public float Brightness
@@ -817,19 +817,19 @@ public class Window : IDisposable
     }
 
     /// <summary>
-    /// Gets this Window's display index. <see cref="SDL_GetWindowDisplayIndex" href="https://wiki.libsdl.org/SDL_GetWindowDisplayIndex"/>
+    /// Gets information about the Display this <see cref="Window"/> lives in. <see cref="SDL_GetWindowDisplayIndex" href="https://wiki.libsdl.org/SDL_GetWindowDisplayIndex"/>
     /// </summary>
     /// <remarks>
     /// The index of the display containing the center of the window on success
     /// </remarks>
-    public int DisplayIndex
+    public DisplayInfo DisplayInfo
     {
         get
         {
             ThrowIfDisposed();
             var r = SDL_GetWindowDisplayIndex(_handle);
             SDLWindowException.ThrowIfLessThan(r, 0);
-            return r;
+            return Display.Displays[r];
         }
     }
 

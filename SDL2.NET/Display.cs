@@ -1,5 +1,6 @@
 ﻿using SDL2.NET.Exceptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,72 +8,44 @@ using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
+
+/// <summary>
+/// Provides methods and properties to interact with the currently plugged displays
+/// </summary>
 public static class Display
 {
-    public static void EnableScreenSaver()
-        => SDL_EnableScreenSaver();
-    public static void DisableScreenSaver()
-        => SDL_DisableScreenSaver();
-
-    public static DisplayMode GetCurrentDisplayMode(int displayIndex)
+    /// <summary>
+    /// Gets or Sets whether the screensaver is currently enabled
+    /// </summary>
+    public static bool IsScreenSaverEnabled
     {
-        SDLDisplayException.ThrowIfLessThan(SDL_GetCurrentDisplayMode(displayIndex, out var mode), 0);
-        return (DisplayMode)mode;
+        get => SDL_IsScreenSaverEnabled() is SDL_bool.SDL_TRUE;
+        set
+        {
+            if (value)
+            {
+                SDL_EnableScreenSaver();
+                return;
+            }
+            SDL_DisableScreenSaver();
+        }
     }
 
-    public static DisplayMode GetClosestDisplayMode(int displayIndex, DisplayMode mode)
-    {
-        SDL_DisplayMode m = (SDL_DisplayMode)mode;
-        SDL_GetClosestDisplayMode(displayIndex, ref m, out var closest);
-        return (DisplayMode)closest;
-    }
+    /// <summary>
+    /// Get the name of the currently initialized video driver or null if no driver has been initialized
+    /// </summary>
+    public static string? CurrentVideoDriver => SDL_GetCurrentVideoDriver();
 
-    public static string GetCurrentVideoDriver()
-        => SDL_GetCurrentVideoDriver();
+    /// <summary>
+    /// Information about all the video drivers compiled into SDL
+    /// </summary>
+    /// <returns></returns>
+    public static IReadOnlyList<string> VideoDrivers { get; } = new DriverInfoCollection();
 
-    public static DisplayMode GetDesktopDisplayMode(int displayIndex)
-    {
-        SDLDisplayException.ThrowIfLessThan(SDL_GetDesktopDisplayMode(displayIndex, out var mode), 0);
-        return (DisplayMode)mode;
-    }
-
-    public static string GetDisplayName(int displayIndex)
-        => SDL_GetDisplayName(displayIndex);
-
-    public static Rectangle GetDisplayBounds(int displayIndex)
-    {
-        SDLDisplayException.ThrowIfLessThan(SDL_GetDisplayBounds(displayIndex, out var rect), 0);
-        return rect;
-    }
-
-    public static void GetDisplayDPI(int displayIndex, out float dpi, out float hdpi, out float vdpi)
-    {
-        SDLDisplayException.ThrowIfLessThan(SDL_GetDisplayDPI(displayIndex, out dpi, out hdpi, out vdpi), 0);
-    }
-
-    public static SDL_DisplayOrientation GetDisplayOrientation(int displayIndex)
-        => SDL_GetDisplayOrientation(displayIndex);
-
-    public static SDL_DisplayMode GetDisplayMode(int displayIndex, int modeIndex)
-    {
-        SDLDisplayException.ThrowIfLessThan(SDL_GetDisplayMode(displayIndex, modeIndex, out var mode), 0);
-        return mode;
-    }
-
-    public static Rectangle GetDisplayUsableBounds(int displayIndex)
-    {
-        SDLDisplayException.ThrowIfLessThan(SDL_GetDisplayUsableBounds(displayIndex, out var rect), 0);
-        return rect;
-    }
-
-    public static int GetDisplayModeCount(int displayIndex)
-        => SDL_GetNumDisplayModes(displayIndex);
-
-    public static int GetVideoDisplayCount()
-        => SDL_GetNumVideoDrivers();
-
-    public static string GetVideoDriver(int displayIndex)
-        => SDL_GetVideoDriver(displayIndex);
+    /// <summary>
+    /// Represents a list of the currently plugged displays
+    /// </summary>
+    public static IReadOnlyList<DisplayInfo> Displays { get; } = new DisplayInfoCollection();
 
     #region Events
 
@@ -80,8 +53,8 @@ public static class Display
     /// Represents an SDL Display Event
     /// </summary>
     /// <param name="timestamp">The amount of time that has passed since SDL's initialization</param>
-    /// <param name="displayIndex">The index of the display</param>
-    public delegate void DisplayEvent(TimeSpan timestamp, int displayIndex);
+    /// <param name="display">Information about the display the event ocurred in</param>
+    public delegate void DisplayEvent(TimeSpan timestamp, DisplayInfo display);
 
     /// <summary>
     /// The orientation of a display changed
@@ -103,13 +76,13 @@ public static class Display
         switch (e.displayEvent)
         {
             case SDL_DisplayEventID.SDL_DISPLAYEVENT_ORIENTATION:
-                OrientationChanged?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), (int)e.display);
+                OrientationChanged?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), Displays[(int)e.display]);
                 return;
             case SDL_DisplayEventID.SDL_DISPLAYEVENT_CONNECTED:
-                DisplayConnected?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), (int)e.display);
+                DisplayConnected?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), Displays[(int)e.display]);
                 return;
             case SDL_DisplayEventID.SDL_DISPLAYEVENT_DISCONNECTED:
-                DisplayDisconnected?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), (int)e.display);
+                DisplayDisconnected?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), Displays[(int)e.display]);
                 return;
         }
         return;
@@ -117,4 +90,53 @@ public static class Display
 
     #endregion
 
+    #region display collection
+
+    private class DriverInfoCollection : IReadOnlyList<string>
+    {
+        public string this[int index] => SDL_GetVideoDriver(index);
+
+        public int Count
+        {
+            get
+            {
+                var r = SDL_GetNumVideoDrivers();
+                SDLDisplayException.ThrowIfLessThan(r, 0);
+                return r;
+            }
+        }
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++)
+                yield return this[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    private class DisplayInfoCollection : IReadOnlyList<DisplayInfo>
+    {
+        public DisplayInfo this[int index] => new(index);
+
+        public int Count
+        {
+            get
+            {
+                var r = SDL_GetNumVideoDisplays();
+                SDLDisplayException.ThrowIfLessThan(r, 0);
+                return r;
+            }
+        }
+
+        public IEnumerator<DisplayInfo> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++) 
+                yield return this[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    #endregion
 }
