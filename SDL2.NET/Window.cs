@@ -839,21 +839,22 @@ public class Window : IDisposable
     /// <remarks>
     /// This only affects the display mode used when the window is fullscreen. To change the window size when the window is not fullscreen, use <see cref="Size" />.
     /// </remarks>
-    public SDL_DisplayMode? DisplayMode
+    public DisplayMode? DisplayMode
     {
         [return: NotNull]
         get
         {
             ThrowIfDisposed();
             SDLWindowException.ThrowIfLessThan(SDL_GetWindowDisplayMode(_handle, out var mode), 0);
-            return mode;
+            return (DisplayMode)mode;
         }
         set
         {
             ThrowIfDisposed();
-            if (value is SDL_DisplayMode mode)
+            if (value is DisplayMode mode)
             {
-                SDLWindowException.ThrowIfLessThan(SDL_SetWindowDisplayMode(_handle, ref mode), 0);
+                var m = (SDL_DisplayMode)mode;
+                SDLWindowException.ThrowIfLessThan(SDL_SetWindowDisplayMode(_handle, ref m), 0);
                 return;
             }
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowDisplayMode(_handle, IntPtr.Zero), 0);
