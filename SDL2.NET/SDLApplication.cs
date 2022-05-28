@@ -398,8 +398,8 @@ public class SDLApplication : IDisposable
         {
             if (disposing)
             {
-                MainRenderer.Dispose();
-                MainWindow.Dispose();
+                _mr?.Dispose();
+                _mw?.Dispose();
                 if (AudioMixer.IsInitialized)
                     AudioMixer.Quit();
             }
