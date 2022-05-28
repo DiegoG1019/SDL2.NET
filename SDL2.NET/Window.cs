@@ -668,6 +668,11 @@ public class Window : IDisposable
     }
 
     /// <summary>
+    /// Check whether the screen keyboard is shown for this <see cref="Window"/>.
+    /// </summary>
+    public bool IsScreenKeyboardShown => SDL_IsScreenKeyboardShown(_handle) == SDL_bool.SDL_TRUE;
+
+    /// <summary>
     /// The flags currently active for this <see cref="Window"/>
     /// </summary>
     public WindowFlags Flags => (WindowFlags)SDL_GetWindowFlags(_handle);
@@ -1176,6 +1181,36 @@ public class Window : IDisposable
     public static Window? GetGrabbedWindow()
     {
         var ptr = SDL_GetGrabbedWindow();
+        return ptr == IntPtr.Zero
+            ? null
+            : _handleDict.TryGetValue(ptr, out var wr)
+            ? wr.TryGetTarget(out var window) ?
+            window
+            : throw new SDLWindowException("This window object has already been garbage collected and disposed")
+            : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window directly through SDL?");
+    }
+
+    /// <summary>
+    /// Finds the <see cref="Window"/> that currently has Mouse Focus, if any
+    /// </summary>
+    public static Window? FindMouseFocus()
+    {
+        var ptr = SDL_GetMouseFocus();
+        return ptr == IntPtr.Zero
+            ? null
+            : _handleDict.TryGetValue(ptr, out var wr)
+            ? wr.TryGetTarget(out var window) ?
+            window
+            : throw new SDLWindowException("This window object has already been garbage collected and disposed")
+            : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window directly through SDL?");
+    }
+
+    /// <summary>
+    /// Finds the <see cref="Window"/> that currently has Keyboard Focus, if any
+    /// </summary>
+    public static Window? FindKeyboardFocus()
+    {
+        var ptr = SDL_GetKeyboardFocus();
         return ptr == IntPtr.Zero
             ? null
             : _handleDict.TryGetValue(ptr, out var wr)
