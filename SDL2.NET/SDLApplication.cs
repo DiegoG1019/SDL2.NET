@@ -343,7 +343,17 @@ public class SDLApplication : IDisposable
             throw new InvalidOperationException("A Main Window for this app has already been launched. Try SetMainWindow instead");
         _mw = InstantiateMainWindow(title, width, height, windowConfig);
         _mr = InstantiateMainRenderer(_mw, rendererFlags);
+
+        _mw.Closed += _mw_Closed;
+
         return this;
+    }
+
+    private void _mw_Closed(Window sender, TimeSpan timestamp)
+    {
+        sender.Closed -= _mw_Closed;
+        _mw = null;
+        _mr = null;
     }
 
     /// <summary>
