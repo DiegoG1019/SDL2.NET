@@ -11,7 +11,7 @@ namespace SDL2.NET;
 /// Provides methods and properties to query the underlying system's hardware specs. 
 /// </summary>
 /// <remarks>
-/// See <see cref="Environment"/>. Implements methods and properties from SDL_cpu.h
+/// For .NET Native ways of getting (and using) this information (excluding <see cref="SystemRAM"/>) see: <see cref="Environment"/> and explore Hardware Intrinsics <see cref="System.Runtime.Intrinsics" href="https://devblogs.microsoft.com/dotnet/hardware-intrinsics-in-net-core/"/>
 /// </remarks>
 public static class Hardware
 {
