@@ -16,6 +16,67 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum GameControllerBindType
+{
+    None = SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE,
+    Button = SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_BUTTON,
+    Axis = SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_AXIS,
+    Hat = SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_HAT,
+}
+
+public enum GameControllerAxis
+{
+    Invalid = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_INVALID,
+    LeftX = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX,
+    LeftY = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY,
+    RightX = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX,
+    RightY = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY,
+    LeftTrigger = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT,
+    RightTrigger = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT,
+    Max = SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_MAX,
+}
+
+public enum GameControllerButton
+{
+    Invalid = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_INVALID,
+    A = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A,
+    B = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B,
+    X = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X,
+    Y = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y,
+    Back = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK,
+    Guide = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE,
+    Start = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START,
+    LeftStick = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSTICK,
+    RightStick = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+    LeftShoulder = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
+    RightShoulder = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+    DpadUp = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP,
+    DpadDown = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+    DpadLeft = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT,
+    DpadRight = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
+    Misc1 = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MISC1,
+    Paddle1 = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_PADDLE1,
+    Paddle2 = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_PADDLE2,
+    Paddle3 = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_PADDLE3,
+    Paddle4 = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_PADDLE4,
+    Touchpad = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_TOUCHPAD,
+    Max = SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MAX,
+}
+
+public enum GameControllerType
+{
+    Unknown                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_UNKNOWN,
+    Xbox360                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_XBOX360,
+    XboxOne                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_XBOXONE,
+    PS3                         = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS3,
+    PS4                         = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS4,
+    NintendoSwitchProController = SDL_GameControllerType.SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO,
+    Virtual                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_VIRTUAL,
+    PS5                         = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS5,
+    AmazonLuna                  = SDL_GameControllerType.SDL_CONTROLLER_TYPE_AMAZON_LUNA,
+    GoogleStadia                = SDL_GameControllerType.SDL_CONTROLLER_TYPE_GOOGLE_STADIA,
+}
+
 public enum DisplayOrientation
 {
     Unknown = SDL_DisplayOrientation.SDL_ORIENTATION_UNKNOWN,
