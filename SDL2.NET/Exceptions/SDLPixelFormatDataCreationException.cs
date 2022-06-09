@@ -17,13 +17,13 @@ public class SDLPixelFormatDataCreationException : SDLException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLPixelFormatDataCreationException(SDL.SDL_GetError());
+            throw new SDLPixelFormatDataCreationException(SDL.SDL_GetAndClearError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLPixelFormatDataCreationException(SDL.SDL_GetError());
+            throw new SDLPixelFormatDataCreationException(SDL.SDL_GetAndClearError());
     }
 }

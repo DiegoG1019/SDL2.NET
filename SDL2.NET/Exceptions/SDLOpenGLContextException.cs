@@ -17,13 +17,13 @@ public class SDLOpenGLContextException : SDLException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLOpenGLContextException(SDL.SDL_GetError());
+            throw new SDLOpenGLContextException(SDL.SDL_GetAndClearError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLOpenGLContextException(SDL.SDL_GetError());
+            throw new SDLOpenGLContextException(SDL.SDL_GetAndClearError());
     }
 }

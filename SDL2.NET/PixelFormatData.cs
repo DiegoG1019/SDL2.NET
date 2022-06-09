@@ -24,7 +24,7 @@ public class PixelFormatData : IDisposable
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
-            throw new SDLSurfaceCreationException(SDL_GetError());
+            throw new SDLSurfaceCreationException(SDL_GetAndClearError());
 
         var f = Marshal.PtrToStructure<SDL_PixelFormat>(handle);
         Format = (PixelFormat)f.format;

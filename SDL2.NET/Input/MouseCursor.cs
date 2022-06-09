@@ -16,7 +16,7 @@ public sealed class MouseCursor : IDisposable
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
-            throw new SDLMouseCursorCreationException(SDL_GetError());
+            throw new SDLMouseCursorCreationException(SDL_GetAndClearError());
     }
 
 #warning SDL_CreateCursor is missing

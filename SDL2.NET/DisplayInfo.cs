@@ -113,7 +113,7 @@ public struct DisplayInfo
         get
         {
             var r = SDL_GetDisplayName(index);
-            return r is null ? throw new SDLDisplayException(SDL_GetError()) : r;
+            return r is null ? throw new SDLDisplayException(SDL_GetAndClearError()) : r;
         }
     }
 

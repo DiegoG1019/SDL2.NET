@@ -45,7 +45,7 @@ public class Surface : IDisposable
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
-            throw new SDLSurfaceCreationException(SDL_GetError());
+            throw new SDLSurfaceCreationException(SDL_GetAndClearError());
 
         var str = BackingStruct;
         Format = PixelFormatData.FetchOrNew(str.format);

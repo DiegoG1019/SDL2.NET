@@ -17,13 +17,13 @@ public class SDLAudioException : SDLException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLAudioException(SDL.SDL_GetError());
+            throw new SDLAudioException(SDL.SDL_GetAndClearError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLAudioException(SDL.SDL_GetError());
+            throw new SDLAudioException(SDL.SDL_GetAndClearError());
     }
 }

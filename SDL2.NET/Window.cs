@@ -76,7 +76,7 @@ public class Window : IDisposable
             (configuration ?? WindowConfig.Default).GenerateFlags()
         );
         if (_handle == IntPtr.Zero)
-            throw new SDLWindowCreationException(SDL_GetError());
+            throw new SDLWindowCreationException(SDL_GetAndClearError());
 
         Surface = new Surface(SDL_GetWindowSurface(_handle));
 
@@ -626,7 +626,7 @@ public class Window : IDisposable
             ThrowIfDisposed();
             var error = SDL_SetWindowOpacity(_handle, (float)value);
             if (error is -1)
-                throw new PlatformNotSupportedException(SDL_GetError());
+                throw new PlatformNotSupportedException(SDL_GetAndClearError());
             SDLWindowException.ThrowIfLessThan(error, 0);
         }
     }

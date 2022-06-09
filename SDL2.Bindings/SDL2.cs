@@ -810,10 +810,17 @@ namespace SDL2.Bindings
         public static extern void SDL_ClearError();
 
         [DllImport(nativeLibName, EntryPoint = "SDL_GetError", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr INTERNAL_SDL_GetError();
+        public static extern IntPtr INTERNAL_SDL_GetError();
         public static string SDL_GetError()
         {
             return UTF8_ToManaged(INTERNAL_SDL_GetError());
+        }
+
+        public static string SDL_GetAndClearError()
+        {
+            var x = SDL_GetError();
+            SDL_ClearError();
+            return x;
         }
 
         /* Use string.Format for arglists */

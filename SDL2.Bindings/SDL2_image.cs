@@ -261,7 +261,7 @@ namespace SDL2.Bindings
 
         public static string IMG_GetError()
         {
-            return SDL.SDL_GetError();
+            return SDL.SDL_GetAndClearError();
         }
 
         public static void IMG_SetError(string fmtAndArglist)

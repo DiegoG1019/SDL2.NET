@@ -17,13 +17,13 @@ public class SDLPaletteCreationException : SDLException
     public static void ThrowIfLessThan(int value, int comparison)
     {
         if (value < comparison)
-            throw new SDLPaletteCreationException(SDL.SDL_GetError());
+            throw new SDLPaletteCreationException(SDL.SDL_GetAndClearError());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfEquals(int value, int comparison)
     {
         if (value == comparison)
-            throw new SDLPaletteCreationException(SDL.SDL_GetError());
+            throw new SDLPaletteCreationException(SDL.SDL_GetAndClearError());
     }
 }

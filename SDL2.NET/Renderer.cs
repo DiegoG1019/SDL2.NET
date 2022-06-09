@@ -22,7 +22,7 @@ public abstract class Renderer : IDisposable
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
-            throw new SDLRendererCreationException(SDL_GetError());
+            throw new SDLRendererCreationException(SDL_GetAndClearError());
     }
 
     /// <summary>

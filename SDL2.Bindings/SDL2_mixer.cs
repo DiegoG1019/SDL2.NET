@@ -652,7 +652,7 @@ namespace SDL2.Bindings
 
         public static string Mix_GetError()
         {
-            return SDL.SDL_GetError();
+            return SDL.SDL_GetAndClearError();
         }
 
         public static void Mix_SetError(string fmtAndArglist)

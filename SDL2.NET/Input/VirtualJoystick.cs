@@ -12,7 +12,7 @@ public class VirtualJoystick : Joystick
     internal VirtualJoystick(IntPtr handle, int index) : base(handle, index)
     {
         if (SDL_JoystickIsVirtual(index) == SDL_bool.SDL_FALSE)
-            throw new SDLJoystickException(SDL_GetError());
+            throw new SDLJoystickException(SDL_GetAndClearError());
         VirtualIndex = index;
     }
 

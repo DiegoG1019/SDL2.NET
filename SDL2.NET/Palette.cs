@@ -22,7 +22,7 @@ public class Palette : IDisposable
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
-            throw new SDLPaletteCreationException(SDL_GetError());
+            throw new SDLPaletteCreationException(SDL_GetAndClearError());
 
         var p = Marshal.PtrToStructure<SDL_Palette>(handle);
 

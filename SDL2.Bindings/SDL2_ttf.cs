@@ -767,7 +767,7 @@ namespace SDL2.Bindings
 
         public static string TTF_GetError()
         {
-            return SDL.SDL_GetError();
+            return SDL.SDL_GetAndClearError();
         }
 
         public static void TTF_SetError(string fmtAndArglist)
