@@ -16,9 +16,9 @@ namespace SDL2.NET;
 /// <remarks>Warning: Forgetting to call <see cref="Present"/> will build up memory usage, which will suddenly drop when <see cref="Present"/> is finally called</remarks>
 public abstract class Renderer : IDisposable
 {
-    protected internal readonly IntPtr _handle = IntPtr.Zero;
+    internal readonly IntPtr _handle = IntPtr.Zero;
 
-    protected Renderer(IntPtr handle)
+    internal Renderer(IntPtr handle)
     {
         _handle = handle;
         if (_handle == IntPtr.Zero)
