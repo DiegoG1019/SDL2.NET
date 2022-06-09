@@ -16,8 +16,11 @@ namespace SDL2.NET.Input;
 /// </summary>
 public class GameController : Joystick, IDisposable
 {
-    internal GameController(IntPtr handle, int deviceIndex) : base(handle, deviceIndex)
+    internal readonly IntPtr gc_handle;
+
+    internal GameController(IntPtr handle, int deviceIndex) : base(SDL_GameControllerGetJoystick(handle), deviceIndex)
     {
+        gc_handle = handle;
         gc = true;
     }
 
@@ -32,7 +35,7 @@ public class GameController : Joystick, IDisposable
         {
             var id = SDL_JoystickGetDeviceInstanceID(index);
             if (JoystickDict.TryGetValue(id, out var wr))
-                if (wr.TryGetTarget(out var joystick))
+                if (wr.TryGetTarget(out var joystick) && joystick.disposedValue is false)
                     return ((IJoystickDefinition)joystick).IsGameController(out gameController);
                 else
                     JoystickDict.Remove(id, out _);
@@ -55,11 +58,11 @@ public class GameController : Joystick, IDisposable
     /// The mapping string has the format "GUID,name,mapping", where GUID is the string value from SDL_JoystickGetGUIDString(), name is the human readable string for the device and mappings are controller mappings to joystick ones. Under Windows there is a reserved GUID of "xinput" that covers all XInput devices. The mapping format for joystick is: {| |bX |a joystick button, index X |- |hX.Y |hat X with value Y |- |aX |axis X of the joystick |} Buttons can be used as a controller axes and vice versa.
     /// </remarks>
     /// <returns>true if the mapping was added, false if updated.</returns>
-    /// <exception cref="SDLGameControllerException"></exception>
+    /// <exception cref="SDLJoystickException"></exception>
     public static bool AddMapping(string mapping)
     {
         var r = SDL_GameControllerAddMapping(mapping);
-        SDLGameControllerException.ThrowIfLessThan(r, 0);
+        SDLJoystickException.ThrowIfLessThan(r, 0);
         return r == 1;
     }
 
@@ -81,9 +84,18 @@ public class GameController : Joystick, IDisposable
     /// </summary>
     /// <param name="guid"></param>
     /// <returns></returns>
-    /// <exception cref="SDLGameControllerException"></exception>
+    /// <exception cref="SDLJoystickException"></exception>
     public static string GetMapping(Guid guid)
-        => SDL_GameControllerMappingForGUID(guid) ?? throw new SDLGameControllerException(SDL_GetError());
+        => SDL_GameControllerMappingForGUID(guid) ?? throw new SDLJoystickException(SDL_GetAndClearError());
+
+    /// <summary>
+    /// Get the game controller mapping string for a given <see cref="Joystick"/>'s device index
+    /// </summary>
+    /// <param name="deviceIndex"></param>
+    /// <returns></returns>
+    /// <exception cref="SDLJoystickException"></exception>
+    public static string GetMapping(int deviceIndex)
+        => SDL_GameControllerMappingForDeviceIndex(deviceIndex) ?? throw new SDLJoystickException(SDL_GetAndClearError());
 
     /// <summary>
     /// Get the implementation-dependent name for an opened game controller, or null if there is no name or the identifier passed is invalid.
@@ -94,9 +106,37 @@ public class GameController : Joystick, IDisposable
         => SDL_GameControllerNameForIndex(index);
 
     /// <summary>
+    /// Whether Game Controller Events are enabled or not
+    /// </summary>
+    public static bool ControllerEventsEnabled
+    {
+        get => SDL_GameControllerEventState(SDL_QUERY) == 1;
+        set => SDL_GameControllerEventState(value ? SDL_ENABLE : SDL_IGNORE);
+    }
+
+    /// <summary>
+    /// Manually pump game controller updates if <see cref="ControllerEventsEnabled"/> is false
+    /// </summary>
+    public static void Update()
+    {
+        SDL_GameControllerUpdate();
+    }
+
+    /// <summary>
+    /// Convert a string into <see cref="GameControllerAxis"/> enum
+    /// </summary>
+    /// <param name="str"></param>
+    /// <remarks>
+    /// This function is called internally to translate <see cref="GameController"/> mapping strings for the underlying joystick device into the consistent <see cref="GameController"/> mapping. You do not normally need to call this function unless you are parsing <see cref="GameController"/> mappings in your own code.
+    /// </remarks>
+    /// <returns></returns>
+    public static GameControllerAxis GetAxis(string str)
+        => (GameControllerAxis)SDL_GameControllerGetAxisFromString(str);
+
+    /// <summary>
     /// Get the game controller mapping for this instance
     /// </summary>
-    public string Mapping => SDL_GameControllerMapping(_handle) ?? throw new SDLGameControllerException(SDL_GetError());
+    public string Mapping => SDL_GameControllerMapping(gc_handle) ?? throw new SDLJoystickException(SDL_GetAndClearError());
 
     /// <summary>
     /// Get the implementation-dependent name for an opened game controller, or null if there is no name or the identifier passed is invalid.
@@ -104,17 +144,37 @@ public class GameController : Joystick, IDisposable
     /// <remarks>
     /// This is the same name as returned by <see cref="GetName(int)"/>, but it uses a <see cref="GameController"/> instance instead of the (unstable) device index.
     /// </remarks>
-    public string? ControllerName => SDL_GameControllerName(_handle);
+    public string? ControllerName => SDL_GameControllerName(gc_handle);
+
+    /// <summary>
+    /// Gets the vendor code of this <see cref="GameController"/>
+    /// </summary>
+    public ushort Vendor => SDL_GameControllerGetVendor(gc_handle);
+
+    /// <summary>
+    /// Gets the product code of this <see cref="GameController"/>
+    /// </summary>
+    public ushort Product => SDL_GameControllerGetProduct(gc_handle);
+
+    /// <summary>
+    /// Gets the product version code of this <see cref="GameController"/>
+    /// </summary>
+    public ushort ProductVersion => SDL_GameControllerGetProductVersion(gc_handle);
+
+    /// <summary>
+    /// Gets the serial number of this <see cref="GameController"/>
+    /// </summary>
+    public string Serial => _serial ??= SDL_GameControllerGetSerial(gc_handle);
+    private string? _serial;
 
     #region IDisposable
 
-    private bool disposedValue;
-
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
-            SDL_GameControllerClose(_handle);
+            SDL_GameControllerClose(gc_handle);
+            SDL_JoystickClose(_handle);
             disposedValue = true;
         }
     }
@@ -130,15 +190,31 @@ public class GameController : Joystick, IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected void ThrowIfDisposed()
+    internal void ThrowIfDisposed()
     {
         if (disposedValue)
-            throw new ObjectDisposedException(nameof(Renderer));
+            throw new ObjectDisposedException(nameof(GameController));
     }
 
     #endregion
 
     #region collection classes
+
+    private class IndexableAxisState
+    {
+        private readonly IntPtr _handle;
+        internal IndexableAxisState(IntPtr ptr) => _handle = ptr;
+
+        public ushort this[GameControllerAxis axis]
+        {
+            get
+            {
+                var x = SDL_GameControllerGetAxis(_handle, (SDL_GameControllerAxis)axis);
+                if (x == 0 && INTERNAL_SDL_GetError() != IntPtr.Zero)
+                    throw new SDLJoystickException(SDL_GetAndClearError());
+            }
+        }
+    }
 
     private class MappingCollection : IReadOnlyList<string>
     {
