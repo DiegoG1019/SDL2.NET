@@ -40,11 +40,10 @@ public class Joystick : IJoystickDefinition, IDisposable
     {
         var id = SDL_JoystickGetDeviceInstanceID(index);
         if (JoystickDict.TryGetValue(id, out var wr))
-            if (wr.TryGetTarget(out joystick))
+            if (wr.TryGetTarget(out joystick) && joystick.disposedValue is false) 
                 return true;
             else
                 JoystickDict.Remove(id, out _);
-
 
         if (SDL_JoystickIsVirtual(index) is SDL_bool.SDL_TRUE)
 #error not implemented
@@ -68,9 +67,21 @@ public class Joystick : IJoystickDefinition, IDisposable
         return true;
     }
 
+    /// <summary>
+    /// Checks whether the indexed <see cref="Joystick"/> is a <see cref="VirtualJoystick"/>
+    /// </summary>
+    /// <param name="index">The device index of the joystick</param>
+    public static bool IsVirtual(int index) => SDL_JoystickIsVirtual(index) == SDL_bool.SDL_TRUE;
+
+    /// <summary>
+    /// Checks whether the indexed <see cref="Joystick"/> is a <see cref="GameController"/>
+    /// </summary>
+    /// <param name="index">The device index of the joystick</param>
+    public static bool IsGameController(int index) => SDL_IsGameController(index) == SDL_bool.SDL_TRUE;
+
     #region IDisposable
 
-    private bool disposedValue;
+    internal bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {
