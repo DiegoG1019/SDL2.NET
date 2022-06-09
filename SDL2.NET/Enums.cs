@@ -16,6 +16,14 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum EventState
+{
+    Query = SDL_QUERY,
+    Ignore = SDL_IGNORE,
+    Disable = Ignore,
+    Enable = SDL_ENABLE
+}
+
 public enum JoystickHAT : byte
 {
     Centered = 0x00,
