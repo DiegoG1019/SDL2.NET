@@ -1,5 +1,6 @@
 ﻿using SDL2.Bindings;
 using SDL2.NET.HintTypes;
+using SDL2.NET.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,19 @@ using static SDL2.Bindings.SDL;
 namespace SDL2.NET;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 public static class EnumExtensions
 {
+    /// <summary>
+    /// Convert from an <see cref="GameControllerAxis"/> enum to a string
+    /// </summary>
+    /// <remarks>
+    /// Returns a string for the given axis, or null if an invalid axis is specified. The string returned is of the format used by <see cref="GameController"/> mapping strings.
+    /// </remarks>
+    /// <returns></returns>
+    public static string GetString(this GameControllerAxis axis)
+        => SDL_GameControllerGetStringForAxis((SDL_GameControllerAxis)axis);
+
     public static Keycode ToKeycode(this Scancode code)
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
