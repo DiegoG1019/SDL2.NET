@@ -16,6 +16,43 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum JoystickHAT : byte
+{
+    Centered = 0x00,
+    Up = 0x01,
+    Right = 0x02,
+    Down = 0x04,
+    Left = 0x08,
+    RightUp = Right | Up,
+    RightDown = Right | Down,
+    LeftUp = Left | Up,
+    LeftDown = Left | Down
+}
+
+public enum JoystickPowerLevel
+{
+    Unknown = -1,
+    Empty,
+    Low,
+    Medium,
+    Full,
+    Wired,
+    Max
+}
+
+public enum JoystickType
+{
+    Unknown,
+    GameController,
+    Wheel,
+    ArcadeStick,
+    FlightStick,
+    DancePad,
+    Guitar,
+    DrumKit,
+    ArcadePad
+}
+
 public enum GameControllerBindType
 {
     None = SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE,
