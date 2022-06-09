@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
-namespace SDL2.NET;
+namespace SDL2.NET.Input;
 
 /// <summary>
 /// Represents a Game Controller

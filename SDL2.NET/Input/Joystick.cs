@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
-namespace SDL2.NET;
+namespace SDL2.NET.Input;
 
 /// <summary>
 /// Represents a Joystick
@@ -16,7 +16,7 @@ public class Joystick : IJoystickDefinition, IDisposable
 {
     internal readonly IntPtr _handle;
     internal static readonly ConcurrentDictionary<int, WeakReference<Joystick>> JoystickDict = new(4, 10);
-    
+
     /// <summary>
     /// The unique identification for this <see cref="Joystick"/>. Not the same as deviceIndex, as this one is more stable
     /// </summary>

@@ -1,4 +1,4 @@
-﻿namespace SDL2.NET;
+﻿namespace SDL2.NET.Input;
 
 /// <summary>
 /// Represents special data about a Joystick's form and function
