@@ -27,6 +27,7 @@ public class GameController : Joystick, IDisposable
         gc = true;
         Axes = new IndexableAxisState(handle);
         Buttons = new IndexableButtonState(handle);
+        TouchPad = new(handle);
     }
 
     /// <summary>
@@ -171,6 +172,14 @@ public class GameController : Joystick, IDisposable
     }
 
     /// <summary>
+    /// This method is NOT implemented and should NOT be used yet. Will be implemented in the future
+    /// </summary>
+    /// <param name="_"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    [Obsolete("This method is NOT implemented and should NOT be used yet. Will be implemented in the future")]
+    public static void FromPlayerIndex(int _) => throw new NotImplementedException();
+
+    /// <summary>
     /// Get the <see cref="GameController"/> mapping for this instance
     /// </summary>
     public string Mapping => SDL_GameControllerMapping(gchandle) ?? throw new SDLJoystickException(SDL_GetAndClearError());
@@ -237,6 +246,11 @@ public class GameController : Joystick, IDisposable
     /// The values of the dictionary represent the button' state. You may query the existence and availability of an button by using <see cref="IReadOnlyDictionary{GameControllerButton, short}.ContainsKey(GameControllerButton)"/>. This merely reports whether the controller's mapping defined this button, as that is all the information SDL has about the physical device.
     /// </remarks>
     public IReadOnlyDictionary<GameControllerButton, short> Buttons { get; }
+
+    /// <summary>
+    /// Represents a way of querying the current state of a TouchPad, if any on a <see cref="GameController"/>
+    /// </summary>
+    public IndexableTouchPadState TouchPad { get; }
 
     /// <summary>
     /// Start a rumble effect on a <see cref="GameController"/>
@@ -328,6 +342,55 @@ public class GameController : Joystick, IDisposable
     #endregion
 
     #region collection classes
+
+    /// <summary>
+    /// Represents a Touchpad State that can be indexed
+    /// </summary>
+    public class IndexableTouchPadState
+    {
+        private readonly IntPtr handle;
+
+        internal IndexableTouchPadState(IntPtr handle)
+        {
+            this.handle = handle;
+        }
+
+        /// <summary>
+        /// The amount of touchpads this <see cref="GameController"/> has
+        /// </summary>
+        public int Count => SDL_GameControllerGetNumTouchpads(handle);
+
+        /// <summary>
+        /// Gets the amount of fingers currently in contact with the indexed touchpad
+        /// </summary>
+        /// <param name="touchpad"></param>
+        /// <returns></returns>
+        public int this[int touchpad]
+        {
+            get
+            {
+                var x = SDL_GameControllerGetNumTouchpadFingers(handle, touchpad);
+                SDLJoystickException.ThrowIfLessThan(x, 0);
+                return x;
+            }
+        }
+
+        /// <summary>
+        /// Gets information regarding the current fingerpress on the given touchpad
+        /// </summary>
+        /// <param name="touchpad"></param>
+        /// <param name="finger"></param>
+        /// <returns></returns>
+        public TouchPadReport this[int touchpad, int finger]
+        {
+            get
+            {
+                var r = SDL_GameControllerGetTouchpadFinger(handle, touchpad, finger, out var state, out var x, out var y, out var pressure);
+                SDLJoystickException.ThrowIfLessThan(r, 0);
+                return new(state, new(x, y), pressure);
+            }
+        }
+    }
 
     private class IndexableButtonState : IReadOnlyDictionary<GameControllerButton, short>
     {
