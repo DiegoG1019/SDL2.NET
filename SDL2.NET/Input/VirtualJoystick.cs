@@ -42,9 +42,56 @@ public class VirtualJoystick : Joystick
     /// <returns>The Device Index of the newly attached Joystick</returns>
     public static int Attach(JoystickType type, int axes, int buttons, int hats, out VirtualJoystick joystick)
     {
-        var i = Attach(type, axes, buttons, hats);
-        joystick = new(SDL_JoystickOpen(i), i);
-        return i;
+        Lock();
+        try
+        {
+            var i = Attach(type, axes, buttons, hats);
+            joystick = new(SDL_JoystickOpen(i), i);
+            return i;
+        }
+        finally
+        {
+            Unlock();
+        }
+    }
+
+    /// <summary>
+    /// Set values on an opened, <see cref="VirtualJoystick"/>'s axis
+    /// </summary>
+    /// <remarks>
+    /// Please note that values set here will not be applied until the next call to <see cref="Joystick.JoystickUpdate"/>, which can either be called directly, or can be called indirectly through various other SDL APIs
+    /// </remarks>
+    /// <param name="axis"></param>
+    /// <param name="value"></param>
+    public void SetVirtualAxis(int axis, short value)
+    {
+        SDLJoystickException.ThrowIfLessThan(SDL_JoystickSetVirtualAxis(_handle, axis, value), 0);
+    }
+
+    /// <summary>
+    /// Set values on an opened, <see cref="VirtualJoystick"/>'s button
+    /// </summary>
+    /// <remarks>
+    /// Please note that values set here will not be applied until the next call to <see cref="Joystick.JoystickUpdate"/>, which can either be called directly, or can be called indirectly through various other SDL APIs
+    /// </remarks>
+    /// <param name="button"></param>
+    /// <param name="value"></param>
+    public void SetVirtualButton(int button, byte value)
+    {
+        SDLJoystickException.ThrowIfLessThan(SDL_JoystickSetVirtualButton(_handle, button, value), 0);
+    }
+
+    /// <summary>
+    /// Set values on an opened, <see cref="VirtualJoystick"/>'s hat
+    /// </summary>
+    /// <remarks>
+    /// Please note that values set here will not be applied until the next call to <see cref="Joystick.JoystickUpdate"/>, which can either be called directly, or can be called indirectly through various other SDL APIs
+    /// </remarks>
+    /// <param name="hat"></param>
+    /// <param name="value"></param>
+    public void SetVirtualHAT(int hat, byte value)
+    {
+        SDLJoystickException.ThrowIfLessThan(SDL_JoystickSetVirtualHat(_handle, hat, value), 0);
     }
 
     /// <summary>
@@ -55,23 +102,31 @@ public class VirtualJoystick : Joystick
     /// <returns></returns>
     public static bool TryOpen(int index, [NotNullWhen(true)] out VirtualJoystick? joystick)
     {
+        Lock();
+        try
         {
-            var id = SDL_JoystickGetDeviceInstanceID(index);
-            if (JoystickDict.TryGetValue(id, out var wr))
-                if (wr.TryGetTarget(out var js) && js.disposedValue is false)
-                    return ((IJoystickDefinition)js).IsVirtual(out joystick);
-                else
-                    JoystickDict.Remove(id, out _);
-        }
+            {
+                var id = SDL_JoystickGetDeviceInstanceID(index);
+                if (JoystickDict.TryGetValue(id, out var wr))
+                    if (wr.TryGetTarget(out var js) && js.disposedValue is false)
+                        return ((IJoystickDefinition)js).IsVirtual(out joystick);
+                    else
+                        JoystickDict.Remove(id, out _);
+            }
 
-        var p = SDL_JoystickOpen(index);
-        if (p != IntPtr.Zero)
-        {
-            joystick = null;
-            return false;
+            var p = SDL_JoystickOpen(index);
+            if (p != IntPtr.Zero)
+            {
+                joystick = null;
+                return false;
+            }
+            joystick = new(p, index);
+            return true;
         }
-        joystick = new(p, index);
-        return true;
+        finally
+        {
+            Unlock();
+        }
     }
 
     /// <summary>
