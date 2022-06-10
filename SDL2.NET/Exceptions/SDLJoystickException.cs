@@ -14,16 +14,16 @@ public class SDLJoystickException : SDLException
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ThrowIfLessThan(int value, int comparison)
+    public static void ThrowIfLessThan(int value, int comparison, string defError = "")
     {
         if (value < comparison)
-            throw new SDLJoystickException(SDL.SDL_GetAndClearError());
+            throw new SDLJoystickException(SDL.SDL_GetAndClearError() ?? defError);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ThrowIfEquals(int value, int comparison)
+    public static void ThrowIfEquals(int value, int comparison, string defError = "")
     {
         if (value == comparison)
-            throw new SDLJoystickException(SDL.SDL_GetAndClearError());
+            throw new SDLJoystickException(SDL.SDL_GetAndClearError() ?? defError);
     }
 }
