@@ -24,6 +24,16 @@ public static class EnumExtensions
     public static string GetString(this GameControllerAxis axis)
         => SDL_GameControllerGetStringForAxis((SDL_GameControllerAxis)axis);
 
+    /// <summary>
+    /// Convert from an <see cref="GameControllerButton"/> enum to a string
+    /// </summary>
+    /// <remarks>
+    /// Returns a string for the given axis, or null if an invalid axis is specified. The string returned is of the format used by <see cref="GameController"/> mapping strings.
+    /// </remarks>
+    /// <returns></returns>
+    public static string GetString(this GameControllerButton axis)
+        => SDL_GameControllerGetStringForButton((SDL_GameControllerButton)axis);
+
     public static Keycode ToKeycode(this Scancode code)
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
