@@ -7395,6 +7395,14 @@ namespace SDL2.Bindings
             int player_index
         );
 
+        /* IntPtr refers to an SDL_GameController*.
+		 * Only available in 2.0.9 or higher.
+		 */
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SDL_GameControllerGetPlayerIndex(
+            IntPtr gamecontroller
+        );
+
         /* gamecontroller refers to an SDL_GameController*.
 		 * Only available in 2.0.14 or higher.
 		 */
