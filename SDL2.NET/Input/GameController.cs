@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
@@ -16,12 +17,16 @@ namespace SDL2.NET.Input;
 /// </summary>
 public class GameController : Joystick, IDisposable
 {
-    internal readonly IntPtr gc_handle;
+    private static readonly Dictionary<int, GameController> playerDict = new(4);
+
+    internal readonly IntPtr gchandle;
 
     internal GameController(IntPtr handle, int deviceIndex) : base(SDL_GameControllerGetJoystick(handle), deviceIndex)
     {
-        gc_handle = handle;
+        gchandle = handle;
         gc = true;
+        Axes = new IndexableAxisState(handle);
+        Buttons = new IndexableButtonState(handle);
     }
 
     /// <summary>
@@ -32,16 +37,15 @@ public class GameController : Joystick, IDisposable
     /// <returns></returns>
     public static bool TryOpen(int index, [NotNullWhen(true)] out GameController? gameController)
     {
-        {
-            var id = SDL_JoystickGetDeviceInstanceID(index);
-            if (JoystickDict.TryGetValue(id, out var wr))
-                if (wr.TryGetTarget(out var joystick) && joystick.disposedValue is false)
-                    return ((IJoystickDefinition)joystick).IsGameController(out gameController);
-                else
-                    JoystickDict.Remove(id, out _);
-        }
+        var id = SDL_JoystickGetDeviceInstanceID(index);
+        if (JoystickDict.TryGetValue(id, out var wr))
+            if (wr.TryGetTarget(out var joystick) && joystick.disposedValue is false)
+                return ((IJoystickDefinition)joystick).IsGameController(out gameController);
+            else
+                JoystickDict.Remove(id, out _);
 
-        var p = SDL_GameControllerOpen(index);
+        var f = SDL_GameControllerFromInstanceID(id);
+        var p = f != IntPtr.Zero ? f : SDL_GameControllerOpen(index);
         if (p != IntPtr.Zero)
         {
             gameController = null;
@@ -80,7 +84,7 @@ public class GameController : Joystick, IDisposable
         => SDL_GameControllerAddMappingsFromFile(file);
 
     /// <summary>
-    /// Get the game controller mapping string for a given <see cref="Joystick"/>'s <see cref="Guid"/>
+    /// Get the <see cref="GameController"/> mapping string for a given <see cref="Joystick"/>'s <see cref="Guid"/>
     /// </summary>
     /// <param name="guid"></param>
     /// <returns></returns>
@@ -89,7 +93,7 @@ public class GameController : Joystick, IDisposable
         => SDL_GameControllerMappingForGUID(guid) ?? throw new SDLJoystickException(SDL_GetAndClearError());
 
     /// <summary>
-    /// Get the game controller mapping string for a given <see cref="Joystick"/>'s device index
+    /// Get the <see cref="GameController"/> mapping string for a given <see cref="Joystick"/>'s device index
     /// </summary>
     /// <param name="deviceIndex"></param>
     /// <returns></returns>
@@ -98,12 +102,20 @@ public class GameController : Joystick, IDisposable
         => SDL_GameControllerMappingForDeviceIndex(deviceIndex) ?? throw new SDLJoystickException(SDL_GetAndClearError());
 
     /// <summary>
-    /// Get the implementation-dependent name for an opened game controller, or null if there is no name or the identifier passed is invalid.
+    /// Get the implementation-dependent name for an opened <see cref="GameController"/>, or null if there is no name or the identifier passed is invalid.
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
     public static string GetName(int index)
         => SDL_GameControllerNameForIndex(index);
+
+    /// <summary>
+    /// Get the <see cref="GameControllerType"/> of the Game Controller at index <paramref name="index"/>
+    /// </summary>
+    /// <param name="index">The device index of the controller</param>
+    /// <returns></returns>
+    public static GameControllerType GetType(int index)
+        => (GameControllerType)SDL_GameControllerTypeForIndex(index);
 
     /// <summary>
     /// Whether Game Controller Events are enabled or not
@@ -115,7 +127,7 @@ public class GameController : Joystick, IDisposable
     }
 
     /// <summary>
-    /// Manually pump game controller updates if <see cref="ControllerEventsEnabled"/> is false
+    /// Manually pump <see cref="GameController"/> updates if <see cref="ControllerEventsEnabled"/> is false
     /// </summary>
     public static void Update()
     {
@@ -129,43 +141,160 @@ public class GameController : Joystick, IDisposable
     /// <remarks>
     /// This function is called internally to translate <see cref="GameController"/> mapping strings for the underlying joystick device into the consistent <see cref="GameController"/> mapping. You do not normally need to call this function unless you are parsing <see cref="GameController"/> mappings in your own code.
     /// </remarks>
-    /// <returns></returns>
     public static GameControllerAxis GetAxis(string str)
         => (GameControllerAxis)SDL_GameControllerGetAxisFromString(str);
 
     /// <summary>
-    /// Get the game controller mapping for this instance
+    /// Convert a string into <see cref="GameControllerAxis"/> enum
     /// </summary>
-    public string Mapping => SDL_GameControllerMapping(gc_handle) ?? throw new SDLJoystickException(SDL_GetAndClearError());
+    /// <param name="str"></param>
+    /// <remarks>
+    /// This function is called internally to translate <see cref="GameController"/> mapping strings for the underlying joystick device into the consistent <see cref="GameController"/> mapping. You do not normally need to call this function unless you are parsing <see cref="GameController"/> mappings in your own code.
+    /// </remarks>
+    public static GameControllerButton GetButton(string str)
+        => (GameControllerButton)SDL_GameControllerGetButtonFromString(str);
 
     /// <summary>
-    /// Get the implementation-dependent name for an opened game controller, or null if there is no name or the identifier passed is invalid.
+    /// Gets or sets the current player index for this <see cref="GameController"/>
+    /// </summary>
+    /// <remarks>
+    /// This same <see cref="GameController"/> can later be retrieved by calling <see cref="FromPlayerIndex(int)"/>
+    /// </remarks>
+    public int PlayerIndex
+    {
+        get => SDL_GameControllerGetPlayerIndex(gchandle);
+        set
+        {
+            SDL_GameControllerSetPlayerIndex(gchandle, value);
+            playerDict[value] = this;
+        }
+    }
+
+    /// <summary>
+    /// Get the <see cref="GameController"/> mapping for this instance
+    /// </summary>
+    public string Mapping => SDL_GameControllerMapping(gchandle) ?? throw new SDLJoystickException(SDL_GetAndClearError());
+
+    /// <summary>
+    /// Get the implementation-dependent name for an opened <see cref="GameController"/>, or null if there is no name or the identifier passed is invalid.
     /// </summary>
     /// <remarks>
     /// This is the same name as returned by <see cref="GetName(int)"/>, but it uses a <see cref="GameController"/> instance instead of the (unstable) device index.
     /// </remarks>
-    public string? ControllerName => SDL_GameControllerName(gc_handle);
+    public string? ControllerName => SDL_GameControllerName(gchandle);
+
+    /// <summary>
+    /// Whether or not this <see cref="GameController"/> has an LED that can be accessed from SDL
+    /// </summary>
+    public bool HasLED => SDL_GameControllerHasLED(gchandle) == SDL_bool.SDL_TRUE;
+
+    /// <summary>
+    /// Sets the color of this <see cref="GameController"/>'s LED.
+    /// </summary>
+    /// <remarks>This method throws if the <see cref="GameController"/> does not have an LED, see <see cref="HasLED"/></remarks>
+    /// <param name="color"></param>
+    public void SetLEDColor(RGBColor color)
+        => SDLJoystickException.ThrowIfLessThan(SDL_GameControllerSetLED(gchandle, color.Red, color.Green, color.Blue), 0, "This GameController does not have a valid LED");
 
     /// <summary>
     /// Gets the vendor code of this <see cref="GameController"/>
     /// </summary>
-    public ushort Vendor => SDL_GameControllerGetVendor(gc_handle);
+    public ushort Vendor => SDL_GameControllerGetVendor(gchandle);
 
     /// <summary>
     /// Gets the product code of this <see cref="GameController"/>
     /// </summary>
-    public ushort Product => SDL_GameControllerGetProduct(gc_handle);
+    public ushort Product => SDL_GameControllerGetProduct(gchandle);
 
     /// <summary>
     /// Gets the product version code of this <see cref="GameController"/>
     /// </summary>
-    public ushort ProductVersion => SDL_GameControllerGetProductVersion(gc_handle);
+    public ushort ProductVersion => SDL_GameControllerGetProductVersion(gchandle);
 
     /// <summary>
     /// Gets the serial number of this <see cref="GameController"/>
     /// </summary>
-    public string Serial => _serial ??= SDL_GameControllerGetSerial(gc_handle);
+    public string Serial => _serial ??= SDL_GameControllerGetSerial(gchandle);
     private string? _serial;
+
+    /// <summary>
+    /// Gets the type that this <see cref="GameController"/> belongs to
+    /// </summary>
+    public GameControllerType Type => (GameControllerType)SDL_GameControllerGetType(gchandle);
+
+    /// <summary>
+    /// Represents a way of querying the current state of and availability of an axis control on a <see cref="GameController"/>. 
+    /// </summary>
+    /// <remarks>
+    /// The values of the dictionary represent the axis' state. You may query the existence and availability of an axis by using <see cref="IReadOnlyDictionary{GameControllerAxis, short}.ContainsKey(GameControllerAxis)"/>. This merely reports whether the controller's mapping defined this axis, as that is all the information SDL has about the physical device.
+    /// </remarks>
+    public IReadOnlyDictionary<GameControllerAxis, short> Axes { get; }
+
+    /// <summary>
+    /// Represents a way of querying the current state of an button control on a <see cref="GameController"/>
+    /// </summary>
+    /// <remarks>
+    /// The values of the dictionary represent the button' state. You may query the existence and availability of an button by using <see cref="IReadOnlyDictionary{GameControllerButton, short}.ContainsKey(GameControllerButton)"/>. This merely reports whether the controller's mapping defined this button, as that is all the information SDL has about the physical device.
+    /// </remarks>
+    public IReadOnlyDictionary<GameControllerButton, short> Buttons { get; }
+
+    /// <summary>
+    /// Start a rumble effect on a <see cref="GameController"/>
+    /// </summary>
+    /// <param name="lowFreqRumble">The frequency of the low frequency motor</param>
+    /// <param name="highFreqRumble">The frequency of the high frequency motor</param>
+    /// <param name="durationMs">The duration of the rumble in milliseconds</param>
+    /// <remarks>
+    /// Each call to this function cancels any previous rumble effect, and calling it with 0 intensity stops any rumbling.
+    /// </remarks>
+    public void Rumble(ushort lowFreqRumble, ushort highFreqRumble, uint durationMs)
+        => SDLJoystickException.ThrowIfLessThan(SDL_GameControllerRumble(gchandle, lowFreqRumble, highFreqRumble, durationMs), 0, "Rumble isn't supported on this GameController");
+
+    /// <summary>
+    /// Start a rumble effect on a <see cref="GameController"/>
+    /// </summary>
+    /// <param name="lowFreqRumble">The frequency of the low frequency motor</param>
+    /// <param name="highFreqRumble">The frequency of the high frequency motor</param>
+    /// <param name="duration">The duration of the rumble</param>
+    /// <remarks>
+    /// Each call to this function cancels any previous rumble effect, and calling it with 0 intensity stops any rumbling.
+    /// </remarks>
+    public void Rumble(ushort lowFreqRumble, ushort highFreqRumble, TimeSpan duration)
+        => SDLJoystickException.ThrowIfLessThan(SDL_GameControllerRumble(gchandle, lowFreqRumble, highFreqRumble, (uint)duration.TotalMilliseconds), 0, "Rumble isn't supported on this GameController");
+
+    /// <summary>
+    /// Whether or not this <see cref="GameController"/> supports rumble
+    /// </summary>
+    public bool IsRumbleSupported => SDL_GameControllerHasRumble(gchandle) == SDL_bool.SDL_TRUE;
+
+    /// <summary>
+    /// Start a rumble effect on a <see cref="GameController"/>'s triggers
+    /// </summary>
+    /// <param name="lowFreqRumble">The frequency of the low frequency motor</param>
+    /// <param name="highFreqRumble">The frequency of the high frequency motor</param>
+    /// <param name="durationMs">The duration of the rumble in milliseconds</param>
+    /// <remarks>
+    /// Each call to this function cancels any previous rumble effect, and calling it with 0 intensity stops any rumbling. Note that this is rumbling of the triggers and not the game controller as a whole. This is currently only supported on Xbox One controllers. If you want the (more common) whole-controller rumble, use <see cref="Rumble(ushort, ushort, uint)"/> instead.
+    /// </remarks>
+    public void RumbleTriggers(ushort lowFreqRumble, ushort highFreqRumble, uint durationMs)
+        => SDLJoystickException.ThrowIfLessThan(SDL_GameControllerRumbleTriggers(gchandle, lowFreqRumble, highFreqRumble, durationMs), 0, "Trigger Rumble isn't supported on this GameController");
+
+    /// <summary>
+    /// Start a rumble effect on a <see cref="GameController"/>'s triggers
+    /// </summary>
+    /// <param name="lowFreqRumble">The frequency of the low frequency motor</param>
+    /// <param name="highFreqRumble">The frequency of the high frequency motor</param>
+    /// <param name="duration">The duration of the rumble</param>
+    /// <remarks>
+    /// Each call to this function cancels any previous rumble effect, and calling it with 0 intensity stops any rumbling. Note that this is rumbling of the triggers and not the game controller as a whole. This is currently only supported on Xbox One controllers. If you want the (more common) whole-controller rumble, use <see cref="Rumble(ushort, ushort, TimeSpan)"/> instead.
+    /// </remarks>
+    public void RumbleTriggers(ushort lowFreqRumble, ushort highFreqRumble, TimeSpan duration)
+        => SDLJoystickException.ThrowIfLessThan(SDL_GameControllerRumbleTriggers(gchandle, lowFreqRumble, highFreqRumble, (uint)duration.TotalMilliseconds), 0, "Trigger Rumble isn't supported on this GameController");
+
+    /// <summary>
+    /// Whether or not this <see cref="GameController"/> supports rumble on the controller's triggers
+    /// </summary>
+    public bool IsTriggerRumbleSupported => SDL_GameControllerHasRumbleTriggers(gchandle) == SDL_bool.SDL_TRUE;
 
     #region IDisposable
 
@@ -173,7 +302,7 @@ public class GameController : Joystick, IDisposable
     {
         if (!disposedValue)
         {
-            SDL_GameControllerClose(gc_handle);
+            SDL_GameControllerClose(gchandle);
             SDL_JoystickClose(_handle);
             disposedValue = true;
         }
@@ -200,20 +329,119 @@ public class GameController : Joystick, IDisposable
 
     #region collection classes
 
-    private class IndexableAxisState
+    private class IndexableButtonState : IReadOnlyDictionary<GameControllerButton, short>
     {
         private readonly IntPtr _handle;
-        internal IndexableAxisState(IntPtr ptr) => _handle = ptr;
+        private readonly HashSet<GameControllerButton> buttons;
 
-        public ushort this[GameControllerAxis axis]
+        internal IndexableButtonState(IntPtr ptr)
+        {
+            _handle = ptr;
+
+            var bl = Enum.GetValues<GameControllerButton>();
+            HashSet<GameControllerButton> butts = new(bl.Length);
+            foreach (var b in Enum.GetValues<GameControllerButton>())
+            {
+                if (SDL_GameControllerHasButton(_handle, (SDL_GameControllerButton)b) == SDL_bool.SDL_TRUE)
+                    butts.Add(b);
+            }
+
+            buttons = butts;
+        }
+
+        public short this[GameControllerButton axis]
+        {
+            get
+            {
+                var x = SDL_GameControllerGetButton(_handle, (SDL_GameControllerButton)axis);
+                return x == 0 && INTERNAL_SDL_GetError() != IntPtr.Zero ? throw new SDLJoystickException(SDL_GetAndClearError()) : x;
+            }
+        }
+
+        public bool ContainsKey(GameControllerButton key) => buttons.Contains(key);
+
+        public bool TryGetValue(GameControllerButton key, [MaybeNullWhen(false)] out short value)
+        {
+            value = SDL_GameControllerGetButton(_handle, (SDL_GameControllerButton)key);
+            return value == 0 && INTERNAL_SDL_GetError() != IntPtr.Zero;
+        }
+
+        public IEnumerable<GameControllerButton> Keys => buttons;
+        public IEnumerable<short> Values
+        {
+            get
+            {
+                foreach (var b in buttons) 
+                    yield return this[b];
+            }
+        }
+
+        public int Count => buttons.Count;
+
+        public IEnumerator<KeyValuePair<GameControllerButton, short>> GetEnumerator()
+        {
+            foreach (var b in buttons)
+                yield return new(b, this[b]);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    private class IndexableAxisState : IReadOnlyDictionary<GameControllerAxis, short>
+    {
+        private readonly IntPtr _handle;
+        private readonly HashSet<GameControllerAxis> axe;
+
+        internal IndexableAxisState(IntPtr ptr)
+        {
+            _handle = ptr;
+
+            var bl = Enum.GetValues<GameControllerAxis>();
+            HashSet<GameControllerAxis> butts = new(bl.Length);
+            foreach (var b in Enum.GetValues<GameControllerAxis>())
+            {
+                if (SDL_GameControllerHasAxis(_handle, (SDL_GameControllerAxis)b) == SDL_bool.SDL_TRUE)
+                    butts.Add(b);
+            }
+            axe = butts;
+        }
+
+        public short this[GameControllerAxis axis]
         {
             get
             {
                 var x = SDL_GameControllerGetAxis(_handle, (SDL_GameControllerAxis)axis);
-                if (x == 0 && INTERNAL_SDL_GetError() != IntPtr.Zero)
-                    throw new SDLJoystickException(SDL_GetAndClearError());
+                return x == 0 && INTERNAL_SDL_GetError() != IntPtr.Zero ? throw new SDLJoystickException(SDL_GetAndClearError()) : x;
             }
         }
+
+        public bool ContainsKey(GameControllerAxis key) => axe.Contains(key);
+
+        public bool TryGetValue(GameControllerAxis key, [MaybeNullWhen(false)] out short value)
+        {
+            value = SDL_GameControllerGetAxis(_handle, (SDL_GameControllerAxis)key);
+            return value == 0 && INTERNAL_SDL_GetError() != IntPtr.Zero;
+        }
+
+        public IEnumerable<GameControllerAxis> Keys => axe;
+        public IEnumerable<short> Values
+        {
+            get
+            {
+                foreach (var b in axe)
+                    yield return this[b];
+            }
+        }
+
+        public int Count => axe.Count;
+
+        public IEnumerator<KeyValuePair<GameControllerAxis, short>> GetEnumerator()
+        {
+            foreach (var b in axe)
+                yield return new(b, this[b]);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     private class MappingCollection : IReadOnlyList<string>
