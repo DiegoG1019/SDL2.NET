@@ -46,8 +46,11 @@ public class Joystick : IJoystickDefinition, IDisposable
                 JoystickDict.Remove(id, out _);
 
         if (SDL_JoystickIsVirtual(index) is SDL_bool.SDL_TRUE)
-#error not implemented
-            ;
+        {
+            var r = new VirtualJoystick(SDL_JoystickOpen(index), index);
+            joystick = r;
+            return true;
+        }
 
         if (SDL_IsGameController(index) is SDL_bool.SDL_TRUE)
         {
@@ -56,7 +59,8 @@ public class Joystick : IJoystickDefinition, IDisposable
             return r;
         }
 
-        var p = SDL_JoystickOpen(index);
+        var f = SDL_JoystickFromInstanceID(id);
+        var p = f != IntPtr.Zero ? f : SDL_JoystickOpen(index);
         if (p != IntPtr.Zero)
         {
             joystick = null;
