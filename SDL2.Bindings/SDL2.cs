@@ -106,11 +106,11 @@ namespace SDL2.Bindings
                 ptr++;
             }
 
-			/* Modern C# lets you just send the byte*, nice! */
-			string result = System.Text.Encoding.UTF8.GetString(
-				(byte*) s,
-				(int) (ptr - (byte*) s)
-			);
+            int len = (int)(ptr - (byte*)s);
+
+            var result = len == 0 ? "" : Encoding.UTF8.GetString((byte*)s, len);
+
+            /* Modern C# lets you just send the byte*, nice! */
 
             /* Some SDL functions will malloc, we have to free! */
             if (freePtr)
@@ -6800,6 +6800,14 @@ namespace SDL2.Bindings
         public static extern void SDL_JoystickSetPlayerIndex(
             IntPtr joystick,
             int player_index
+        );
+
+        /* IntPtr refers to an SDL_Joystick*.
+		 * Only available in 2.0.11 or higher.
+		 */
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SDL_JoystickGetPlayerIndex(
+            IntPtr joystick
         );
 
         /* Int32 refers to an SDL_JoystickType.
