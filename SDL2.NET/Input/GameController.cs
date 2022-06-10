@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
@@ -15,6 +16,9 @@ namespace SDL2.NET.Input;
 /// <summary>
 /// Represents a Game Controller
 /// </summary>
+/// <remarks>
+/// Keep in mind that this class does NOT override Joystick's methods, the methods found here that share the same name as methods in Joystick are DIFFERENT methods altogether. Calling those methods while handling an object of type <see cref="GameController"/> will yield different results than calling them when handling an object of type <see cref="Joystick"/>
+/// </remarks>
 public class GameController : Joystick, IDisposable
 {
     private static readonly Dictionary<int, GameController> playerDict = new(4);
@@ -38,22 +42,30 @@ public class GameController : Joystick, IDisposable
     /// <returns></returns>
     public static bool TryOpen(int index, [NotNullWhen(true)] out GameController? gameController)
     {
-        var id = SDL_JoystickGetDeviceInstanceID(index);
-        if (JoystickDict.TryGetValue(id, out var wr))
-            if (wr.TryGetTarget(out var joystick) && joystick.disposedValue is false)
-                return ((IJoystickDefinition)joystick).IsGameController(out gameController);
-            else
-                JoystickDict.Remove(id, out _);
-
-        var f = SDL_GameControllerFromInstanceID(id);
-        var p = f != IntPtr.Zero ? f : SDL_GameControllerOpen(index);
-        if (p != IntPtr.Zero)
+        Lock();
+        try
         {
-            gameController = null;
-            return false;
+            var id = SDL_JoystickGetDeviceInstanceID(index);
+            if (JoystickDict.TryGetValue(id, out var wr))
+                if (wr.TryGetTarget(out var joystick) && joystick.disposedValue is false)
+                    return ((IJoystickDefinition)joystick).IsGameController(out gameController);
+                else
+                    JoystickDict.Remove(id, out _);
+
+            var f = SDL_GameControllerFromInstanceID(id);
+            var p = f != IntPtr.Zero ? f : SDL_GameControllerOpen(index);
+            if (p != IntPtr.Zero)
+            {
+                gameController = null;
+                return false;
+            }
+            gameController = new(p, index);
+            return true;
         }
-        gameController = new(p, index);
-        return true;
+        finally
+        {
+            Unlock();
+        }
     }
 
     /// <summary>
@@ -70,6 +82,11 @@ public class GameController : Joystick, IDisposable
         SDLJoystickException.ThrowIfLessThan(r, 0);
         return r == 1;
     }
+
+    /// <summary>
+    /// Gets whether or not this <see cref="GameController"/> is currently attached
+    /// </summary>
+    public bool IsAttached => SDL_GameControllerGetAttached(gchandle) == SDL_bool.SDL_TRUE;
 
     /// <summary>
     /// Provides a count of installed mappings and a means of accessing them
@@ -130,7 +147,7 @@ public class GameController : Joystick, IDisposable
     /// <summary>
     /// Manually pump <see cref="GameController"/> updates if <see cref="ControllerEventsEnabled"/> is false
     /// </summary>
-    public static void Update()
+    public static void ControllerUpdate()
     {
         SDL_GameControllerUpdate();
     }
@@ -154,6 +171,24 @@ public class GameController : Joystick, IDisposable
     /// </remarks>
     public static GameControllerButton GetButton(string str)
         => (GameControllerButton)SDL_GameControllerGetButtonFromString(str);
+
+    /// <summary>
+    /// Return the sfSymbolsName for a given button on a game controller on Apple platforms.
+    /// </summary>
+    /// <param name="button"></param>
+    /// <returns>Returns the sfSymbolsName or null if the name can't be found</returns>
+    [SupportedOSPlatform("iOS")]
+    public string? GetButtonAppleSFSymbolsName(GameControllerButton button)
+        => SDL_GameControllerGetAppleSFSymbolsNameForButton(gchandle, (SDL_GameControllerButton)button);
+
+    /// <summary>
+    /// Return the sfSymbolsName for a given axis on a game controller on Apple platforms.
+    /// </summary>
+    /// <param name="axis"></param>
+    /// <returns>Returns the sfSymbolsName or null if the name can't be found</returns>
+    [SupportedOSPlatform("iOS")]
+    public string? GetAxisAppleSFSymbolsName(GameControllerAxis axis)
+        => SDL_GameControllerGetAppleSFSymbolsNameForAxis(gchandle, (SDL_GameControllerAxis)axis);
 
     /// <summary>
     /// Gets or sets the current player index for this <see cref="GameController"/>
