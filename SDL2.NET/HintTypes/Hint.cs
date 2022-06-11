@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.HintTypes;
+
+/// <summary>
+/// Represents an SDL Hint
+/// </summary>
 public class Hint
 {
     //private UserData? callbackUserData;
     //private HintCallback? callback;
 
-    private readonly string HintName;
+    protected readonly string HintName;
 
     internal Hint(string name) 
     {
@@ -36,5 +40,3 @@ public class Hint
     public bool GetBool(bool def = true)
         => SDL_GetHintBoolean(HintName, def ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE) is SDL_bool.SDL_TRUE;
 }
-
-//public delegate void HintCallback();

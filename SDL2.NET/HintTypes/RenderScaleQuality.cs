@@ -28,3 +28,4 @@ public sealed class RenderScaleQuality : Hint
         set => Set(((int)value).ToString());
     }
 }
+
