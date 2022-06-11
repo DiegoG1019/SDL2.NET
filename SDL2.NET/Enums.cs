@@ -144,6 +144,50 @@ public enum GameControllerType
     GoogleStadia                = SDL_GameControllerType.SDL_CONTROLLER_TYPE_GOOGLE_STADIA,
 }
 
+[Flags]
+public enum AllowedOrientation
+{
+    None = 0,
+
+    /// <summary>
+    /// Top of device left
+    /// </summary>
+    LandscapeLeft = 1 << 0,
+
+    /// <summary>
+    /// Top of device right
+    /// </summary>
+    LandscapeRight = 1 << 1,
+
+    /// <summary>
+    /// Top of device up
+    /// </summary>
+    Portrait = 1 << 2,
+
+    /// <summary>
+    /// Top of device down
+    /// </summary>
+    PortraitUpsideDown = 1 << 3,
+}
+
+public enum D3DCompiler
+{
+    /// <summary>
+    /// Default, best for Vista or later
+    /// </summary>
+    D3DCompiler46,
+
+    /// <summary>
+    /// For XP support
+    /// </summary>
+    D3DCompiler43,
+
+    /// <summary>
+    /// Do not load any library, useful if you compiled ANGLE from source and included the compiler in your binaries
+    /// </summary>
+    None
+}
+
 public enum DisplayOrientation
 {
     Unknown = SDL_DisplayOrientation.SDL_ORIENTATION_UNKNOWN,
@@ -151,6 +195,16 @@ public enum DisplayOrientation
     LandscapeFlipped = SDL_DisplayOrientation.SDL_ORIENTATION_LANDSCAPE_FLIPPED,
     Portrait = SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT,
     PortraitFlipped = SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT_FLIPPED
+}
+
+public enum RenderDriver
+{
+    Direct3D,
+    OpenGL,
+    OpenGLES2,
+    OpenGLES,
+    Metal,
+    Software,
 }
 
 public enum ScalingQuality
