@@ -13,7 +13,7 @@ public class Palette : IDisposable
 {
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<Palette>> _handleDict = new(2, 10);
 
-    private readonly IntPtr _handle;
+    internal readonly IntPtr _handle;
 
     internal static Palette FetchOrNew(IntPtr handle)
         => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);
