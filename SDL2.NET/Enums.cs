@@ -38,6 +38,29 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum TouchDeviceType
+{
+    /// <summary>
+    /// An invalid touch device
+    /// </summary>
+    Invalid = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_INVALID,
+
+    /// <summary>
+    /// Touch screen with window-relative coordinates
+    /// </summary>
+    Direct = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_DIRECT,           
+    
+    /// <summary>
+    /// Trackpad with absolute device coordinates
+    /// </summary>
+    IndirectAbsolute = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE,
+    
+    /// <summary>
+    /// Trackpad with screen cursor-relative coordinates
+    /// </summary>
+    IndirectRelative = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_INDIRECT_RELATIVE, 
+}
+
 public enum EventState
 {
     Query = SDL_QUERY,
