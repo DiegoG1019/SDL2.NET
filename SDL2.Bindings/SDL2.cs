@@ -2357,7 +2357,6 @@ namespace SDL2.Bindings
             public int max_texture_height;
         }
 
-
         /* Only available in 2.0.11 or higher. */
         public enum SDL_ScaleMode
         {
