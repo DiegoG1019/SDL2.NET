@@ -250,6 +250,9 @@ public class Surface : IDisposable
         get
         {
             ThrowIfDisposed();
+            if (SDL_HasColorKey(_handle) == SDL_bool.SDL_FALSE)
+                return null;
+
             int r = SDL_GetColorKey(_handle, out uint key);
             if (r is -1)
                 return null;
@@ -337,6 +340,13 @@ public class Surface : IDisposable
         => SDL_UnlockSurface(_handle);
 
     /// <summary>
+    /// Duplicates the <see cref="Surface"/>in memory and returns the copy
+    /// </summary>
+    /// <returns>Returns a newly instanced copy of this <see cref="Surface"/></returns>
+    public Surface Duplicate()
+        => new(SDL_DuplicateSurface(_handle));
+
+    /// <summary>
     /// Perform low-level surface blitting only. <see cref="SDL_LowerBlit" href="https://wiki.libsdl.org/SDL_LowerBlit"/>
     /// </summary>
     /// <remarks>This is a semi-private blit function and it performs low-level surface blitting, assuming the input rectangles have already been clipped. Unless you know what you're doing, you should be using <see cref="BlitTo"/> instead.</remarks>
@@ -379,6 +389,18 @@ public class Surface : IDisposable
     }
 
     /// <summary>
+    /// Set the palette used by a surface.
+    /// </summary>
+    /// <remarks>
+    /// A single palette can be shared with many surfaces.
+    /// </remarks>
+    public void SetPalette(Palette palette)
+    {
+        ThrowIfDisposed();
+        SDLSurfaceException.ThrowIfLessThan(SDL_SetSurfacePalette(_handle, palette._handle), 0));
+    }
+
+    /// <summary>
     /// Set the RLE acceleration hint for a surface. <see cref="SDL_SetSurfaceRLE" href="https://wiki.libsdl.org/SDL_SetSurfaceRLE"/>
     /// </summary>
     /// <remarks>If RLE is enabled, color key and alpha blending blits are much faster, but the surface must be locked before directly accessing the pixels. Since the wiki page is unclear, I'll go for an int for now just to conform to SDL. If a bool would suffice, let me know or PR</remarks>
@@ -388,6 +410,31 @@ public class Surface : IDisposable
         InvalidateBackingStruct();
         SDLSurfaceException.ThrowIfLessThan(SDL_SetSurfaceRLE(_handle, flag), 0);
     }
+
+
+    /// <summary>
+    /// Perform bilinear scaling between two surfaces of the same format, 32BPP. <see cref="SDL_SoftStretch" href="https://wiki.libsdl.org/SDL_SoftStretch"/>
+    /// </summary>
+    /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledTo"/> instead</remarks>
+    public void SoftStretchLinearTo(Surface destination, Rectangle sourceRect, Rectangle destinationRect)
+    {
+        sourceRect.ToSDL(out var src);
+        destinationRect.ToSDL(out var dst);
+
+        SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretchLinear(_handle, ref src, destination._handle, ref dst), 0);
+    }
+
+    /// <summary>
+    /// Perform bilinear scaling between two surfaces of the same format, 32BPP. <see cref="SDL_SoftStretchLinear" href="https://wiki.libsdl.org/SDL_SoftStretchLinear"/>
+    /// </summary>
+    /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledFrom"/> instead</remarks>
+    public void SoftStretchLinearFrom(Surface source, Rectangle sourceRect, Rectangle destinationRect)
+        => source.SoftStretchLinearTo(this, sourceRect, destinationRect);
+
+    /// <summary>
+    /// Whether the surface is RLE enabled
+    /// </summary>
+    public bool HasRLE => SDL_HasSurfaceRLE(_handle) == SDL_bool.SDL_TRUE;
 
     /// <summary>
     /// Whether a surface must be locked for access. <see cref="SDL_MUSTLOCK" href="https://wiki.libsdl.org/SDL_MUSTLOCK"/>
