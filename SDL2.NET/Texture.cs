@@ -81,7 +81,7 @@ public class Texture : IDisposable
     /// <summary>
     /// The blend mode used for texture copy operations. get: <see cref="SDL_GetTextureBlendMode" href="https://wiki.libsdl.org/SDL_GetTextureBlendMode"/>; set: <see cref="SDL_SetTextureBlendMode" href="https://wiki.libsdl.org/SDL_SetTextureBlendMode"/>
     /// </summary>
-    public BlendMode Blend
+    public BlendMode BlendMode
     {
         get
         {
@@ -260,7 +260,7 @@ public class Texture : IDisposable
     /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopy" href="https://wiki.libsdl.org/SDL_RenderCopy"/>
     /// </summary>
-    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="Blend"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
+    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
     public void Render()
@@ -269,7 +269,7 @@ public class Texture : IDisposable
     /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopy" href="https://wiki.libsdl.org/SDL_RenderCopy"/>
     /// </summary>
-    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="Blend"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
+    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
     public void Render(Rectangle? source, Rectangle? destination = null)
@@ -308,7 +308,7 @@ public class Texture : IDisposable
     /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopyEx" href="https://wiki.libsdl.org/SDL_RenderCopyEx"/>
     /// </summary>
-    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="Blend"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
+    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
     public void Render(Rectangle? source = null, Rectangle? destination = null, double angle = 0, Point center = default, Flip flip = Flip.None)
