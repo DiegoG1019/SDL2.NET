@@ -25,7 +25,7 @@ public struct RendererInfo
 	/// A collection backed by a pre-defined number of fields. In SDL, texture_formats is a fixed-size array of 16 members.
 	/// </summary>
 	/// <remarks>
-	/// Use <see cref="RendererInfo.TextureFormatCount"/> to enumerate this collection
+	/// Use <see cref="Count"/> to enumerate this collection
 	/// </remarks>
 	public struct TextureFormatCollection
 	{
