@@ -83,7 +83,7 @@ public static class GeneralTests
 
         var deerTextDstBox = deerText.GetRectangle(128, 128 + 35);
 
-        app.Quitting += App_Quitting;
+        SDLApplication.Quitting += App_Quitting;
         window.KeyPressed += Window_KeyPressed;
         window.KeyReleased += Window_KeyReleased;
         window.Resized += Window_Resized;
@@ -94,7 +94,7 @@ public static class GeneralTests
         {
             ulong start = Performance.PerformanceCounter;
 
-            app.UpdateEvents();
+            SDLApplication.UpdateEvents();
 
             renderer.Clear(Colors.CornflowerBlue);
 
@@ -116,14 +116,14 @@ public static class GeneralTests
 
                 // this check avoids a huge delay when the window can't be drawn during for example moving it
                 if (delay < 32)
-                    app.Delay(TimeSpan.FromMilliseconds(delay));
+                    SDLApplication.Delay(TimeSpan.FromMilliseconds(delay));
             }
         } // end of main loop
 
         for (int i = 0; i < Disposables.Count; i++)
             Disposables[i].Dispose();
 
-        app.Quitting -= App_Quitting;
+        SDLApplication.Quitting -= App_Quitting;
         window.KeyPressed -= Window_KeyPressed;
         window.KeyReleased -= Window_KeyReleased;
         window.Resized -= Window_Resized;
@@ -156,7 +156,7 @@ public static class GeneralTests
             Pew.Play();
     }
 
-    private static void App_Quitting(SDLApplication application)
+    private static void App_Quitting()
     {
         Log.Information("Quitting");
         Run.IsRunning = false;

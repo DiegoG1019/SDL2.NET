@@ -145,99 +145,98 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// Represents a standard event fired by the application
     /// </summary>
-    /// <param name="application">The application object</param>
-    public delegate void SDLApplicationEvent(SDLApplication application);
+    public delegate void SDLApplicationEvent();
 
     /// <summary>
     /// Fired when the render targets have been reset and their contents need to be updated
     /// </summary>
-    public event SDLApplicationEvent? RenderTargetsReset;
+    public static event SDLApplicationEvent? RenderTargetsReset;
 
     /// <summary>
     /// Fired when the render device has been reset and all textures need to be recreated 
     /// </summary>
-    public event SDLApplicationEvent? RenderDeviceReset;
+    public static event SDLApplicationEvent? RenderDeviceReset;
 
     /// <summary>
     /// Fired when the SDL application is terminating
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    public event SDLApplicationEvent? Terminating;
+    public static event SDLApplicationEvent? Terminating;
 
     /// <summary>
     /// Fired when SDL detects that the process is running out of memory
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    public event SDLApplicationEvent? LowMemory;
+    public static event SDLApplicationEvent? LowMemory;
 
     /// <summary>
     /// Fired when the application is about to go into the background
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    public event SDLApplicationEvent? WillEnterBackground;
+    public static event SDLApplicationEvent? WillEnterBackground;
 
     /// <summary>
     /// Fired when the application is about to enter the foreground
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    public event SDLApplicationEvent? WillEnterForeground;
+    public static event SDLApplicationEvent? WillEnterForeground;
 
     /// <summary>
     /// Fired when the application entered the foreground
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    public event SDLApplicationEvent? DidEnterForeground;
+    public static event SDLApplicationEvent? DidEnterForeground;
 
     /// <summary>
     /// Fired when the application entered into the background
     /// </summary>
     /// <remarks>Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    public event SDLApplicationEvent? DidEnterBackground;
+    public static event SDLApplicationEvent? DidEnterBackground;
 
     /// <summary>
     /// Fired when the locale of the app changed
     /// </summary>
-    public event SDLApplicationEvent? LocaleChanged;
+    public static event SDLApplicationEvent? LocaleChanged;
 
     /// <summary>
     /// Fired when the SDLApplication is about to quit
     /// </summary>
-    public event SDLApplicationEvent? Quitting;
+    public static event SDLApplicationEvent? Quitting;
 
     /// <summary>
     /// Fired when the key mapping changed, such as when a new keyboard was plugged in, or the language of the keyboard changed
     /// </summary>
-    public event SDLApplicationEvent? KeyMapChanged;
+    public static event SDLApplicationEvent? KeyMapChanged;
 
-    internal void TriggerLocaleChanged() => LocaleChanged?.Invoke(this);
-
-    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    internal void TriggerTerminating() => Terminating?.Invoke(this);
+    internal static void TriggerLocaleChanged() => LocaleChanged?.Invoke();
 
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    internal void TriggerLowMemory() => LowMemory?.Invoke(this);
+    internal static void TriggerTerminating() => Terminating?.Invoke();
 
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    internal void TriggerWillEnterBackground() => WillEnterBackground?.Invoke(this);
+    internal static void TriggerLowMemory() => LowMemory?.Invoke();
 
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    internal void TriggerWillEnterForeground() => WillEnterForeground?.Invoke(this);
+    internal static void TriggerWillEnterBackground() => WillEnterBackground?.Invoke();
 
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    internal void TriggerDidEnterForeground() => DidEnterForeground?.Invoke(this);
+    internal static void TriggerWillEnterForeground() => WillEnterForeground?.Invoke();
 
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
-    internal void TriggerDidEnterBackground() => DidEnterBackground?.Invoke(this);
-    internal void TriggerSDLQuitting() => Quitting?.Invoke(this);
-    internal void TriggerKeyMapChanged() => KeyMapChanged?.Invoke(this);
-    internal void TriggerRenderTargetsReset() => RenderTargetsReset?.Invoke(this);
-    internal void TriggerRenderDeviceReset() => RenderDeviceReset?.Invoke(this);
+    internal static void TriggerDidEnterForeground() => DidEnterForeground?.Invoke();
+
+    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    internal static void TriggerDidEnterBackground() => DidEnterBackground?.Invoke();
+    internal static void TriggerSDLQuitting() => Quitting?.Invoke();
+    internal static void TriggerKeyMapChanged() => KeyMapChanged?.Invoke();
+    internal static void TriggerRenderTargetsReset() => RenderTargetsReset?.Invoke();
+    internal static void TriggerRenderDeviceReset() => RenderDeviceReset?.Invoke();
 
     #endregion
 

@@ -22,7 +22,6 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        Hints.DisableThreadNaming.IsEnabled = true;
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
@@ -59,13 +58,13 @@ internal class Program
 
         while (true)
         {
-            var pressed = app.ShowMessageBox("SDL.NET Tests", "Pick a test group", MessageBoxFlags.Information, tests);
+            var pressed = SDLApplication.ShowMessageBox("SDL.NET Tests", "Pick a test group", MessageBoxFlags.Information, tests);
             if (pressed is QuitMessageBoxButton or null)
                 break;
 
             if (pressed is TestRepoDesc tr)
             {
-                var test = app.ShowMessageBox(tr.Name, "Pick a test", MessageBoxFlags.Information, tr.Methods);
+                var test = SDLApplication.ShowMessageBox(tr.Name, "Pick a test", MessageBoxFlags.Information, tr.Methods);
                 if (test is not null)
                 {
                     runControl.IsRunning = true;

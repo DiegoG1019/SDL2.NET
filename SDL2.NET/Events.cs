@@ -42,32 +42,32 @@ internal static class Events
             switch (e.type)
             {
                 case SDL_EventType.SDL_APP_TERMINATING:
-                    SDLApplication.Instance().TriggerTerminating();
+                    SDLApplication.TriggerTerminating();
                     return i;
                 case SDL_EventType.SDL_APP_LOWMEMORY:
-                    SDLApplication.Instance().TriggerLowMemory();
+                    SDLApplication.TriggerLowMemory();
                     return i;
                 case SDL_EventType.SDL_APP_WILLENTERBACKGROUND:
-                    SDLApplication.Instance().TriggerWillEnterBackground();
+                    SDLApplication.TriggerWillEnterBackground();
                     return i;
                 case SDL_EventType.SDL_APP_DIDENTERBACKGROUND:
-                    SDLApplication.Instance().TriggerDidEnterBackground();
+                    SDLApplication.TriggerDidEnterBackground();
                     return i;
                 case SDL_EventType.SDL_APP_WILLENTERFOREGROUND:
-                    SDLApplication.Instance().TriggerWillEnterForeground();
+                    SDLApplication.TriggerWillEnterForeground();
                     return i;
                 case SDL_EventType.SDL_APP_DIDENTERFOREGROUND:
-                    SDLApplication.Instance().TriggerDidEnterForeground();
+                    SDLApplication.TriggerDidEnterForeground();
                     return i;
             }
 
         switch (e.type)
         {
             case SDL_EventType.SDL_QUIT:
-                SDLApplication.Instance().TriggerSDLQuitting();
+                SDLApplication.TriggerSDLQuitting();
                 return i;
             case SDL_EventType.SDL_LOCALECHANGED:
-                SDLApplication.Instance().TriggerLocaleChanged();
+                SDLApplication.TriggerLocaleChanged();
                 return i;
 
             case SDL_EventType.SDL_DISPLAYEVENT:
@@ -97,7 +97,7 @@ internal static class Events
                     window.TriggerEvent(e.text);
                 return i;
             case SDL_EventType.SDL_KEYMAPCHANGED:
-                SDLApplication.Instance().TriggerKeyMapChanged();
+                SDLApplication.TriggerKeyMapChanged();
                 return i;
 
             case SDL_EventType.SDL_MOUSEMOTION:
@@ -246,11 +246,11 @@ internal static class Events
                 return i;
 
             case SDL_EventType.SDL_RENDER_TARGETS_RESET:
-                SDLApplication.Instance().TriggerRenderTargetsReset();
+                SDLApplication.TriggerRenderTargetsReset();
                 return i;
 
             case SDL_EventType.SDL_RENDER_DEVICE_RESET:
-                SDLApplication.Instance().TriggerRenderDeviceReset();
+                SDLApplication.TriggerRenderDeviceReset();
                 return i;
 
             case SDL_EventType.SDL_POLLSENTINEL:

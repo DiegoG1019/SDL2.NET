@@ -38,8 +38,8 @@ internal class MessageBoxTests
             Text = Colors.LavenderBlush
         };
 
-        app.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Information, buttons, style);
-        app.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Warning, buttons, style);
-        app.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Error, buttons, style);
+        SDLApplication.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Information, buttons, style);
+        SDLApplication.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Warning, buttons, style);
+        SDLApplication.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Error, buttons, style);
     }
 }

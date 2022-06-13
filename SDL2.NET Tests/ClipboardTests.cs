@@ -30,7 +30,7 @@ internal class ClipboardTests
         while (_.IsRunning)
         {
             var text = Clipboard.ClipboardText;
-            var pressed = app.ShowMessageBox("ClipboardText", text ?? "!No clipboard text", MessageBoxFlags.Information, buttons);
+            var pressed = SDLApplication.ShowMessageBox("ClipboardText", text ?? "!No clipboard text", MessageBoxFlags.Information, buttons);
             if (pressed?.Text is "Exit" or null)
             {
                 _.IsRunning = false;
