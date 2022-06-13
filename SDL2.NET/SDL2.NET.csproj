@@ -18,8 +18,9 @@
     <PackageTags>sdl;native;window;gui;windows;graphic;gfx;lib-sdl;audio;sound;controller;joystick;keyboard;mouse;gui;game</PackageTags>
   </PropertyGroup>
 	
-<ItemGroup>
+  <ItemGroup>
     <SupportedPlatform Include="PSP" />
+	<SupportedPlatform Include="WinRT" />
   </ItemGroup>
 	
   <ItemGroup>
