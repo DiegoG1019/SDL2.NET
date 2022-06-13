@@ -128,6 +128,18 @@ public class SDLApplication : IDisposable
     /// </summary>
     public static TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
 
+    /// <summary>
+    /// Open a URL/URI in the browser or other appropriate external application. A successful result does not mean the URL loaded, just that SDL launched /something/ to handle it, or that, at least, SDL believes it did
+    /// </summary>
+    /// <param name="url">A valid URL/URI to open. You may use an URI such as <c>file:///full/path/to/file</c> to open a local file, if supported</param>
+    /// <remarks>
+    /// Open a URL in a separate, system-provided application. How this works will vary wildly depending on the platform. This will likely launch what makes sense to handle a specific URL's protocol, but it might also be able to launch file managers for directories and other things. What happens when you open a URL varies wildly as well: your game window may lose focus (and may or may not lose focus if your game was fullscreen or grabbing input at the time). On mobile devices, your app will likely move to the background or your process might be paused. Any given platform may or may not handle a given URL. Test this method on each of your target platforms to identify expected results
+    /// </remarks>
+    public static void OpenURL(string url)
+    {
+        SDLApplicationException.ThrowIfLessThan(SDL_OpenURL(url), 0);
+    }
+
     #region Events
 
     /// <summary>
