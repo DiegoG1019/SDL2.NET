@@ -187,23 +187,23 @@ internal static class Events
 #warning Not Implemented
                 return i;
 
-            case SDL_EventType.SDL_FINGERDOWN: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_FINGERDOWN:
+                Touch.TriggerFingerPressed(e.tfinger);
                 return i;
             case SDL_EventType.SDL_FINGERUP: 
-                #warning Not Implemented
+                Touch.TriggerFingerReleased(e.tfinger);
                 return i;
             case SDL_EventType.SDL_FINGERMOTION: 
-                #warning Not Implemented
+                Touch.TriggerFingerMotion(e.tfinger);
                 return i;
             case SDL_EventType.SDL_DOLLARGESTURE: 
-                #warning Not Implemented
+                Touch.TriggerDollarGesture(e.dgesture);
                 return i;
             case SDL_EventType.SDL_DOLLARRECORD: 
-                #warning Not Implemented
+                Touch.TriggerDollarRecord(e.dgesture);
                 return i;
             case SDL_EventType.SDL_MULTIGESTURE: 
-                #warning Not Implemented
+                Touch.TriggerMultiGesture(e.mgesture);
                 return i;
 
             case SDL_EventType.SDL_CLIPBOARDUPDATE:
