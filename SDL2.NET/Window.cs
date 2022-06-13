@@ -1276,4 +1276,16 @@ public class Window : IDisposable
     }
 
     #endregion
+
+    #region Platform Specific
+
+    internal _PlatformDat PlatformDat;
+
+    internal struct _PlatformDat
+    {
+        public Platform.iOSSpecific.iOS_Dat? iOS;
+        public Platform.WindowsSpecific.WindowsHookInfo? Windows;
+    }
+
+    #endregion
 }
