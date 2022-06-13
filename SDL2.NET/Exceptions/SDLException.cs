@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SDL2.NET.Exceptions;
 
 [Serializable]
-public abstract class SDLException : Exception
+public class SDLException : Exception
 {
     public SDLException() { }
     public SDLException(string message) : base(message) { }
