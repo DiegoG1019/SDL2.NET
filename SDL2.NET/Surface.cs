@@ -397,7 +397,7 @@ public class Surface : IDisposable
     public void SetPalette(Palette palette)
     {
         ThrowIfDisposed();
-        SDLSurfaceException.ThrowIfLessThan(SDL_SetSurfacePalette(_handle, palette._handle), 0));
+        SDLSurfaceException.ThrowIfLessThan(SDL_SetSurfacePalette(_handle, palette._handle), 0);
     }
 
     /// <summary>
