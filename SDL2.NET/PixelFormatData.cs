@@ -11,6 +11,9 @@ using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
+/// <summary>
+/// Represents a Pixel Format and contains relevant pixel information
+/// </summary>
 public class PixelFormatData : IDisposable
 {
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<PixelFormatData>> _handleDict = new(2, 10);
@@ -28,7 +31,7 @@ public class PixelFormatData : IDisposable
 
         var f = Marshal.PtrToStructure<SDL_PixelFormat>(handle);
         Format = (PixelFormat)f.format;
-        Palette = f.palette == IntPtr.Zero ? null : Palette.FetchOrNew(f.palette);
+        _pal = f.palette == IntPtr.Zero ? null : Palette.FetchOrNew(f.palette);
         BitsPerPixel = f.BitsPerPixel;
         BytesPerPixel = f.BytesPerPixel;
         RedMask = f.Rmask;
@@ -37,6 +40,10 @@ public class PixelFormatData : IDisposable
         AlphaMask = f.Amask;
     }
 
+    /// <summary>
+    /// Instances a new object of type PixelFormatData from the given PixelFormat
+    /// </summary>
+    /// <param name="format"></param>
     public PixelFormatData(PixelFormat format)
         : this(SDL_AllocFormat((uint)format)) { }
 
@@ -48,7 +55,17 @@ public class PixelFormatData : IDisposable
     /// <summary>
     /// The <see cref="Palette"/> associated with this <see cref="PixelFormatData"/> or null if it doesn't have a palette
     /// </summary>
-    public Palette? Palette { get; }
+    public Palette? Palette
+    {
+        get => _pal;
+        set
+        {
+            ThrowIfDisposed();
+            SDLPixelFormatDataException.ThrowIfLessThan(SDL_SetPixelFormatPalette(_handle, value?._handle ?? IntPtr.Zero), 0);
+            _pal = value;
+        }
+    }
+    private Palette? _pal;
 
     /// <summary>
     /// The number of significant bits in a pixel value
