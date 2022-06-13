@@ -366,6 +366,145 @@ public class GameController : Joystick, IDisposable
     /// </summary>
     public bool IsTriggerRumbleSupported => SDL_GameControllerHasRumbleTriggers(gchandle) == SDL_bool.SDL_TRUE;
 
+    #region Events
+
+    /// <summary>
+    /// Fired when a Joystick Axis moves
+    /// </summary>
+    public event GameControllerAxisEvent? AxisMotion;
+    internal void TriggerControllerAxisMotion(SDL_ControllerAxisEvent e)
+    {
+        AxisMotion?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.axis, e.axisValue);
+    }
+
+    /// <summary>
+    /// Fired when a GameController button is pressed
+    /// </summary>
+    public event GameControllerButtonEvent? ButtonPressed;
+    internal void TriggerControllerButtonDown(SDL_ControllerButtonEvent e)
+    {
+        ButtonPressed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.button, e.state == SDL_PRESSED);
+    }
+
+    /// <summary>
+    /// Fired when a GameController button is released
+    /// </summary>
+    public event GameControllerButtonEvent? ButtonReleased;
+    internal void TriggerControllerButtonUp(SDL_ControllerButtonEvent e)
+    {
+        ButtonReleased?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.button, e.state == SDL_PRESSED);
+    }
+
+    /// <summary>
+    /// Fired when this GameController is removed and is no longer valid. This event is fired before <see cref="DeviceRemoved"/>
+    /// </summary>
+    public event GameControllerDeviceSpecificEvent? Removed;
+    internal void TriggerRemoved(SDL_ControllerDeviceEvent e)
+    {
+        Removed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp));
+    }
+
+    /// <summary>
+    /// Fired when this GameController is remapped
+    /// </summary>
+    public event GameControllerDeviceSpecificEvent? Remapped;
+    internal void TriggerRemapped(SDL_ControllerDeviceEvent e)
+    {
+        Remapped?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp));
+    }
+
+    /// <summary>
+    /// Fired when a GameController is added
+    /// </summary>
+    public static event GameControllerDeviceEvent? DeviceAdded;
+    internal static void TriggerControllerDeviceAdded(SDL_ControllerDeviceEvent e)
+    {
+        DeviceAdded?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), e.which);
+    }
+
+    /// <summary>
+    /// Fired when a GameController is removed
+    /// </summary>
+    public static event GameControllerDeviceEvent? DeviceRemoved;
+    internal static void TriggerControllerDeviceRemoved(SDL_ControllerDeviceEvent e)
+    {
+        DeviceRemoved?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), e.which);
+    }
+
+    /// <summary>
+    /// Fired when a GameController's Touchpad is pressed
+    /// </summary>
+    public event GameControllerTouchPadEvent? TouchPadPressed;
+    internal void TriggerControllerPadUp(SDL_ControllerTouchpadEvent e)
+    {
+        TouchPadPressed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), TouchPad[e.touchpad, e.finger], e.pressure, new FPoint(e.x, e.y));
+    }
+
+    /// <summary>
+    /// Fired when a GameController's Touchpad is released
+    /// </summary>
+    public event GameControllerTouchPadEvent? TouchPadReleased;
+    internal void TriggerControllerPadDown(SDL_ControllerTouchpadEvent e)
+    {
+        TouchPadReleased?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), TouchPad[e.touchpad, e.finger], e.pressure, new FPoint(e.x, e.y));
+    }
+
+    /// <summary>
+    /// Fired when a finger moves along a GameController's Touchpad
+    /// </summary>
+    public event GameControllerTouchPadEvent? TouchPadMotion;
+    internal void TriggerControllerPadMotion(SDL_ControllerTouchpadEvent e)
+    {
+        TouchPadMotion?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), TouchPad[e.touchpad, e.finger], e.pressure, new FPoint(e.x, e.y));
+    }
+
+    /// <summary>
+    /// Represents an event relating to a GameController being added or removed
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="deviceId">The id of the device that was added or removed</param>
+    public delegate void GameControllerDeviceEvent(TimeSpan timestamp, int deviceId);
+
+    /// <summary>
+    /// Represents an event relating to a GameController being added or removed
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="controller">The joystick that is the object of the event</param>
+    public delegate void GameControllerDeviceSpecificEvent(GameController controller, TimeSpan timestamp);
+
+    /// <summary>
+    /// Represents an event relating to a given GameController's axis
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="axis">The axis that is the object of the event</param>
+    /// <param name="value">The value that changed in the axis</param>
+    /// <param name="controller">The joystick that is the object of the event</param>
+    public delegate void GameControllerAxisEvent(GameController controller, TimeSpan timestamp, byte axis, short value);
+
+    /// <summary>
+    /// Represents an event relating to a given GameController's axis
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="button">The button that is the object of the event</param>
+    /// <param name="state">The current state of the button</param>
+    /// <param name="controller">The joystick that is the object of the event</param>
+    public delegate void GameControllerButtonEvent(GameController controller, TimeSpan timestamp, byte button, bool state);
+
+    /// <summary>
+    /// Represents an event relating to a givne GameController's touchpad
+    /// </summary>
+    /// <remarks>
+    /// The finger report is generated from the index that SDL actually passes, and is generated in the interval between the actual SDL event is recorded and this event is fired
+    /// </remarks>
+    /// <param name="controller">The joystick that is the object of the event</param>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="finger">Information about the finger that is the object of the event</param>
+    /// <param name="pressure">The pressure of the touch</param>
+    /// <param name="point">The point at which the touchpad was touched</param>
+    public delegate void GameControllerTouchPadEvent(GameController controller, TimeSpan timestamp, FingerReport finger, float pressure, FPoint point);
+
+    #endregion
+
     #region IDisposable
 
     protected override void Dispose(bool disposing)

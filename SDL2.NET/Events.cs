@@ -147,35 +147,44 @@ internal static class Events
                 Joystick.TriggerJoyDeviceRemoved(e.jdevice);
                 return i;
 
-            case SDL_EventType.SDL_CONTROLLERAXISMOTION: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_CONTROLLERAXISMOTION:
+                if (GameController.TryGetGameController(e.caxis.which, out var gc)) 
+                    gc.TriggerControllerAxisMotion(e.caxis);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERBUTTONDOWN: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_CONTROLLERBUTTONDOWN:
+                if (GameController.TryGetGameController(e.cbutton.which, out gc))
+                    gc.TriggerControllerButtonDown(e.cbutton);
                 return i;
             case SDL_EventType.SDL_CONTROLLERBUTTONUP: 
-                #warning Not Implemented
+                if (GameController.TryGetGameController(e.cbutton.which, out gc))
+                    gc.TriggerControllerButtonUp(e.cbutton);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERDEVICEADDED: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_CONTROLLERDEVICEADDED:
+                GameController.TriggerControllerDeviceAdded(e.cdevice);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERDEVICEREMOVED: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_CONTROLLERDEVICEREMOVED:
+                if (GameController.TryGetGameController(e.cdevice.which, out gc))
+                    gc.TriggerRemoved(e.cdevice);
+                GameController.TriggerControllerDeviceRemoved(e.cdevice);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERDEVICEREMAPPED: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_CONTROLLERDEVICEREMAPPED:
+                if (GameController.TryGetGameController(e.cdevice.which, out gc))
+                    gc.TriggerRemapped(e.cdevice);
                 return i;
             case SDL_EventType.SDL_CONTROLLERTOUCHPADDOWN: 
-                #warning Not Implemented
+                if (GameController.TryGetGameController(e.ctouchpad.which, out gc))
+                    gc.TriggerControllerPadDown(e.ctouchpad);
                 return i;
             case SDL_EventType.SDL_CONTROLLERTOUCHPADMOTION: 
-                #warning Not Implemented
+                if (GameController.TryGetGameController(e.ctouchpad.which, out gc))
+                    gc.TriggerControllerPadMotion(e.ctouchpad);
                 return i;
             case SDL_EventType.SDL_CONTROLLERTOUCHPADUP: 
-                #warning Not Implemented
+                if (GameController.TryGetGameController(e.ctouchpad.which, out gc))
+                    gc.TriggerControllerPadUp(e.ctouchpad);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERSENSORUPDATE: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_CONTROLLERSENSORUPDATE:
+#warning Not Implemented
                 return i;
 
             case SDL_EventType.SDL_FINGERDOWN: 
