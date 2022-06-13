@@ -7,6 +7,8 @@ using static SDL2.Bindings.SDL_mixer;
 
 namespace SDL2.NET.SDLMixer;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 [Flags]
 public enum MixerInitFlags
 {
