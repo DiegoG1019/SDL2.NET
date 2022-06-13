@@ -7838,12 +7838,18 @@ namespace SDL2.Bindings
         public static extern int SDL_SensorGetInstanceID(IntPtr sensor);
 
         /* sensor refers to an SDL_Sensor* */
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SDL_SensorGetData(
+        [DllImport(nativeLibName, EntryPoint = "SDL_SensorGetData", CallingConvention = CallingConvention.Cdecl)]
+        public unsafe static extern int INTERNAL_SDL_SensorGetData(
             IntPtr sensor,
-            float[] data,
+            float* data,
             int num_values
         );
+
+        public unsafe static int SDL_SensorGetData(IntPtr sensor, in Span<float> values, int numvalues)
+        {
+            fixed (float* r = values)
+                return INTERNAL_SDL_SensorGetData(sensor, r, numvalues);
+        }
 
         /* sensor refers to an SDL_Sensor* */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
