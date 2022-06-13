@@ -80,7 +80,7 @@ public class SDLApplication : IDisposable
     /// The default Message box scheme for this Application
     /// </summary>
     /// <remarks>If null, falls back to system default</remarks>
-    public MessageBoxColorScheme? MessageBoxColorScheme { get; set; }
+    public static MessageBoxColorScheme? MessageBoxColorScheme { get; set; }
 
     /// <summary>
     /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags, MessageBoxButton[], MessageBoxColorScheme?)"/>
@@ -91,7 +91,7 @@ public class SDLApplication : IDisposable
     /// <param name="buttons">An array of buttons to display in the Message Box</param>
     /// <param name="scheme">The color scheme of the Message Box. Leave null to use <see cref="MessageBoxColorScheme"/></param>
     /// <returns>The button that was pressed, or null if none was pressed</returns>
-    public MessageBoxButton? ShowMessageBox(string title, string message, MessageBoxFlags flags, MessageBoxButton[] buttons, MessageBoxColorScheme? scheme = null)
+    public static MessageBoxButton? ShowMessageBox(string title, string message, MessageBoxFlags flags, MessageBoxButton[] buttons, MessageBoxColorScheme? scheme = null)
     {
         var butts = new SDL_MessageBoxButtonData[buttons.Length];
         for (int i = 0; i < butts.Length; i++)
@@ -118,7 +118,7 @@ public class SDLApplication : IDisposable
     /// <param name="message">The message to be shown in the messagebox</param>
     /// <param name="flags">The flags of the message box</param>
     /// <remarks>This method may be called at any time, even before Initialization. This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.</remarks>
-    public void ShowMessageBox(string title, string message, MessageBoxFlags flags)
+    public static void ShowMessageBox(string title, string message, MessageBoxFlags flags)
     {
         SDLApplicationException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
     }
@@ -126,7 +126,7 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// The total amount of time that has elapsed since SDL was initialized
     /// </summary>
-    public TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
+    public static TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
 
     #region Events
 
@@ -432,7 +432,7 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// Fetches and reacts to SDL's events
     /// </summary>
-    public void UpdateEvents()
+    public static void UpdateEvents()
     {
         Events.Update();
     }
@@ -441,7 +441,7 @@ public class SDLApplication : IDisposable
     /// Fetches and reacts to a single one of SDL's events, if available
     /// </summary>
     /// <returns>The remaining events in SDL's queue</returns>
-    public int UpdateEventOnce()
+    public static int UpdateEventOnce()
     {
         var i = Events.UpdateOnce();
         return i;
@@ -452,7 +452,7 @@ public class SDLApplication : IDisposable
     /// </summary>
     /// <param name="time">The amount of time to block the current thread</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void Delay(TimeSpan time)
+    public static void Delay(TimeSpan time)
     {
         var x = time.TotalMilliseconds;
         if (x <= 0)
