@@ -38,6 +38,14 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum SensorType
+{
+    Invalid = SDL_SensorType.SDL_SENSOR_INVALID,
+    Unknown = SDL_SensorType.SDL_SENSOR_UNKNOWN,
+    Accelerometer = SDL_SensorType.SDL_SENSOR_ACCEL,
+    Gyroscope = SDL_SensorType.SDL_SENSOR_GYRO
+}
+
 public enum TouchDeviceType
 {
     /// <summary>
