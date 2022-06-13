@@ -69,6 +69,27 @@ public class GameController : Joystick, IDisposable
     }
 
     /// <summary>
+    /// Attempts to get the Joystick represented by the given instanceId
+    /// </summary>
+    public static bool TryGetGameController(int instanceId, [NotNullWhen(true)] out GameController? gamecontroller)
+    {
+        if (JoystickDict.TryGetValue(instanceId, out var wr))
+            if (wr.TryGetTarget(out var j) && j.disposedValue is false)
+            {
+                if (j is GameController gc) 
+                {
+                    gamecontroller = gc;
+                    return true;
+                }
+            }
+            else
+                JoystickDict.Remove(instanceId, out _);
+
+        gamecontroller = null;
+        return false;
+    }
+
+    /// <summary>
     /// Add support for controllers that SDL is unaware of or to cause an existing controller to have a different binding. <see cref="SDL_GameControllerAddMapping" href="https://wiki.libsdl.org/SDL_GameControllerAddMapping"/>
     /// </summary>
     /// <remarks>
@@ -416,13 +437,13 @@ public class GameController : Joystick, IDisposable
         /// <param name="touchpad"></param>
         /// <param name="finger"></param>
         /// <returns></returns>
-        public TouchPadReport this[int touchpad, int finger]
+        public FingerReport this[int touchpad, int finger]
         {
             get
             {
                 var r = SDL_GameControllerGetTouchpadFinger(handle, touchpad, finger, out var state, out var x, out var y, out var pressure);
                 SDLJoystickException.ThrowIfLessThan(r, 0);
-                return new(state, new(x, y), pressure);
+                return new(state, x, y, pressure);
             }
         }
     }
