@@ -61,11 +61,6 @@ public static class GeneralTests
 
         Texture deer = Image.LoadTexture(renderer, "Resources\\deer.png");
 
-        {
-            var _m = Image.Load("Resources\\deer.png");
-            deer = new Texture(renderer, _m);
-            _m.Dispose();
-        }
         var deerDstBox = deer.GetRectangle(128, 128);
         Disposables.Add(deer);
 
