@@ -17,7 +17,7 @@ namespace SDL2.NET;
 /// <summary>
 /// Represents an SDL Application, and is the root of this library
 /// </summary>
-/// <remarks>Initialize the app by calling the Initialization methods (all starting with initialize, code-completion should help you) you want, and finally <see cref="LaunchWindow"/>. Then, in your main loop, you should also regularly call <see cref="UpdateEvents"/></remarks>
+/// <remarks>Initialize the app by calling the Initialization methods (all starting with initialize, code-completion should help you) you want, and finally <see cref="LaunchWindow"/>. Then, in your main loop, you should also regularly call <see cref="UpdateEvents"/>. The static constructor of this class takes care of basic setup, like disabling thread naming</remarks>
 public class SDLApplication : IDisposable
 {
     private Window? _mw;
@@ -52,6 +52,12 @@ public class SDLApplication : IDisposable
     }
 
     private static SDLApplication? _inst;
+
+    static SDLApplication()
+    {
+        if (OperatingSystem.IsWindows())
+            Hints.DisableThreadNaming.IsEnabled = true;
+    }
 
     /// <summary>
     /// Fetches the instance of <see cref="SDLApplication"/>, or instances a new one if not available
