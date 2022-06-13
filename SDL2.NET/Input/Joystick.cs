@@ -109,6 +109,21 @@ public class Joystick : IJoystickDefinition, IDisposable
     public JoystickPowerLevel CurrentPowerLevel => (JoystickPowerLevel)SDL_JoystickCurrentPowerLevel(_handle);
 
     /// <summary>
+    /// Attempts to get the Joystick represented by the given instanceId
+    /// </summary>
+    public static bool TryGetJoystick(int instanceId, [NotNullWhen(true)] out Joystick? joystick)
+    {
+        if (JoystickDict.TryGetValue(instanceId, out var wr))
+            if (wr.TryGetTarget(out joystick) && joystick.disposedValue is false)
+                return true;
+            else
+                JoystickDict.Remove(instanceId, out _);
+
+        joystick = null;
+        return false;
+    } 
+
+    /// <summary>
     /// Attempts to open and instantiate a new Joystick, or return an old one if already instantiated
     /// </summary>
     /// <remarks>This method automatically checks for whether the Joystick is Virtual or a Joystick and uses the appropriate method.</remarks>
@@ -321,6 +336,133 @@ public class Joystick : IJoystickDefinition, IDisposable
     public string Serial => _serial ??= SDL_JoystickGetSerial(_handle);
     private string? _serial;
 
+    #region Events
+
+    /// <summary>
+    /// Fired when a Joystick Axis moves
+    /// </summary>
+    public event JoystickAxisEvent? AxisMotion;
+    internal void TriggerJoyAxisMotion(SDL_JoyAxisEvent e)
+    {
+        AxisMotion?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.axis, e.axisValue);
+    }
+
+    /// <summary>
+    /// Fired when a Joystick Ball moves
+    /// </summary>
+    public event JoystickBallEvent? BallMotion;
+    internal void TriggerJoyBallMotion(SDL_JoyBallEvent e)
+    {
+        BallMotion?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.ball, e.xrel, e.yrel);
+    }
+
+    /// <summary>
+    /// Fired when a Joystick Hat moves
+    /// </summary>
+    public event JoystickHatEvent? HatMotion;
+    internal void TriggerJoyHatMotion(SDL_JoyHatEvent e)
+    {
+        HatMotion?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.hat, e.hatValue);
+    }
+
+    /// <summary>
+    /// Fired when a Joystick button is pressed
+    /// </summary>
+    public event JoystickButtonEvent? ButtonPressed;
+    internal void TriggerJoyButtonDown(SDL_JoyButtonEvent e)
+    {
+        ButtonPressed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.button, e.state == SDL_PRESSED);
+    }
+
+    /// <summary>
+    /// Fired when a Joystick button is released
+    /// </summary>
+    public event JoystickButtonEvent? ButtonReleased;
+    internal void TriggerJoyButtonUp(SDL_JoyButtonEvent e)
+    {
+        ButtonReleased?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp), e.button, e.state == SDL_PRESSED);
+    }
+
+    /// <summary>
+    /// Fired when this Joystick is removed and is no longer valid. This event is fired before <see cref="DeviceRemoved"/>
+    /// </summary>
+    public event JoystickDeviceRemovedEvent? Removed;
+    internal void TriggerRemoved(SDL_JoyDeviceEvent e)
+    {
+        Removed?.Invoke(this, TimeSpan.FromMilliseconds(e.timestamp));
+    }
+
+    /// <summary>
+    /// Fired when a Joystick is added
+    /// </summary>
+    public static event JoystickDeviceEvent? DeviceAdded;
+    internal static void TriggerJoyDeviceAdded(SDL_JoyDeviceEvent e)
+    {
+        DeviceAdded?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), e.which);
+    }
+
+    /// <summary>
+    /// Fired when a Joystick is removed
+    /// </summary>
+    public static event JoystickDeviceEvent? DeviceRemoved;
+    internal static void TriggerJoyDeviceRemoved(SDL_JoyDeviceEvent e)
+    {
+        DeviceRemoved?.Invoke(TimeSpan.FromMilliseconds(e.timestamp), e.which);
+    }
+
+    /// <summary>
+    /// Represents an event relating to a Joystick being added or removed
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="deviceId">The id of the device that was added or removed</param>
+    public delegate void JoystickDeviceEvent(TimeSpan timestamp, int deviceId);
+
+    /// <summary>
+    /// Represents an event relating to a Joystick being added or removed
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="joystick">The joystick that is the object of the event</param>
+    public delegate void JoystickDeviceRemovedEvent(Joystick joystick, TimeSpan timestamp);
+
+    /// <summary>
+    /// Represents an event relating to a given Joystick's axis
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="axis">The axis that is the object of the event</param>
+    /// <param name="value">The value that changed in the axis</param>
+    /// <param name="joystick">The joystick that is the object of the event</param>
+    public delegate void JoystickAxisEvent(Joystick joystick, TimeSpan timestamp, byte axis, short value);
+
+    /// <summary>
+    /// Represents an event relating to a given Joystick's ball
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="ball">The ball that is the object of the event</param>
+    /// <param name="relativeX">The relative x motion of the ball</param>
+    /// <param name="relativeY">The relative y motion of the ball</param>
+    /// <param name="joystick">The joystick that is the object of the event</param>
+    public delegate void JoystickBallEvent(Joystick joystick, TimeSpan timestamp, byte ball, short relativeX, short relativeY);
+
+    /// <summary>
+    /// Represents an event relating to a given Joystick's hat
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="axis">The hat that is the object of the event</param>
+    /// <param name="value">The new position of the hat</param>
+    /// <param name="joystick">The joystick that is the object of the event</param>
+    public delegate void JoystickHatEvent(Joystick joystick, TimeSpan timestamp, byte axis, byte value);
+
+    /// <summary>
+    /// Represents an event relating to a given Joystick's axis
+    /// </summary>
+    /// <param name="timestamp">The amount of time elapsed from the initialization of SDL's library up until the firing of this event</param>
+    /// <param name="button">The button that is the object of the event</param>
+    /// <param name="state">The current state of the button</param>
+    /// <param name="joystick">The joystick that is the object of the event</param>
+    public delegate void JoystickButtonEvent(Joystick joystick, TimeSpan timestamp, byte button, bool state);
+
+    #endregion
+
     #region IDisposable
 
     internal bool disposedValue;
@@ -485,7 +627,7 @@ public class Joystick : IJoystickDefinition, IDisposable
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public AxisStateCollection(IntPtr handle)
+        internal AxisStateCollection(IntPtr handle)
         {
             _handle = handle;
         }
@@ -518,7 +660,7 @@ public class Joystick : IJoystickDefinition, IDisposable
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public ButtonStateCollection(IntPtr handle)
+        internal ButtonStateCollection(IntPtr handle)
         {
             _handle = handle;
         }
@@ -551,7 +693,7 @@ public class Joystick : IJoystickDefinition, IDisposable
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public HatStateCollection(IntPtr handle)
+        internal HatStateCollection(IntPtr handle)
         {
             _handle = handle;
         }
@@ -592,7 +734,7 @@ public class Joystick : IJoystickDefinition, IDisposable
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public BallStateCollection(IntPtr handle)
+        internal BallStateCollection(IntPtr handle)
         {
             _handle = handle;
         }

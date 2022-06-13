@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using SDL2.NET.Input;
+using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using static SDL2.Bindings.SDL;
 
@@ -117,70 +118,62 @@ internal static class Events
                     window.TriggerEvent(e.wheel);
                 return i;
 
-            case SDL_EventType.SDL_JOYAXISMOTION: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_JOYAXISMOTION:
+                if (Joystick.TryGetJoystick(e.jaxis.which, out var joy))
+                    joy.TriggerJoyAxisMotion(e.jaxis);
                 return i;
-
-            case SDL_EventType.SDL_JOYBALLMOTION: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_JOYBALLMOTION:
+                if (Joystick.TryGetJoystick(e.jball.which, out joy))
+                    joy.TriggerJoyBallMotion(e.jball);
                 return i;
-
             case SDL_EventType.SDL_JOYHATMOTION: 
-                #warning Not Implemented
+                if (Joystick.TryGetJoystick(e.jhat.which, out joy))
+                    joy.TriggerJoyHatMotion(e.jhat);
                 return i;
-
             case SDL_EventType.SDL_JOYBUTTONDOWN: 
-                #warning Not Implemented
+                if (Joystick.TryGetJoystick(e.jbutton.which, out joy))
+                    joy.TriggerJoyButtonDown(e.jbutton);
                 return i;
-
             case SDL_EventType.SDL_JOYBUTTONUP: 
-                #warning Not Implemented
+                if (Joystick.TryGetJoystick(e.jbutton.which, out joy))
+                    joy.TriggerJoyButtonUp(e.jbutton);
                 return i;
-
-            case SDL_EventType.SDL_JOYDEVICEADDED: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_JOYDEVICEADDED:
+                Joystick.TriggerJoyDeviceAdded(e.jdevice);
                 return i;
-
-            case SDL_EventType.SDL_JOYDEVICEREMOVED: 
-                #warning Not Implemented
+            case SDL_EventType.SDL_JOYDEVICEREMOVED:
+                if (Joystick.TryGetJoystick(e.jhat.which, out joy))
+                    joy.TriggerRemoved(e.jdevice);
+                Joystick.TriggerJoyDeviceRemoved(e.jdevice);
                 return i;
 
             case SDL_EventType.SDL_CONTROLLERAXISMOTION: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERBUTTONDOWN: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERBUTTONUP: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERDEVICEADDED: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERDEVICEREMOVED: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERDEVICEREMAPPED: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERTOUCHPADDOWN: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERTOUCHPADMOTION: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERTOUCHPADUP: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_CONTROLLERSENSORUPDATE: 
                 #warning Not Implemented
                 return i;
@@ -188,23 +181,18 @@ internal static class Events
             case SDL_EventType.SDL_FINGERDOWN: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_FINGERUP: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_FINGERMOTION: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_DOLLARGESTURE: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_DOLLARRECORD: 
                 #warning Not Implemented
                 return i;
-
             case SDL_EventType.SDL_MULTIGESTURE: 
                 #warning Not Implemented
                 return i;
