@@ -568,13 +568,13 @@ public class Joystick : IJoystickDefinition, IDisposable
         /// <param name="touchpad"></param>
         /// <param name="finger"></param>
         /// <returns></returns>
-        public TouchPadReport this[int touchpad, int finger]
+        public ControllerFingerReport this[int touchpad, int finger]
         {
             get
             {
                 var r = SDL_GameControllerGetTouchpadFinger(handle, touchpad, finger, out var state, out var x, out var y, out var pressure);
                 SDLJoystickException.ThrowIfLessThan(r, 0);
-                return new(state, new(x, y), pressure);
+                return new ControllerFingerReport(state, x, y, pressure);
             }
         }
     }
