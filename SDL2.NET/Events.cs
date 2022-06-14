@@ -5,8 +5,89 @@ using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
+/// <summary>
+/// Provides a way of configuring certain types of event handling for SDL's Event Queue
+/// </summary>
+/// <remarks>
+/// The actual processing of the events is done under this class, however, they're for internal use only. See <see cref="SDLApplication.UpdateEvents"/> and <see cref="SDLApplication.UpdateEventOnce"/>
+/// </remarks>
 internal static class Events
 {
+    private static readonly SDL_EventFilter _filter = Filter_method;
+    private static int Filter_method(IntPtr udat, SDL_Event e)
+    {
+        if ((OperatingSystem.IsAndroid() || OperatingSystem.IsIOS()) && e.type == SDL_EventType.SDL_APP_LOWMEMORY)
+                SDLApplication.TriggerLowMemory();
+
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS())
+            switch (e.type)
+            {
+                case SDL_EventType.SDL_APP_TERMINATING:
+                    SDLApplication.TriggerTerminating();
+                    return 0;
+                case SDL_EventType.SDL_APP_LOWMEMORY:
+                    return 0;
+                case SDL_EventType.SDL_APP_WILLENTERBACKGROUND:
+                    SDLApplication.TriggerWillEnterBackground();
+                    return 0;
+                case SDL_EventType.SDL_APP_DIDENTERBACKGROUND:
+                    SDLApplication.TriggerDidEnterBackground();
+                    return 0;
+                case SDL_EventType.SDL_APP_WILLENTERFOREGROUND:
+                    SDLApplication.TriggerWillEnterForeground();
+                    return 0;
+                case SDL_EventType.SDL_APP_DIDENTERFOREGROUND:
+                    SDLApplication.TriggerDidEnterForeground();
+                    return 0;
+            }
+
+        return _userfilter?.Invoke(_userdat, e) ?? 1;
+    }
+
+    private static EventFilter? _userfilter;
+    private static UserData? _userdat;
+
+    static Events()
+    {
+        SDL_SetEventFilter(_filter, IntPtr.Zero);
+    }
+
+    /// <summary>
+    /// An event filter that can be used to filter in or out SDL events
+    /// </summary>
+    /// <remarks>
+    /// This library makes no attempts at presenting SDL's event information in a .NET friendly manner -- You are entirely responsible for handling these events properly. Please make sure there is a good reason for your usage of an event filter
+    /// </remarks>
+    /// <param name="userData">The user data associated with the filter</param>
+    /// <param name="e">An union representing the event that SDL just received</param>
+    /// <returns></returns>
+    public delegate int EventFilter(UserData? userData, SDL_Event e);
+
+    /// <summary>
+    /// Adds a custom event filter for SDL's event queue
+    /// </summary>
+    /// <remarks>
+    /// This library makes no attempts at presenting SDL's event information in a .NET friendly manner -- You are entirely responsible for handling these events properly. Please make sure there is a good reason for your usage of an event filter
+    /// </remarks>
+    /// <param name="filter">The filter method to call</param>
+    /// <param name="userData">The data to attach to the filter. This will be passed to the filter when called</param>
+    public static void SetEventFilter(EventFilter filter, UserData? userData = null)
+    {
+        _userfilter = filter;
+        _userdat = userData;
+    }
+
+    /// <summary>
+    /// Removes the currently set <see cref="EventFilter"/> from use
+    /// </summary>
+    public static void DiscardEventFilter()
+    {
+        _userfilter = null;
+        _userdat = null;
+    }
+
+    #region Event Processing
+
     ///// <summary>
     ///// Updates the Event Queue asynchronously, using <paramref name="parallelization"/> for an amount of simultaneous tasks to use
     ///// </summary>
@@ -40,29 +121,6 @@ internal static class Events
         var i = SDL_PollEvent(out var e);
         if (i == 0)
             return 0;
-
-        if (OperatingSystem.IsWindows() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS())
-            switch (e.type)
-            {
-                case SDL_EventType.SDL_APP_TERMINATING:
-                    SDLApplication.TriggerTerminating();
-                    return i;
-                case SDL_EventType.SDL_APP_LOWMEMORY:
-                    SDLApplication.TriggerLowMemory();
-                    return i;
-                case SDL_EventType.SDL_APP_WILLENTERBACKGROUND:
-                    SDLApplication.TriggerWillEnterBackground();
-                    return i;
-                case SDL_EventType.SDL_APP_DIDENTERBACKGROUND:
-                    SDLApplication.TriggerDidEnterBackground();
-                    return i;
-                case SDL_EventType.SDL_APP_WILLENTERFOREGROUND:
-                    SDLApplication.TriggerWillEnterForeground();
-                    return i;
-                case SDL_EventType.SDL_APP_DIDENTERFOREGROUND:
-                    SDLApplication.TriggerDidEnterForeground();
-                    return i;
-            }
 
         switch (e.type)
         {
@@ -259,4 +317,6 @@ internal static class Events
 
         return i;
     }
+
+    #endregion
 }

@@ -166,42 +166,42 @@ public class SDLApplication : IDisposable
     /// <summary>
     /// Fired when the SDL application is terminating
     /// </summary>
-    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    /// <remarks>May run on a separate thread. Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     public static event SDLApplicationEvent? Terminating;
 
     /// <summary>
     /// Fired when SDL detects that the process is running out of memory
     /// </summary>
-    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    /// <remarks>May run on a separate thread. Only supported on: Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     public static event SDLApplicationEvent? LowMemory;
 
     /// <summary>
     /// Fired when the application is about to go into the background
     /// </summary>
-    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    /// <remarks>May run on a separate thread. Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     public static event SDLApplicationEvent? WillEnterBackground;
 
     /// <summary>
     /// Fired when the application is about to enter the foreground
     /// </summary>
-    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    /// <remarks>May run on a separate thread. Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     public static event SDLApplicationEvent? WillEnterForeground;
 
     /// <summary>
     /// Fired when the application entered the foreground
     /// </summary>
-    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    /// <remarks>May run on a separate thread. Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     public static event SDLApplicationEvent? DidEnterForeground;
 
     /// <summary>
     /// Fired when the application entered into the background
     /// </summary>
-    /// <remarks>Only supported on: Windows, Android and iOS</remarks>
+    /// <remarks>May run on a separate thread. Only supported on: Windows, Android and iOS</remarks>
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     public static event SDLApplicationEvent? DidEnterBackground;
 
@@ -225,7 +225,7 @@ public class SDLApplication : IDisposable
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     internal static void TriggerTerminating() => Terminating?.Invoke();
 
-    [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
+    [SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
     internal static void TriggerLowMemory() => LowMemory?.Invoke();
 
     [SupportedOSPlatform("Windows"), SupportedOSPlatform("Android"), SupportedOSPlatform("iOS")]
