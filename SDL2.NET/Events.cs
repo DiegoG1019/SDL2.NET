@@ -11,9 +11,43 @@ namespace SDL2.NET;
 /// <remarks>
 /// The actual processing of the events is done under this class, however, they're for internal use only. See <see cref="SDLApplication.UpdateEvents"/> and <see cref="SDLApplication.UpdateEventOnce"/>
 /// </remarks>
-internal static class Events
+public static class Events
 {
+    static Events()
+    {
+        SDL_SetEventFilter(_filter, IntPtr.Zero);
+    }
+
+    /// <summary>
+    /// Presents the states (true for enabled or false for disabled) of SDL's events in an indexable form
+    /// </summary>
+    public static EventStateCollection EventStates { get; } = new();
+
+    /// <summary>
+    /// Presents the states of SDL's events in an indexable form
+    /// </summary>
+    public sealed class EventStateCollection
+    {
+        /// <summary>
+        /// Sets or queries the state of the indexed SDL event
+        /// </summary>
+        /// <remarks>
+        /// If set to false (disabled) the event will automatically be dropped from the event queue and will not be filtered; if set to true (enabled) the event will be processed normally
+        /// </remarks>
+        public bool this[SDL_EventType @event]
+        {
+            get => SDL_EventState(@event, SDL_QUERY) == SDL_ENABLE;
+            set => SDL_EventState(@event, value ? SDL_ENABLE : SDL_DISABLE);
+        }
+
+        internal EventStateCollection() { }
+    }
+
+    #region Event Filtering
+
     private static readonly SDL_EventFilter _filter = Filter_method;
+    private static EventFilter? _userfilter;
+    private static UserData? _userdat;
     private static int Filter_method(IntPtr udat, SDL_Event e)
     {
         if ((OperatingSystem.IsAndroid() || OperatingSystem.IsIOS()) && e.type == SDL_EventType.SDL_APP_LOWMEMORY)
@@ -44,12 +78,12 @@ internal static class Events
         return _userfilter?.Invoke(_userdat, e) ?? 1;
     }
 
-    private static EventFilter? _userfilter;
-    private static UserData? _userdat;
-
-    static Events()
+    private static readonly SDL_EventFilter temp_filter = TempFilter_method;
+    private static EventFilter? _tempfilter;
+    private static UserData? _tempUdat;
+    private static int TempFilter_method(IntPtr udat, SDL_Event e)
     {
-        SDL_SetEventFilter(_filter, IntPtr.Zero);
+        return _tempfilter?.Invoke(_tempUdat, e) ?? 1;
     }
 
     /// <summary>
@@ -85,6 +119,20 @@ internal static class Events
         _userfilter = null;
         _userdat = null;
     }
+
+    /// <summary>
+    /// Run a specific filter function on the current event queue, removing any events for which the filter returns 0
+    /// </summary>
+    public static void FilterEvents(EventFilter filter, UserData? userData = null)
+    {
+        _tempfilter = filter;
+        _tempUdat = userData;
+        SDL_FilterEvents(temp_filter, IntPtr.Zero);
+        _tempfilter = null;
+        _tempUdat = null;
+    }
+
+    #endregion
 
     #region Event Processing
 
