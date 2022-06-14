@@ -5316,7 +5316,7 @@ namespace SDL2.Bindings
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SDL_EventFilter(
             IntPtr userdata, // void*
-            IntPtr sdlevent // SDL_Event* event, lolC#
+            SDL_Event sdlevent 
         );
 
         /* Pump the event loop, getting events from the input devices*/
