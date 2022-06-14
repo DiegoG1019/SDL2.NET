@@ -23,7 +23,8 @@ internal static class Events
     /// <summary>
     /// Updates the Event Queue until no more events are available
     /// </summary>
-    public static void Update()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void Update()
     {
         while (UpdateOnce() != 0) ;
     }
@@ -33,7 +34,8 @@ internal static class Events
     /// </summary>
     /// <returns>The remaining events in the queue</returns>
     //[MethodImpl(MethodImplOptions.AggressiveOptimization)] // Profile before enabling
-    public static int UpdateOnce()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int UpdateOnce()
     {
         var i = SDL_PollEvent(out var e);
         if (i == 0)
