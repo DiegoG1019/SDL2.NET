@@ -13,7 +13,7 @@ internal class ClipboardTests
     [SDLTestMethod("Display clipboard text")]
     public static void DisplayText(RunControl _)
     {
-        var app = SDLApplication.Instance().InitializeVideo();
+        var app = SDLDefaultApp.Instance.InitializeVideo();
 
         var buttons = new MessageBoxButton[2]
         {

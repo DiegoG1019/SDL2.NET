@@ -22,13 +22,12 @@ internal class Program
 {
     static void Main(string[] args)
     {
-
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
             .WriteTo.Console(LogEventLevel.Verbose)
             .CreateLogger();
 
-        var app = SDLApplication.Instance();
+        var app = SDLAppBuilder.CreateDefaultInstance();
 
         var runControl = new RunControl();
         var runControlParam = new object[1] { runControl };

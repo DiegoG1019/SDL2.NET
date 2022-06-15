@@ -12,7 +12,7 @@ internal class MessageBoxTests
     [SDLTestMethod("Test Window Box")]
     public static void TestWindowBox(RunControl _)
     {
-        var app = SDLApplication.Instance().LaunchWindow("Test Window Box", 100, 100);
+        var app = SDLDefaultApp.Instance.LaunchWindow("Test Window Box", 100, 100);
         app.MainWindow.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Information);
         app.MainWindow.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Warning);
         app.MainWindow.ShowMessageBox("This is a test!", "Don't mind me!", MessageBoxFlags.Error);
@@ -22,7 +22,7 @@ internal class MessageBoxTests
     [SDLTestMethod("Test Window Box Style")]
     public static void TestWindowBoxStyle(RunControl _)
     {
-        var app = SDLApplication.Instance();
+        var app = SDLDefaultApp.Instance;
         var buttons = new MessageBoxButton[3]
         {
             new("Button 1"),

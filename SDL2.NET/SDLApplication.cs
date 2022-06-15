@@ -15,136 +15,12 @@ using System.Reflection.PortableExecutable;
 namespace SDL2.NET;
 
 /// <summary>
-/// Represents an SDL Application, and is the root of this library
+/// Represents an SDL Application's basic functionality, such as events and timing related functions. For all intents and purposes, see <see cref="SDLApplication{TApp}"/> instead
 /// </summary>
-/// <remarks>Initialize the app by calling the Initialization methods (all starting with initialize, code-completion should help you) you want, and finally <see cref="LaunchWindow"/>. Then, in your main loop, you should also regularly call <see cref="UpdateEvents"/>. The static constructor of this class takes care of basic setup, like disabling thread naming</remarks>
-public class SDLApplication : IDisposable
+/// <remarks>This class' constructor is <c>internal</c> and thus this class cannot be inherited directly</remarks>
+public abstract class SDLApplication
 {
-    private Window? _mw;
-    private Renderer? _mr;
-
-    /// <summary>
-    /// The current Main Window of the application.
-    /// </summary>
-    public Window MainWindow => _mw ?? throw new InvalidOperationException("This application's window has not been launched");
-
-    /// <summary>
-    /// The current Main Renderer of the application.
-    /// </summary>
-    public Renderer MainRenderer => _mr ?? throw new InvalidOperationException("This application's window has not been launched");
-
-    private static readonly object sync = new();
-
-    /// <summary>
-    /// Instances the SDLApplication
-    /// </summary>
-    /// <remarks>
-    /// This class can only be instanced once, and will throw if multiple instances are attempted, even if attempted outside <see cref="Instance"/> or <see cref="Instance{TApp}"/> which should be avoided. If you want to override the behaviours of this class, feel free to inherit it and use <see cref="Instance{TApp}"/>. Otherwise, simply use <see cref="Instance"/>
-    /// </remarks>
-    protected SDLApplication() 
-    {
-        lock (sync)
-        {
-            if (_inst is null)
-                return;
-            throw new InvalidOperationException("SDLApplication, or any of its sub-types can only be instanced once.");
-        }
-    }
-
-    private static SDLApplication? _inst;
-
-    static SDLApplication()
-    {
-        if (OperatingSystem.IsWindows())
-            Hints.DisableThreadNaming.IsEnabled = true;
-    }
-
-    /// <summary>
-    /// Fetches the instance of <see cref="SDLApplication"/>, or instances a new one if not available
-    /// </summary>
-    /// <returns>The singleton instance of <see cref="SDLApplication"/></returns>
-    public static SDLApplication Instance()
-    {
-        if (_inst is null)
-            _inst = new SDLApplication();
-        return _inst;
-    }
-
-    /// <summary>
-    /// Fetches the instance of the <see cref="SDLApplication"/> of <typeparamref name="TApp"/> child type, or instances a new one if not available.
-    /// </summary>
-    /// <typeparam name="TApp">The type the <see cref="SDLApplication"/> is meant to be</typeparam>
-    /// <returns>The singleton instance of <typeparamref name="TApp"/></returns>
-    public static TApp Instance<TApp>() where TApp : SDLApplication, new()
-    {
-        if (_inst is null)
-            _inst = new TApp();
-        return (TApp)_inst;
-    }
-
-    /// <summary>
-    /// The default Message box scheme for this Application
-    /// </summary>
-    /// <remarks>If null, falls back to system default</remarks>
-    public static MessageBoxColorScheme? MessageBoxColorScheme { get; set; }
-
-    /// <summary>
-    /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags, MessageBoxButton[], MessageBoxColorScheme?)"/>
-    /// </summary>
-    /// <param name="title">The title of the message box</param>
-    /// <param name="message">The message to be shown in the messagebox</param>
-    /// <param name="flags">The flags of the message box</param>
-    /// <param name="buttons">An array of buttons to display in the Message Box</param>
-    /// <param name="scheme">The color scheme of the Message Box. Leave null to use <see cref="MessageBoxColorScheme"/></param>
-    /// <returns>The button that was pressed, or null if none was pressed</returns>
-    public static MessageBoxButton? ShowMessageBox(string title, string message, MessageBoxFlags flags, MessageBoxButton[] buttons, MessageBoxColorScheme? scheme = null)
-    {
-        var butts = new SDL_MessageBoxButtonData[buttons.Length];
-        for (int i = 0; i < butts.Length; i++)
-            butts[i] = buttons[i].ToSDL(i);
-
-        SDL_MessageBoxData dat = new()
-        {
-            flags = (SDL_MessageBoxFlags)flags,
-            numbuttons = buttons.Length,
-            message = message,
-            title = title,
-            buttons = butts,
-            colorScheme = scheme?.ToSDL() ?? MessageBoxColorScheme?.ToSDL()
-        };
-
-        SDLWindowException.ThrowIfLessThan(SDL_ShowMessageBox(ref dat, out int buttonPressed), 0);
-        return buttonPressed is -1 ? null : buttons[buttonPressed];
-    }
-
-    /// <summary>
-    /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags)"/>
-    /// </summary>
-    /// <param name="title">The title of the message box</param>
-    /// <param name="message">The message to be shown in the messagebox</param>
-    /// <param name="flags">The flags of the message box</param>
-    /// <remarks>This method may be called at any time, even before Initialization. This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.</remarks>
-    public static void ShowMessageBox(string title, string message, MessageBoxFlags flags)
-    {
-        SDLApplicationException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
-    }
-
-    /// <summary>
-    /// The total amount of time that has elapsed since SDL was initialized
-    /// </summary>
-    public static TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
-
-    /// <summary>
-    /// Open a URL/URI in the browser or other appropriate external application. A successful result does not mean the URL loaded, just that SDL launched /something/ to handle it, or that, at least, SDL believes it did
-    /// </summary>
-    /// <param name="url">A valid URL/URI to open. You may use an URI such as <c>file:///full/path/to/file</c> to open a local file, if supported</param>
-    /// <remarks>
-    /// Open a URL in a separate, system-provided application. How this works will vary wildly depending on the platform. This will likely launch what makes sense to handle a specific URL's protocol, but it might also be able to launch file managers for directories and other things. What happens when you open a URL varies wildly as well: your game window may lose focus (and may or may not lose focus if your game was fullscreen or grabbing input at the time). On mobile devices, your app will likely move to the background or your process might be paused. Any given platform may or may not handle a given URL. Test this method on each of your target platforms to identify expected results
-    /// </remarks>
-    public static void OpenURL(string url)
-    {
-        SDLApplicationException.ThrowIfLessThan(SDL_OpenURL(url), 0);
-    }
+    internal SDLApplication() { }
 
     #region Events
 
@@ -246,71 +122,221 @@ public class SDLApplication : IDisposable
 
     #endregion
 
+    /// <summary>
+    /// The total amount of time that has elapsed since SDL was initialized
+    /// </summary>
+    public static TimeSpan TotalTime => TimeSpan.FromMilliseconds(SDL_GetTicks64());
+
+    /// <summary>
+    /// Blocks the current thread for <paramref name="time"/> amount of time
+    /// </summary>
+    /// <param name="time">The amount of time to block the current thread</param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public static void Delay(TimeSpan time)
+    {
+        var x = time.TotalMilliseconds;
+        if (x <= 0)
+            throw new ArgumentOutOfRangeException(nameof(time), time, "time must be larger than 0");
+        SDL_Delay(x >= uint.MaxValue ? uint.MaxValue : (uint)x);
+    }
+
+    /// <summary>
+    /// Fetches and reacts to SDL's events
+    /// </summary>
+    public static void UpdateEvents()
+    {
+        Events.Update();
+    }
+
+    /// <summary>
+    /// Fetches and reacts to a single one of SDL's events, if available
+    /// </summary>
+    /// <returns>The remaining events in SDL's queue</returns>
+    public static int UpdateEventOnce()
+    {
+        var i = Events.UpdateOnce();
+        return i;
+    }
+
+    /// <summary>
+    /// The default Message box scheme for this Application
+    /// </summary>
+    /// <remarks>If null, falls back to system default</remarks>
+    public static MessageBoxColorScheme? MessageBoxColorScheme { get; set; }
+
+    /// <summary>
+    /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags, MessageBoxButton[], MessageBoxColorScheme?)"/>
+    /// </summary>
+    /// <param name="title">The title of the message box</param>
+    /// <param name="message">The message to be shown in the messagebox</param>
+    /// <param name="flags">The flags of the message box</param>
+    /// <param name="buttons">An array of buttons to display in the Message Box</param>
+    /// <param name="scheme">The color scheme of the Message Box. Leave null to use <see cref="MessageBoxColorScheme"/></param>
+    /// <returns>The button that was pressed, or null if none was pressed</returns>
+    public static MessageBoxButton? ShowMessageBox(string title, string message, MessageBoxFlags flags, MessageBoxButton[] buttons, MessageBoxColorScheme? scheme = null)
+    {
+        var butts = new SDL_MessageBoxButtonData[buttons.Length];
+        for (int i = 0; i < butts.Length; i++)
+            butts[i] = buttons[i].ToSDL(i);
+
+        SDL_MessageBoxData dat = new()
+        {
+            flags = (SDL_MessageBoxFlags)flags,
+            numbuttons = buttons.Length,
+            message = message,
+            title = title,
+            buttons = butts,
+            colorScheme = scheme?.ToSDL() ?? MessageBoxColorScheme?.ToSDL()
+        };
+
+        SDLWindowException.ThrowIfLessThan(SDL_ShowMessageBox(ref dat, out int buttonPressed), 0);
+        return buttonPressed is -1 ? null : buttons[buttonPressed];
+    }
+
+    /// <summary>
+    /// Display a simple modal message box. Not to be confused with <see cref="Window.ShowMessageBox(string, string, MessageBoxFlags)"/>
+    /// </summary>
+    /// <param name="title">The title of the message box</param>
+    /// <param name="message">The message to be shown in the messagebox</param>
+    /// <param name="flags">The flags of the message box</param>
+    /// <remarks>This method may be called at any time, even before Initialization. This makes it useful for reporting errors like a failure to create a renderer or OpenGL context.</remarks>
+    public static void ShowMessageBox(string title, string message, MessageBoxFlags flags)
+    {
+        SDLApplicationException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, IntPtr.Zero), 0);
+    }
+
+    /// <summary>
+    /// Open a URL/URI in the browser or other appropriate external application. A successful result does not mean the URL loaded, just that SDL launched /something/ to handle it, or that, at least, SDL believes it did
+    /// </summary>
+    /// <param name="url">A valid URL/URI to open. You may use an URI such as <c>file:///full/path/to/file</c> to open a local file, if supported</param>
+    /// <remarks>
+    /// Open a URL in a separate, system-provided application. How this works will vary wildly depending on the platform. This will likely launch what makes sense to handle a specific URL's protocol, but it might also be able to launch file managers for directories and other things. What happens when you open a URL varies wildly as well: your game window may lose focus (and may or may not lose focus if your game was fullscreen or grabbing input at the time). On mobile devices, your app will likely move to the background or your process might be paused. Any given platform may or may not handle a given URL. Test this method on each of your target platforms to identify expected results
+    /// </remarks>
+    public static void OpenURL(string url)
+    {
+        SDLApplicationException.ThrowIfLessThan(SDL_OpenURL(url), 0);
+    }
+}
+
+/// <summary>
+/// Represents an SDL Application, and is the root of this library
+/// </summary>
+/// <remarks>Initialize the app by calling the Initialization methods (all starting with initialize, code-completion should help you) you want, and finally <see cref="LaunchWindow"/>. Then, in your main loop, you should also regularly call <see cref="UpdateEvents"/>. The static constructor of this class takes care of basic setup, like disabling thread naming</remarks>
+public abstract class SDLApplication<TApp> : SDLApplication, IDisposable where TApp : SDLApplication<TApp>
+{
+    private Window? _mw;
+    private Renderer? _mr;
+
+    /// <summary>
+    /// The current Main Window of the application.
+    /// </summary>
+    public Window MainWindow => _mw ?? throw new InvalidOperationException("This application's window has not been launched");
+
+    /// <summary>
+    /// The current Main Renderer of the application.
+    /// </summary>
+    public Renderer MainRenderer => _mr ?? throw new InvalidOperationException("This application's window has not been launched");
+
+    private static readonly object sync = new();
+
+    /// <summary>
+    /// Instances the SDLApplication
+    /// </summary>
+    /// <remarks>
+    /// This class can only be instanced once, and will throw if multiple instances are attempted, even if attempted outside <see cref="Instance"/> or <see cref="Instance{TApp}"/> which should be avoided. If you want to override the behaviours of this class, feel free to inherit it and use <see cref="Instance{TApp}"/>. Otherwise, simply use <see cref="Instance"/>
+    /// </remarks>
+    protected SDLApplication() 
+    {
+        lock (sync)
+        {
+            if (SDLAppBuilder.AppInstance is null)
+            {
+                SDLAppBuilder.AppInstance = this;
+                return;
+            }
+            throw new InvalidOperationException("SDLApplication, or any of its sub-types can only be instanced once.");
+        }
+    }
+
+    static SDLApplication()
+    {
+        if (OperatingSystem.IsWindows())
+            Hints.DisableThreadNaming.IsEnabled = true;
+    }
+
+    private static TApp? inst;
+    /// <summary>
+    /// Fetches the instance of <see cref="SDLApplication{TApp}"/>, or instances a new one if not available
+    /// </summary>
+    /// <returns>The singleton instance of <see cref="SDLApplication{TApp}"/></returns>
+    public static TApp Instance 
+        => inst ??= ((SDLAppBuilder.AppInstance ?? throw new InvalidOperationException("SDLApplication has not been instanced, see SDLAppBuilder")) as TApp ?? throw new InvalidOperationException($"The instanced SDLApplication is not of type {typeof(TApp).FullName}"));
+
     #region Initialization
 
-    private SDLApplication Initialize(SDLSubSystem sys)
+    private TApp Initialize(SDLSubSystem sys)
     {
         ThrowIfDisposed();
         if ((InitializedSystems & sys) > 0)
-            return this;
+            return Instance;
         SDLInitializationException.ThrowIfLessThan(SDL_Init((uint)sys), 0);
-        return this;
+        return Instance;
     }
 
     /// <summary>
     /// Initializes SDL's Video Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeVideo()
+    public TApp InitializeVideo()
         => Initialize(SDLSubSystem.Video);
 
     /// <summary>
     /// Initializes SDL's Audio Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeAudio()
+    public TApp InitializeAudio()
         => Initialize(SDLSubSystem.Audio);
 
     /// <summary>
     /// Initializes SDL's Timer Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeTimer()
+    public TApp InitializeTimer()
         => Initialize(SDLSubSystem.Timer);
 
     /// <summary>
     /// Initializes SDL's Joystick Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeJoystick()
+    public TApp InitializeJoystick()
         => Initialize(SDLSubSystem.Joystick);
 
     /// <summary>
     /// Initializes SDL's Haptic Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeHaptic()
+    public TApp InitializeHaptic()
         => Initialize(SDLSubSystem.Haptic);
 
     /// <summary>
     /// Initializes SDL's GameController Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeGameController()
+    public TApp InitializeGameController()
         => Initialize(SDLSubSystem.GameController);
 
     /// <summary>
     /// Initializes SDL's Events Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeEvents()
+    public TApp InitializeEvents()
         => Initialize(SDLSubSystem.Events);
 
     /// <summary>
     /// Initializes SDL's Sensor Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeSensor()
+    public TApp InitializeSensor()
         => Initialize(SDLSubSystem.Sensor);
 
     /// <summary>
@@ -330,30 +356,30 @@ public class SDLApplication : IDisposable
     /// Initializes SDL's Audio Mixing Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeAndOpenAudioMixer(MixerInitFlags flags, int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
+    public TApp InitializeAndOpenAudioMixer(MixerInitFlags flags, int frequency = 44100, int channels = 2, int chunksize = 2048, ushort? format = null)
     {
         ThrowIfDisposed();
         AudioMixer.InitAudioMixer(flags);
         AudioMixer.OpenAudioMixer(frequency, channels, chunksize, format);
-        return this;
+        return Instance;
     }
 
     /// <summary>
     /// Initializes SDL's TrueTypeFont Library
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication InitializeTTF()
+    public TApp InitializeTTF()
     {
         ThrowIfDisposed();
         SDLInitializationException.ThrowIfLessThan(SDL_ttf.TTF_Init(), 0);
-        return this;
+        return Instance;
     }
 
     /// <summary>
     /// Instantiates and Launches both <see cref="MainRenderer"/> and <see cref="MainWindow"/>, should be called last
     /// </summary>
     /// <returns>This instance of the SDLApplication for chaining calls</returns>
-    public SDLApplication LaunchWindow(string title, int width, int height, WindowConfig? windowConfig = null, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync)
+    public TApp LaunchWindow(string title, int width, int height, WindowConfig? windowConfig = null, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync)
     {
         ThrowIfDisposed();
         if (_mw is not null)
@@ -363,7 +389,7 @@ public class SDLApplication : IDisposable
 
         _mw.Closed += _mw_Closed;
 
-        return this;
+        return Instance;
     }
 
     private void _mw_Closed(Window sender, TimeSpan timestamp)
@@ -441,41 +467,10 @@ public class SDLApplication : IDisposable
     private void ThrowIfDisposed()
     {
         if (disposedValue)
-            throw new ObjectDisposedException(nameof(SDLApplication));
+            throw new ObjectDisposedException(nameof(SDLApplication<TApp>));
     }
 
     #endregion
-
-    /// <summary>
-    /// Fetches and reacts to SDL's events
-    /// </summary>
-    public static void UpdateEvents()
-    {
-        Events.Update();
-    }
-
-    /// <summary>
-    /// Fetches and reacts to a single one of SDL's events, if available
-    /// </summary>
-    /// <returns>The remaining events in SDL's queue</returns>
-    public static int UpdateEventOnce()
-    {
-        var i = Events.UpdateOnce();
-        return i;
-    }
-
-    /// <summary>
-    /// Blocks the current thread for <paramref name="time"/> amount of time
-    /// </summary>
-    /// <param name="time">The amount of time to block the current thread</param>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static void Delay(TimeSpan time)
-    {
-        var x = time.TotalMilliseconds;
-        if (x <= 0)
-            throw new ArgumentOutOfRangeException(nameof(time), time, "time must be larger than 0");
-        SDL_Delay(x >= uint.MaxValue ? uint.MaxValue : (uint)x);
-    }
 
     /// <summary>
     /// The procedure that instantiates <see cref="MainRenderer"/>

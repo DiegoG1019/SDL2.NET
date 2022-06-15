@@ -22,7 +22,7 @@ public static class GeneralTests
     public static void BasicGeneralTest(RunControl run)
     {
         Run = run;
-        var app = SDLApplication.Instance()
+        var app = SDLDefaultApp.Instance
             .InitializeVideo()
             .InitializeAudio()
             .InitializeTTF()
