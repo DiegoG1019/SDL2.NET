@@ -1,12 +1,16 @@
 ﻿using SDL2.Bindings;
 using SDL2.NET.Exceptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
+using static System.Net.WebRequestMethods;
 
 namespace SDL2.NET;
 
@@ -121,7 +125,7 @@ public abstract class Renderer : IDisposable
     /// Draw a point on the current rendering target. <see cref="SDL_RenderDrawPoint" href="https://wiki.libsdl.org/SDL_RenderDrawPoint"/>
     /// </summary>
     /// <remarks>
-    /// <see cref="DrawPoint(Point)"/> draws a single point. If you want to draw multiple, use <see cref="DrawPoints(ReadOnlySpan{Point})"/> instead.
+    /// <see cref="DrawPoint(Point, RGBAColor?)"/> draws a single point. If you want to draw multiple, use <see cref="DrawPoints(ReadOnlySpan{Point}, RGBAColor?)"/> instead.
     /// </remarks>
     /// <param name="point">The point to draw in the screen</param>
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
@@ -143,9 +147,50 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
+    /// Draw a point on the current rendering target. <see cref="SDL_RenderDrawPoint" href="https://wiki.libsdl.org/SDL_RenderDrawPoint"/>
+    /// </summary>
+    /// <remarks>
+    /// <see cref="DrawPoint(float, float)"/> draws a single point. If you want to draw multiple, use <see cref="DrawPoints(ReadOnlySpan{FPoint})"/> instead.
+    /// </remarks>
+    /// <param name="x">The X coordinate for the point to draw in the screen</param>
+    /// <param name="y">The Y coordinate for the point to draw in the screen</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawPoint(float x, float y, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPointF(_handle, x, y), 0);
+    }
+
+    /// <summary>
+    /// Draw a point on the current rendering target. <see cref="SDL_RenderDrawPointF" href="https://wiki.libsdl.org/SDL_RenderDrawPointF"/>
+    /// </summary>
+    /// <remarks>
+    /// <see cref="DrawPoint(FPoint, RGBAColor?)"/> draws a single point. If you want to draw multiple, use <see cref="DrawPoints(ReadOnlySpan{FPoint}, RGBAColor?)"/> instead.
+    /// </remarks>
+    /// <param name="point">The point to draw in the screen</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawPoint(FPoint point, RGBAColor? color = null) => DrawPoint(point.X, point.Y, color);
+
+    /// <summary>
+    /// Draw multiple points on the current rendering target. <see cref="SDL_RenderDrawPointsF" href="https://wiki.libsdl.org/SDL_RenderDrawPointsF"/>
+    /// </summary>
+    /// <param name="points">The points to draw</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawPoints(ReadOnlySpan<FPoint> points, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            points[i].ToSDL(out sdl_p[i]);
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPointsF(_handle, sdl_p, points.Length), 0);
+    }
+
+    /// <summary>
     /// Draw a rectangle on the current rendering target. <see cref="SDL_RenderDrawRect" href="https://wiki.libsdl.org/SDL_RenderDrawRect"/>
     /// </summary>
-    /// <param name="rectangle">A <see cref="Rectangle"/> representing the rectangle to draw, or <see cref="null"/> to outline the entire rendering target</param>
+    /// <param name="rectangle">A <see cref="Rectangle"/> representing the rectangle to draw, or null to outline the entire rendering target</param>
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawRectangle(Rectangle? rectangle, RGBAColor? color = null)
     {
@@ -162,12 +207,53 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
+    /// Draw a rectangle on the current rendering target. <see cref="SDL_RenderDrawRectF(IntPtr, IntPtr)" href="https://wiki.libsdl.org/SDL_RenderDrawRectF"/>
+    /// </summary>
+    /// <param name="rectangle">A <see cref="FRectangle"/> representing the rectangle to draw, or null to outline the entire rendering target</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawRectangle(FRectangle? rectangle, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        if (rectangle is FRectangle r)
+        {
+            r.ToSDL(out var rect);
+            TrySetColor(color);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectF(_handle, ref rect), 0);
+            return;
+        }
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectF(_handle, IntPtr.Zero), 0);
+    }
+
+    /// <summary>
+    /// Fill a rectangle on the current rendering target with the drawing color. <see cref="SDL_RenderFillRectF" href="https://wiki.libsdl.org/SDL_RenderFillRectF"/>
+    /// </summary>
+    /// <remarks>
+    /// The current drawing color is set by <see cref="RenderColor"/>, and the color's alpha value is ignored unless blending is enabled with the appropriate call to <see cref="BlendMode"/>.
+    /// </remarks>
+    /// <param name="rectangle">The <see cref="FRectangle"/> representing the rectangle to fill, or null for the entire rendering target</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void FillRectangle(FRectangle? rectangle, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        if (rectangle is FRectangle r)
+        {
+            r.ToSDL(out var rect);
+            TrySetColor(color);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectF(_handle, ref rect), 0);
+            return;
+        }
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectF(_handle, IntPtr.Zero), 0);
+    }
+
+    /// <summary>
     /// Fill a rectangle on the current rendering target with the drawing color. <see cref="SDL_RenderFillRect" href="https://wiki.libsdl.org/SDL_RenderFillRect"/>
     /// </summary>
     /// <remarks>
     /// The current drawing color is set by <see cref="RenderColor"/>, and the color's alpha value is ignored unless blending is enabled with the appropriate call to <see cref="BlendMode"/>.
     /// </remarks>
-    /// <param name="rectangle">The <see cref="Rectangle"/> representing the rectangle to fill, or <see cref="null"/> for the entire rendering target</param>
+    /// <param name="rectangle">The <see cref="Rectangle"/> representing the rectangle to fill, or null for the entire rendering target</param>
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void FillRectangle(Rectangle? rectangle, RGBAColor? color = null)
     {
@@ -199,6 +285,36 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
+    /// Draw some number of rectangles on the current rendering target. <see cref="SDL_RenderDrawRectsF" href="https://wiki.libsdl.org/SDL_RenderDrawRectsF"/>
+    /// </summary>
+    /// <param name="rectangles">A set of <see cref="Rectangle"/>s representing the rectangles to be drawn</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void DrawRectangles(ReadOnlySpan<FRectangle> rectangles, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        Span<SDL_FRect> sdl_p = stackalloc SDL_FRect[rectangles.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            rectangles[i].ToSDL(out sdl_p[i]);
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectsF(_handle, sdl_p, rectangles.Length), 0);
+    }
+
+    /// <summary>
+    /// Fill some number of rectangles on the current rendering target with the drawing color. <see cref="SDL_RenderFillRectsF" href="https://wiki.libsdl.org/SDL_RenderFillRectsF"/>
+    /// </summary>
+    /// <param name="rectangles">A set of <see cref="FRectangle"/>s representing the rectangles to be filled</param>
+    /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
+    public void FillRectangles(ReadOnlySpan<FRectangle> rectangles, RGBAColor? color = null)
+    {
+        ThrowIfDisposed();
+        Span<SDL_FRect> sdl_p = stackalloc SDL_FRect[rectangles.Length];
+        for (int i = 0; i < sdl_p.Length; i++)
+            rectangles[i].ToSDL(out sdl_p[i]);
+        TrySetColor(color);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectsF(_handle, sdl_p, rectangles.Length), 0);
+    }
+
+    /// <summary>
     /// Fill some number of rectangles on the current rendering target with the drawing color. <see cref="SDL_RenderFillRects" href="https://wiki.libsdl.org/SDL_RenderFillRects"/>
     /// </summary>
     /// <param name="rectangles">A set of <see cref="Rectangle"/>s representing the rectangles to be filled</param>
@@ -211,6 +327,18 @@ public abstract class Renderer : IDisposable
             rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderFillRects(_handle, sdl_p, rectangles.Length), 0);
+    }
+
+    /// <summary>
+    /// Force the rendering context to flush any pending commands to the underlying rendering API
+    /// </summary>
+    /// <remarks>
+    /// You do not need to (and in fact, shouldn't) call this function unless you are planning to call into OpenGL/Direct3D/Metal/whatever directly in addition to using an <see cref="Renderer"/>. For more info, see <see href="https://wiki.libsdl.org/SDL_RenderFlush"/>
+    /// </remarks>
+    public void Flush()
+    {
+        ThrowIfDisposed();
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFlush(_handle), 0);
     }
 
     /// <summary>
@@ -311,7 +439,7 @@ public abstract class Renderer : IDisposable
     /// Gets or sets the drawing area for rendering on the current target. get: <see cref="SDL_RenderGetViewport" href="https://wiki.libsdl.org/SDL_RenderGetViewport"/>; set: <see cref="SDL_RenderSetViewport" href="https://wiki.libsdl.org/SDL_RenderSetViewport"/>
     /// </summary>
     /// <remarks>When the <see cref="Window"/> is resized, the viewport is reset to fill the entire new <see cref="Window"/> size.</remarks>
-    /// <param name="rect">The <see cref="Rectangle"/> representing the drawing area, or <see cref="null"/> to set the viewport to the entire target</param>
+    /// <param name="rect">The <see cref="Rectangle"/> representing the drawing area, or null to set the viewport to the entire target</param>
     public Rectangle? Viewport
     {
         get
@@ -366,7 +494,7 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
-    /// Gets or sets the clip rectangle for rendering on the specified target, a <see cref="Rectangle"/> filled in with the current clipping area or an <see cref="null"/> if clipping is disabled
+    /// Gets or sets the clip rectangle for rendering on the specified target, a <see cref="Rectangle"/> filled in with the current clipping area or an null if clipping is disabled
     /// </summary>
     public Rectangle? Clip
     {
@@ -444,10 +572,10 @@ public abstract class Renderer : IDisposable
 
     private Texture? renderTarget;
     /// <summary>
-    /// The current render target or <see cref="null"/> for the default render target. get: Cached in .NET memory; set: <see cref="SDL_SetRenderTarget" href="https://wiki.libsdl.org/SDL_SetRenderTarget"/>
+    /// The current render target or null for the default render target. get: Cached in .NET memory; set: <see cref="SDL_SetRenderTarget" href="https://wiki.libsdl.org/SDL_SetRenderTarget"/>
     /// </summary>
     /// <remarks>
-    /// The Render Target is assumed to be <see cref="null"/> when the object is created. From then onwards, assignment of this property will result in the <see cref="Texture"/> object being cached; if you want to use SDL's default method for this, see <see cref="FetchRenderTarget"/>. This involves indexing of an internal static <see cref="System.Collections.Concurrent.ConcurrentDictionary{IntPtr, WeakReference{Texture}}"/>
+    /// The Render Target is assumed to be null when the object is created. From then onwards, assignment of this property will result in the <see cref="Texture"/> object being cached; if you want to use SDL's default method for this, see <see cref="FetchRenderTarget"/>. This involves indexing of an internal static <see cref="System.Collections.Concurrent.ConcurrentDictionary{IntPtr, WeakReference{Texture}}"/>
     /// </remarks>
     public Texture? RenderTarget
     {
@@ -528,6 +656,55 @@ public abstract class Renderer : IDisposable
             return CachedInfo = new RendererInfo(Marshal.PtrToStringAnsi(sdli.name)!, (RendererFlags)sdli.flags, new(sdli.max_texture_width, sdli.max_texture_height), new(sdli.texture_formats, sdli.num_texture_formats));
         }
     }
+
+    /// <summary>
+    /// Presents information about SDL's available renderers as a collection
+    /// </summary>
+    public static RenderDriverInfoCollection RenderDrivers => RenderDriverInfoCollection.inst;
+
+    #region Renderer Driver Info (static)
+
+    /// <summary>
+    /// Presents information about SDL's available renderers as a collection
+    /// </summary>
+    public sealed class RenderDriverInfoCollection : IReadOnlyList<RendererInfo>
+    {
+        internal readonly static RenderDriverInfoCollection inst = new();
+        private RenderDriverInfoCollection() { }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe static RendererInfo fetch(int index)
+        {
+            SDLRendererException.ThrowIfLessThan(SDL_GetRenderDriverInfo(index, out var sdli), 0);
+            return new RendererInfo(Marshal.PtrToStringAnsi(sdli.name)!, (RendererFlags)sdli.flags, new(sdli.max_texture_width, sdli.max_texture_height), new(sdli.texture_formats, sdli.num_texture_formats));
+        }
+
+        /// <summary>
+        /// Indexes SDL's available Render Drivers
+        /// </summary>
+        public unsafe RendererInfo this[int index] => index < 0 || index > Count
+                    ? throw new IndexOutOfRangeException("Index must be greater than 0 and less than the amount of currently available drivers")
+                    : fetch(index);
+
+        /// <summary>
+        /// Gets the amount of currently available render drivers
+        /// </summary>
+        public int Count => SDL_GetNumRenderDrivers();
+
+        /// <summary>
+        /// Enumerates the currently available drivers in SDL
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<RendererInfo> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++)
+                yield return fetch(i);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    #endregion
 
     #region IDisposable
 
