@@ -38,6 +38,34 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+/// <summary>
+/// Represents logging categories for SDL. Custom categories range from <c>(LogCategory)8</c> to <c>(LogCategory)19</c>
+/// </summary>
+public enum LogCategory
+{
+    Application = SDL_LogCategory.SDL_LOG_CATEGORY_APPLICATION,
+    Error = SDL_LogCategory.SDL_LOG_CATEGORY_ERROR,
+    Assert = SDL_LogCategory.SDL_LOG_CATEGORY_ASSERT,
+    System = SDL_LogCategory.SDL_LOG_CATEGORY_SYSTEM,
+    Audio = SDL_LogCategory.SDL_LOG_CATEGORY_AUDIO,
+    Video = SDL_LogCategory.SDL_LOG_CATEGORY_VIDEO,
+    Render = SDL_LogCategory.SDL_LOG_CATEGORY_RENDER,
+    Input = SDL_LogCategory.SDL_LOG_CATEGORY_INPUT,
+    Test = SDL_LogCategory.SDL_LOG_CATEGORY_TEST,
+
+    Custom = SDL_LogCategory.SDL_LOG_CATEGORY_CUSTOM,
+}
+
+public enum LogPriority
+{
+    Verbose = SDL_LogPriority.SDL_LOG_PRIORITY_VERBOSE,
+    Debug = SDL_LogPriority.SDL_LOG_PRIORITY_DEBUG,
+    Info = SDL_LogPriority.SDL_LOG_PRIORITY_INFO,
+    Warn = SDL_LogPriority.SDL_LOG_PRIORITY_WARN,
+    Error = SDL_LogPriority.SDL_LOG_PRIORITY_ERROR,
+    Critical = SDL_LogPriority.SDL_LOG_PRIORITY_CRITICAL
+}
+
 public enum ScaleMode
 {
     Nearest = SDL_ScaleMode.SDL_ScaleModeNearest,
