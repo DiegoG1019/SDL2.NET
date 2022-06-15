@@ -14,8 +14,9 @@ namespace SDL2.NET;
 /// <summary>
 /// Represents a Pixel Format and contains relevant pixel information
 /// </summary>
-public class PixelFormatData : IDisposable
+public class PixelFormatData : IDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<PixelFormatData>> _handleDict = new(2, 10);
 
     internal readonly IntPtr _handle;

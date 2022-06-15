@@ -15,9 +15,10 @@ namespace SDL2.NET;
 /// <summary>
 /// Represents an SDL Texture: a structure that contains an efficient, driver-specific representation of pixel data. <see cref="SDL_Texture" href="https://wiki.libsdl.org/SDL_Texture"/>
 /// </summary>
-public class Texture : IDisposable
+public class Texture : IDisposable, IHandle
 {
-    protected internal readonly IntPtr _handle;
+    IntPtr IHandle.Handle => _handle;
+    internal readonly IntPtr _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<Texture>> _textDict = new(2, 20);
 
     static internal Texture? FetchTexture(IntPtr handle)

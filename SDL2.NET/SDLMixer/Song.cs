@@ -10,8 +10,12 @@ using static SDL2.Bindings.SDL_mixer;
 
 namespace SDL2.NET.SDLMixer;
 
-public class Song : IDisposable, IAsyncDisposable
+/// <summary>
+/// Represents audio data that is streamed from disk rather than stored in memory, and of which only one can be playing at a time
+/// </summary>
+public class Song : IDisposable, IAsyncDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<Song>> _handleDict = new(4, 20);
 
     internal static Song? Fetch(IntPtr handle)

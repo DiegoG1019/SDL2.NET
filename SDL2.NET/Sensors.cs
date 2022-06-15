@@ -8,11 +8,12 @@ namespace SDL2.NET;
 /// <summary>
 /// Represents a Sensor in SDL, and statically provides access to SDL Sensor related facilities
 /// </summary>
-public sealed class Sensor
+public sealed class Sensor : IHandle
 {
-    #region static
+    IntPtr IHandle.Handle => _handle;
+#region static
 
-    private static readonly Dictionary<int, WeakReference<Sensor>> _dict = new();
+private static readonly Dictionary<int, WeakReference<Sensor>> _dict = new();
 
     /// <summary>
     /// Represents the constant Standard Gravity of Earth: <c>9.80665 (m/s)^2</c>

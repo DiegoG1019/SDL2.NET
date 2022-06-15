@@ -12,7 +12,7 @@ public partial class AudioChunk
     /// <remarks>
     /// This will lock the AudioChunk for as long as this class remains in use. When done, call IDispose (Flush WON'T be called automatically). Forgetting to dispose this class will cause the AudioChunk to be unusable. Be warned.
     /// </remarks>
-    public sealed class AudioChunkSampleBuffer : Stream, IDisposable
+    public sealed class AudioChunkSampleBuffer : Stream, IDisposable, IHandle
     {
         private readonly object sync = new();
         private readonly IntPtr _handle;
@@ -20,6 +20,8 @@ public partial class AudioChunk
         private readonly MIX_Chunk chunkDat;
 
         private byte[] buffer;
+
+        IntPtr IHandle.Handle => _handle;
 
         internal AudioChunkSampleBuffer(IntPtr handle, object sync)
         {

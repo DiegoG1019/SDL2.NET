@@ -6,8 +6,9 @@ namespace SDL2.NET.SDLFont;
 /// <summary>
 /// Represents a True Type Font (TTF)
 /// </summary>
-public class TTFont : IDisposable
+public class TTFont : IDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     private readonly IntPtr _handle;
     internal TTFont(IntPtr handle)
     {

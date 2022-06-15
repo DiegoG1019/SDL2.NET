@@ -16,12 +16,14 @@ namespace SDL2.NET.Input;
 /// <summary>
 /// Represents a Joystick
 /// </summary>
-public class Joystick : IJoystickDefinition, IDisposable
+public class Joystick : IJoystickDefinition, IDisposable, IHandle
 {
     private static readonly Dictionary<int, Joystick> playerDict = new(4);
 
     internal readonly IntPtr _handle;
     internal static readonly ConcurrentDictionary<int, WeakReference<Joystick>> JoystickDict = new(4, 10);
+
+    IntPtr IHandle.Handle => _handle;
 
     /// <summary>
     /// The unique identification for this <see cref="Joystick"/>. Not the same as deviceIndex, as this one is more stable

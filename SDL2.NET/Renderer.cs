@@ -18,12 +18,15 @@ namespace SDL2.NET;
 /// An object that contains a rendering state. <see href="https://wiki.libsdl.org/SDL_Renderer"/>
 /// </summary>
 /// <remarks>Warning: Forgetting to call <see cref="Present"/> will build up memory usage, which will suddenly drop when <see cref="Present"/> is finally called</remarks>
-public abstract class Renderer : IDisposable
+public abstract class Renderer : IDisposable, IHandle
 {
+    internal readonly int ThreadID;
+    IntPtr IHandle.Handle => _handle;
     internal readonly IntPtr _handle = IntPtr.Zero;
 
     internal Renderer(IntPtr handle)
     {
+        ThreadID = Environment.CurrentManagedThreadId;
         _handle = handle;
         if (_handle == IntPtr.Zero)
             throw new SDLRendererCreationException(SDL_GetAndClearError());
@@ -39,7 +42,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawLine(int originX, int originY, int destX, int destY, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLine(_handle, originX, originY, destX, destY), 0);
     }
@@ -62,7 +65,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawLine(float originX, float originY, float destX, float destY, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLineF(_handle, originX, originY, destX, destY), 0);
     }
@@ -81,7 +84,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawLines(ReadOnlySpan<Point> points, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             points[i].ToSDL(out sdl_p[i]);
@@ -96,7 +99,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawLines(ReadOnlySpan<FPoint> points, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             points[i].ToSDL(out sdl_p[i]);
@@ -116,7 +119,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawPoint(int x, int y, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoint(_handle, x, y), 0);
     }
@@ -138,7 +141,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawPoints(ReadOnlySpan<Point> points, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             points[i].ToSDL(out sdl_p[i]);
@@ -157,7 +160,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawPoint(float x, float y, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPointF(_handle, x, y), 0);
     }
@@ -179,7 +182,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawPoints(ReadOnlySpan<FPoint> points, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             points[i].ToSDL(out sdl_p[i]);
@@ -194,7 +197,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawRectangle(Rectangle? rectangle, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         if (rectangle is Rectangle r)
         {
             r.ToSDL(out var rect);
@@ -213,7 +216,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawRectangle(FRectangle? rectangle, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         if (rectangle is FRectangle r)
         {
             r.ToSDL(out var rect);
@@ -235,7 +238,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void FillRectangle(FRectangle? rectangle, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         if (rectangle is FRectangle r)
         {
             r.ToSDL(out var rect);
@@ -257,7 +260,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void FillRectangle(Rectangle? rectangle, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         if (rectangle is Rectangle r)
         {
             r.ToSDL(out var rect);
@@ -276,7 +279,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             rectangles[i].ToSDL(out sdl_p[i]);
@@ -291,7 +294,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawRectangles(ReadOnlySpan<FRectangle> rectangles, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_FRect> sdl_p = stackalloc SDL_FRect[rectangles.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             rectangles[i].ToSDL(out sdl_p[i]);
@@ -306,7 +309,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void FillRectangles(ReadOnlySpan<FRectangle> rectangles, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_FRect> sdl_p = stackalloc SDL_FRect[rectangles.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             rectangles[i].ToSDL(out sdl_p[i]);
@@ -321,7 +324,7 @@ public abstract class Renderer : IDisposable
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void FillRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
         for (int i = 0; i < sdl_p.Length; i++)
             rectangles[i].ToSDL(out sdl_p[i]);
@@ -337,7 +340,7 @@ public abstract class Renderer : IDisposable
     /// </remarks>
     public void Flush()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDLRendererException.ThrowIfLessThan(SDL_RenderFlush(_handle), 0);
     }
 
@@ -349,7 +352,7 @@ public abstract class Renderer : IDisposable
     /// </remarks>
     public void Present()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_RenderPresent(_handle);
     }
 
@@ -361,7 +364,7 @@ public abstract class Renderer : IDisposable
     /// </remarks>
     public void Clear(RGBAColor? color = null)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         TrySetColor(color);
         SDLRendererException.ThrowIfLessThan(SDL_RenderClear(_handle), 0);
     }
@@ -376,7 +379,7 @@ public abstract class Renderer : IDisposable
     /// <exception cref="NotImplementedException"></exception>
     public void ReadPixels(PixelFormat format, object[] pixels, int pitch)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         throw new NotImplementedException();
     }
 #warning Not Implemented
@@ -388,13 +391,13 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_GetRenderDrawBlendMode(_handle, out var mode), 0);
             return mode;
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_SetRenderDrawBlendMode(_handle, value), 0);
         }
     }
@@ -406,13 +409,13 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_GetRenderDrawColor(_handle, out byte r, out byte g, out byte b, out byte a), 0);
             return new(r, g, b, a);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_SetRenderDrawColor(_handle, value.Red, value.Green, value.Blue, value.Alpha), 0);
         }
     }
@@ -430,7 +433,7 @@ public abstract class Renderer : IDisposable
         get => RendererInfo.Flags.HasFlag(RendererFlags.PresentVSync);
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfNotEquals(SDL_RenderSetVSync(_handle, value ? 1 : 0), 0);
         }
     }
@@ -444,13 +447,13 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_RenderGetViewport(_handle, out SDL_Rect rect), 0);
             return rect;
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             if (value is Rectangle r)
             {
                 r.ToSDL(out var sdl_r);
@@ -470,13 +473,13 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_RenderGetLogicalSize(_handle, out int w, out int h);
             return new(w, h);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_RenderSetLogicalSize(_handle, value.Width, value.Height), 0);
         }
     }
@@ -488,7 +491,7 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             return SDL_RenderIsClipEnabled(_handle) is SDL_bool.SDL_TRUE;
         }
     }
@@ -500,14 +503,14 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_RenderGetClipRect(_handle, out var rect);
             Rectangle r = (Rectangle)rect;
             return r.Size != default ? r : null;
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             if (value is Rectangle r)
             {
                 r.ToSDL(out var sl);
@@ -525,12 +528,12 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             return SDL_RenderGetIntegerScale(_handle) is SDL_bool.SDL_TRUE;
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_RenderSetIntegerScale(_handle, value ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE), 0);
         }
     }
@@ -545,13 +548,13 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_RenderGetScale(_handle, out float sx, out float sy);
             return new(sx, sy);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_RenderSetScale(_handle, value.Width, value.Height), 0);
         }
     }
@@ -564,7 +567,7 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_GetRendererOutputSize(_handle, out var w, out var h), 0);
             return new(w, h);
         }
@@ -581,13 +584,13 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             return renderTarget;
         }
 
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLRendererException.ThrowIfLessThan(SDL_SetRenderTarget(_handle, (renderTarget = value)?._handle ?? IntPtr.Zero), 0);
         }
     }
@@ -599,7 +602,7 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             return SDL_RenderTargetSupported(_handle) is SDL_bool.SDL_TRUE;
         }
     }
@@ -613,7 +616,7 @@ public abstract class Renderer : IDisposable
     /// <returns>The Texture object, after it has been assigned to the renderTarget cache</returns>
     public Texture? FetchRenderTarget()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         var ptr = SDL_GetRenderTarget(_handle);
         return ptr == IntPtr.Zero
             ? (renderTarget = null)
@@ -648,7 +651,7 @@ public abstract class Renderer : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             if (HasRendererInfo)
                 return CachedInfo;
             SDLRendererException.ThrowIfLessThan(SDL_GetRendererInfo(_handle, out var sdli), 0);
@@ -730,10 +733,22 @@ public abstract class Renderer : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    protected void ThrowIfDifferentThread()
+    {
+        if (ThreadID != Environment.CurrentManagedThreadId)
+            throw new InvalidOperationException("Cross-thread operation not valid: Renderer accessed from a thread other than the thread it was created on.");
+    }
+
     protected void ThrowIfDisposed()
     {
         if (disposedValue)
             throw new ObjectDisposedException(nameof(Renderer));
+    }
+
+    protected void ThrowIfInvalidAccess()
+    {
+        ThrowIfDisposed();
+        ThrowIfDifferentThread();
     }
 
     #endregion

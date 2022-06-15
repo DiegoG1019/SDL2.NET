@@ -9,8 +9,9 @@ namespace SDL2.NET;
 /// <summary>
 /// An object that contains palette information.
 /// </summary>
-public class Palette : IDisposable
+public class Palette : IDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<Palette>> _handleDict = new(2, 10);
 
     internal readonly IntPtr _handle;

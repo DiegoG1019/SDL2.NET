@@ -13,12 +13,13 @@ namespace SDL2.NET.SDLMixer;
 /// <remarks>
 /// Wraps around Mix_Chunk: The internal format for an audio chunk. This stores the sample data, the length in bytes of that data, and the volume to use when mixing the sample.
 /// </remarks>
-public partial class AudioChunk : IDisposable
+public partial class AudioChunk : IDisposable, IHandle
 {
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<AudioChunk>> _handleDict = new(4, 20);
 
     private readonly object sync = new();
     internal readonly IntPtr _handle;
+    IntPtr IHandle.Handle => _handle;
 
     internal static AudioChunk FetchOrNew(IntPtr handle)
         => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);

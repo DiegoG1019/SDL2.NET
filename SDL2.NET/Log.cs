@@ -14,7 +14,7 @@ namespace SDL2.NET;
 /// <remarks>
 /// Due to the way that .NET's interoperability works with strings, most of the functions in SDL are not implemented here. Only The Log output callback for safety purposes. Use that only if you intend to use more than one language and intend to connect them /through/ SDL rather than directly with .NET. If you wish to use SDL's logging functions from .NET, feel free to call yourself. Find them in <see cref="Bindings.SDL"/> under the same name as defined in <c>SDL_log.h</c>
 /// </remarks>
-public static class Log
+public static class SDLLog
 {
     /// <summary>
     /// Represents a method that can be used by SDL to sink log messages

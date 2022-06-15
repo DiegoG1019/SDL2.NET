@@ -15,11 +15,12 @@ namespace SDL2.NET;
 /// <summary>
 /// An object that contains a collection of pixels used in software blitting. <see href="https://wiki.libsdl.org/SDL_Surface"/>
 /// </summary>
-public class Surface : IDisposable
+public class Surface : IDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<Surface>> _handleDict = new(2, 10);
 
-    protected internal readonly IntPtr _handle;
+    internal readonly IntPtr _handle;
 
     internal static Surface FetchOrNew(IntPtr handle)
         => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);

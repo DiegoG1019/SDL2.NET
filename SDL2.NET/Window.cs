@@ -12,8 +12,9 @@ namespace SDL2.NET;
 /// <summary>
 /// Represents an SDL Window object
 /// </summary>
-public class Window : IDisposable
+public class Window : IDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new(2, 2);
     internal static readonly ConcurrentDictionary<uint, WeakReference<Window>> _idDict = new(2, 2);
     
@@ -67,6 +68,8 @@ public class Window : IDisposable
     /// <exception cref="SDLWindowCreationException"></exception>
     public Window(string title, int width, int height, WindowConfig? configuration, int? centerPointX = null, int? centerPointY = null)
     {
+        ThreadID = Environment.CurrentManagedThreadId;
+
         _handle = SDL_CreateWindow(
             title, 
             centerPointX ?? SDL_WINDOWPOS_CENTERED,
@@ -603,12 +606,12 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             return SDL_GetWindowTitle(_handle);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_SetWindowTitle(_handle, value);
         }
     }
@@ -625,13 +628,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLWindowException.ThrowIfLessThan(SDL_GetWindowOpacity(_handle, out var opacity), 0);
             return opacity;
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             var error = SDL_SetWindowOpacity(_handle, (float)value);
             if (error is -1)
                 throw new PlatformNotSupportedException(SDL_GetAndClearError());
@@ -664,13 +667,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             return SDL_GetWindowBrightness(_handle);
         }
         [Obsolete("Many platforms will refuse to set the display brightness in modern times. You are better off using a shader to adjust gamma during rendering, or something similar.")]
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowBrightness(_handle, value), 0);
         }
     }
@@ -696,7 +699,7 @@ public class Window : IDisposable
     /// <param name="parent">The parent <see cref="Window"/> to set this window as a modal for</param>
     public void SetAsModalFor(Window parent)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         if (ReferenceEquals(this, parent))
             throw new InvalidOperationException("Cannot set a Window as a modal of itself");
         SDLWindowException.ThrowIfLessThan(SDL_SetWindowModalFor(_handle, parent._handle), 0);
@@ -763,7 +766,7 @@ public class Window : IDisposable
     /// </summary>
     public void Raise()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_RaiseWindow(_handle);
     }
 
@@ -772,7 +775,7 @@ public class Window : IDisposable
     /// </summary>
     public void Show()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_ShowWindow(_handle);
     }
 
@@ -781,7 +784,7 @@ public class Window : IDisposable
     /// </summary>
     public void Hide()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_HideWindow(_handle);
     }
 
@@ -790,7 +793,7 @@ public class Window : IDisposable
     /// </summary>
     public void Maximize()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_MaximizeWindow(_handle);
     }
 
@@ -799,7 +802,7 @@ public class Window : IDisposable
     /// </summary>
     public void Minimize()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_MinimizeWindow(_handle);
     }
 
@@ -808,7 +811,7 @@ public class Window : IDisposable
     /// </summary>
     public void Restore()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_RestoreWindow(_handle);
     }
 
@@ -820,7 +823,7 @@ public class Window : IDisposable
     /// </remarks>
     public void SetInputFocus()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDLWindowException.ThrowIfLessThan(SDL_SetWindowInputFocus(_handle), 0);
     }
 
@@ -834,7 +837,7 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             var r = SDL_GetWindowDisplayIndex(_handle);
             SDLWindowException.ThrowIfLessThan(r, 0);
             return Display.Displays[r];
@@ -852,13 +855,13 @@ public class Window : IDisposable
         [return: NotNull]
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLWindowException.ThrowIfLessThan(SDL_GetWindowDisplayMode(_handle, out var mode), 0);
             return (DisplayMode)mode;
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             if (value is DisplayMode mode)
             {
                 var m = (SDL_DisplayMode)mode;
@@ -879,7 +882,7 @@ public class Window : IDisposable
         get => _fs;
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDLWindowException.ThrowIfLessThan(SDL_SetWindowFullscreen(_handle, (uint)(_fs = value)), 0);
         }
     }
@@ -895,7 +898,7 @@ public class Window : IDisposable
     /// </remarks>
     public void SetGammaRamp(ushort[] red, ushort[] green, ushort[] blue)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDLWindowException.ThrowIfLessThan(SDL_SetWindowGammaRamp(_handle, red, green, blue), 0);
     }
 
@@ -941,7 +944,7 @@ public class Window : IDisposable
     /// <param name="icon"></param>
     public void SetIcon(Surface icon)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         ArgumentNullException.ThrowIfNull(icon); // Rather than throwing if null in a property with a nullable type; is it possible to remove a Window's Icon by setting it to IntPtr.Zero?
         SDL_SetWindowIcon(_handle, icon._handle);
     }
@@ -953,13 +956,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_GetWindowMaximumSize(_handle, out var w, out var h);
             return new(w, h);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_SetWindowMaximumSize(_handle, value.Width, value.Height);
         }
     }
@@ -971,13 +974,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_GetWindowMinimumSize(_handle, out var w, out var h);
             return new(w, h);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_SetWindowMinimumSize(_handle, value.Width, value.Height);
         }
     }
@@ -989,13 +992,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_GetWindowSize(_handle, out var w, out var h);
             return new(w, h);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_SetWindowSize(_handle, value.Width, value.Height);
         }
     }
@@ -1010,13 +1013,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_GetWindowPosition(_handle, out var x, out var y);
             return new(x, y);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             SDL_SetWindowPosition(_handle, value.X, value.Y);
         }
     }
@@ -1051,7 +1054,7 @@ public class Window : IDisposable
     /// <param name="right">The size of the right border</param>
     public void GetBorderSize(out int top, out int left, out int bottom, out int right)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDLWindowException.ThrowIfLessThan(SDL_GetWindowBordersSize(_handle, out top, out left, out bottom, out right), 0);
     }
 
@@ -1063,7 +1066,7 @@ public class Window : IDisposable
     /// <param name="isResizable">Whether the window is resizable. <see cref="SDL_SetWindowResizable" href="https://wiki.libsdl.org/SDL_SetWindowResizable"/></param>
     public void Configure(bool hasBorder, bool alwaysOnTop, bool isResizable)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDL_SetWindowBordered(_handle, hasBorder ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
         SDL_SetWindowAlwaysOnTop(_handle, alwaysOnTop ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
         SDL_SetWindowResizable(_handle, isResizable ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE);
@@ -1077,7 +1080,7 @@ public class Window : IDisposable
     /// </remarks>
     public void UpdateSurface()
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurface(_handle), 0);
     }
 
@@ -1096,7 +1099,7 @@ public class Window : IDisposable
     /// </remarks>
     public void UpdateSurfaceRects(Span<Rectangle> rectangles, int? numrect)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         Span<SDL_Rect> rects = stackalloc SDL_Rect[numrect ?? rectangles.Length];
         for (int i = 0; i < rects.Length; i++)
             rectangles[i].ToSDL(out rects[i]);
@@ -1117,7 +1120,7 @@ public class Window : IDisposable
     /// <exception cref="PlatformNotSupportedException">Thrown if the current platform does not support assigning a HitTestCallback to a <see cref="Window"/>. See <see cref="IsHitTestSupported"/></exception>
     public void SetHitTestCallback(HitTestCallback? callback, UserData? userData)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         if (!IsHitTestSupported)
             throw new PlatformNotSupportedException($"Assigning a HitTestCallback to a Window is not supported on this platform.");
         hitTestCallback = callback;
@@ -1138,7 +1141,7 @@ public class Window : IDisposable
     /// <param name="operation">The operation to request for the <see cref="Window"/></param>
     public void Flash(SDL_FlashOperation operation)
     {
-        ThrowIfDisposed();
+        ThrowIfInvalidAccess();
         SDLWindowException.ThrowIfLessThan(SDL_FlashWindow(_handle, operation), 0);
     }
 
@@ -1149,13 +1152,13 @@ public class Window : IDisposable
     {
         get
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             var ptr = SDL_GetWindowMouseRect(_handle);
             return ptr == IntPtr.Zero ? null : Marshal.PtrToStructure<SDL_Rect>(ptr);
         }
         set
         {
-            ThrowIfDisposed();
+            ThrowIfInvalidAccess();
             if (value is null)
             {
                 SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, IntPtr.Zero), 0);
@@ -1174,6 +1177,7 @@ public class Window : IDisposable
     {
         get
         {
+            ThrowIfInvalidAccess();
             SDL_SysWMinfo info = default;
             SDL_VERSION(out info.version);
             SDL_GetWindowWMInfo(_handle, ref info);
@@ -1277,8 +1281,11 @@ public class Window : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void ThrowIfDisposed()
+    internal readonly int ThreadID;
+    private void ThrowIfInvalidAccess()
     {
+        if (ThreadID != Environment.CurrentManagedThreadId)
+            throw new InvalidOperationException("Cross-thread operation not valid: Window accessed from a thread other than the thread it was created on.");
         if (disposedValue)
             throw new ObjectDisposedException(nameof(Window));
     }

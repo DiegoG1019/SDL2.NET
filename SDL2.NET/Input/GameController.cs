@@ -19,11 +19,13 @@ namespace SDL2.NET.Input;
 /// <remarks>
 /// Keep in mind that this class does NOT override Joystick's methods, the methods found here that share the same name as methods in Joystick are DIFFERENT methods altogether. Calling those methods while handling an object of type <see cref="GameController"/> will yield different results than calling them when handling an object of type <see cref="Joystick"/>
 /// </remarks>
-public class GameController : Joystick, IDisposable
+public class GameController : Joystick, IDisposable, IHandle
 {
     private static readonly Dictionary<int, GameController> playerDict = new(4);
 
     internal readonly IntPtr gchandle;
+
+    IntPtr IHandle.Handle => gchandle;
 
     internal GameController(IntPtr handle, int deviceIndex) : base(SDL_GameControllerGetJoystick(handle), deviceIndex)
     {

@@ -8,9 +8,11 @@ namespace SDL2.NET.Input;
 /// <summary>
 /// Represents a mouse cursor
 /// </summary>
-public sealed class MouseCursor : IDisposable
+public sealed class MouseCursor : IDisposable, IHandle
 {
     internal readonly IntPtr _handle;
+
+    IntPtr IHandle.Handle => _handle;
 
     internal MouseCursor(IntPtr handle)
     {

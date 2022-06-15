@@ -3,8 +3,9 @@ using static SDL2.Bindings.SDL_image;
 
 namespace SDL2.NET.SDLImage;
 
-public class SDLAnimation : IDisposable
+public class SDLAnimation : IDisposable, IHandle
 {
+    IntPtr IHandle.Handle => _handle;
     private readonly SDLAnimationFrame[] _frames;
     internal readonly IntPtr _handle;
 
