@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/DiegoG1019/SDL2.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>sdl;native;window;gui;windows;graphic;gfx;lib-sdl;audio;sound;controller;joystick;keyboard;mouse;gui;game</PackageTags>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 	
   <ItemGroup>
