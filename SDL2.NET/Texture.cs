@@ -204,6 +204,14 @@ public class Texture : IDisposable
     }
 
     /// <summary>
+    /// User defined Data attached to this Texture
+    /// </summary>
+    /// <remarks>
+    /// This is not the same as the user data that could be set using <see cref="SDL_SetTextureUserData(IntPtr, IntPtr)"/>
+    /// </remarks>
+    public UserData? UserData { get; set; }
+
+    /// <summary>
     /// Gets a <see cref="Rectangle"/> that is positioned at <paramref name="x"/> and <paramref name="y"/> and has the dimensions of the texture
     /// </summary>
     /// <param name="x">The x coordinate of the <see cref="Rectangle"/> to create</param>
@@ -249,42 +257,49 @@ public class Texture : IDisposable
     }
 
     /// <summary>
-    /// This feature is NOT IMPLEMENTED. DO NOT USE IT.
-    /// </summary>
-    /// <remarks>This will attempt to copy the current texture into a new one set as a RenderTarget. If that is not supported, this method will try the MUCH slower approach of drawing to a renderer and read the pixels back into a new texture.</remarks>
-    /// <returns>A copy of the current texture</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public Texture Duplicate()
-    {
-        ThrowIfDisposed();
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
     /// Update the given texture rectangle with new pixel data. <see cref="SDL_UpdateTexture" href="https://wiki.libsdl.org/SDL_UpdateTexture"/>
     /// </summary>
     /// <remarks>The pixel data must be in the <see cref="PixelFormat"/> of the <see cref="Texture"/>. Use <see cref="Format"/> to query the <see cref="PixelFormat"/> of the <see cref="Texture"/>. This is a fairly slow function, intended for use with static <see cref="Texture"/>s that do not change often. If the <see cref="Texture"/> is intended to be updated often, it is preferred to create the <see cref="Texture"/> as streaming and use the locking functions referenced below. While this function will work with streaming <see cref="Texture"/>s, for optimization reasons you may not get the pixels back if you lock the <see cref="Texture"/> afterward.</remarks>
-    public void Update(Rectangle? rectangle, object pixels, int pitch)
+    public void Update(Rectangle? rectangle, ReadOnlySpan<RGBAColor> pixels)
     {
         ThrowIfDisposed();
         throw new NotImplementedException();
+
+        IntPtr sdlr = IntPtr.Zero;
+
+        try
+        {
+            if (rectangle is Rectangle rect)
+            {
+                var s = rect.ToSDL();
+                sdlr = Marshal.AllocHGlobal(Marshal.SizeOf(s));
+                Marshal.StructureToPtr(s, sdlr, false);
+            }
+            var pf = new PixelFormatData(Format);
+        }
+        finally
+        {
+            if (sdlr != IntPtr.Zero)
+                Marshal.FreeHGlobal(sdlr);
+        }
     }
 
     /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopy" href="https://wiki.libsdl.org/SDL_RenderCopy"/>
     /// </summary>
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
-    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
-    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
     public void Render()
-        => Render(null, null);
+    {
+        ThrowIfDisposed();
+        SDLTextureException.ThrowIfLessThan(SDL_RenderCopy(Renderer._handle, _handle, IntPtr.Zero, IntPtr.Zero), 0);
+    }
 
     /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopy" href="https://wiki.libsdl.org/SDL_RenderCopy"/>
     /// </summary>
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
-    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
-    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
+    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
+    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
     public void Render(Rectangle? source, Rectangle? destination = null)
     {
         ThrowIfDisposed();
@@ -319,19 +334,11 @@ public class Texture : IDisposable
     }
 
     /// <summary>
-    /// User defined Data attached to this Texture
-    /// </summary>
-    /// <remarks>
-    /// This is not the same as the user data that could be set using <see cref="SDL_SetTextureUserData(IntPtr, IntPtr)"/>
-    /// </remarks>
-    public UserData? UserData { get; set; }
-
-    /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopyEx" href="https://wiki.libsdl.org/SDL_RenderCopyEx"/>
     /// </summary>
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
-    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to <see cref="null"/> to use the entire texture.</param>
-    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to <see cref="null"/> to fill the entire rendering target</param>
+    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
+    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
     public void Render(Rectangle? source = null, Rectangle? destination = null, double angle = 0, Point center = default, Flip flip = Flip.None)
     {
         ThrowIfDisposed();
@@ -357,6 +364,86 @@ public class Texture : IDisposable
             center.ToSDL(out var sdl_p);
 
             SDLTextureException.ThrowIfLessThan(SDL_RenderCopyEx(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
+        }
+        finally
+        {
+            if (srect != IntPtr.Zero)
+                Marshal.FreeHGlobal(srect);
+            if (drect != IntPtr.Zero)
+                Marshal.FreeHGlobal(drect);
+        }
+    }
+
+    /// <summary>
+    /// Copy a portion of the texture to the current rendering target at subpixel precision. <see cref="SDL_RenderCopyF" href="https://wiki.libsdl.org/SDL_RenderCopyF"/>
+    /// </summary>
+    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
+    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
+    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
+    public void Render(Rectangle? source, FRectangle? destination = null)
+    {
+        ThrowIfDisposed();
+        IntPtr srect = IntPtr.Zero;
+        IntPtr drect = IntPtr.Zero;
+
+        try
+        {
+            if (source is Rectangle src)
+            {
+                var s = src.ToSDL();
+                srect = Marshal.AllocHGlobal(Marshal.SizeOf(s));
+                Marshal.StructureToPtr(s, srect, false);
+            }
+
+            if (destination is FRectangle dst)
+            {
+                var d = dst.ToSDL();
+                drect = Marshal.AllocHGlobal(Marshal.SizeOf(d));
+                Marshal.StructureToPtr(d, drect, false);
+            }
+
+            SDLTextureException.ThrowIfLessThan(SDL_RenderCopyF(Renderer._handle, _handle, srect, drect), 0);
+        }
+        finally
+        {
+            if (srect != IntPtr.Zero)
+                Marshal.FreeHGlobal(srect);
+            if (drect != IntPtr.Zero)
+                Marshal.FreeHGlobal(drect);
+        }
+    }
+
+    /// <summary>
+    /// Copy a portion of the texture to the current rendering target at subpixel precision. <see cref="SDL_RenderCopyExF" href="https://wiki.libsdl.org/SDL_RenderCopyExF"/>
+    /// </summary>
+    /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
+    /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
+    /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
+    public void Render(Rectangle? source = null, FRectangle? destination = null, double angle = 0, FPoint center = default, Flip flip = Flip.None)
+    {
+        ThrowIfDisposed();
+        IntPtr srect = IntPtr.Zero;
+        IntPtr drect = IntPtr.Zero;
+
+        try
+        {
+            if (source is Rectangle src)
+            {
+                var s = src.ToSDL();
+                srect = Marshal.AllocHGlobal(Marshal.SizeOf(s));
+                Marshal.StructureToPtr(s, srect, false);
+            }
+
+            if (destination is FRectangle dst)
+            {
+                var d = dst.ToSDL();
+                drect = Marshal.AllocHGlobal(Marshal.SizeOf(d));
+                Marshal.StructureToPtr(d, drect, false);
+            }
+
+            center.ToSDL(out var sdl_p);
+
+            SDLTextureException.ThrowIfLessThan(SDL_RenderCopyExF(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
         }
         finally
         {
