@@ -576,6 +576,14 @@ public class Window : IDisposable
     /// </summary>
     public Point CenterPoint { get; private set; }
 
+    /// <summary>
+    /// Gets the renderer associated with this Window, if any
+    /// </summary>
+    /// <remarks>
+    /// As only one renderer can be associated with a <see cref="Window"/> at any time; as long as the association was done using this library, everything should be fine. Otherwise, this value will be incorrect as it differs from <see cref="SDL_GetRenderer(IntPtr)"/>
+    /// </remarks>
+    public Renderer? AttachedRenderer { get; internal set; }
+
     private void UpdateCenterPoint()
     {
         var size = Size;
