@@ -38,6 +38,13 @@ public static class EnumExtensions
         => (Keycode)((int)code | SDLK_SCANCODE_MASK);
 }
 
+public enum ScaleMode
+{
+    Nearest = SDL_ScaleMode.SDL_ScaleModeNearest,
+    Linear = SDL_ScaleMode.SDL_ScaleModeLinear,
+    Best = SDL_ScaleMode.SDL_ScaleModeBest,
+}
+
 public enum SensorType
 {
     Invalid = SDL_SensorType.SDL_SENSOR_INVALID,

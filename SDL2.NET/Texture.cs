@@ -137,15 +137,10 @@ public class Texture : IDisposable
     /// </summary>
     public RGBAColor ColorAlpha
     {
-        get
-        {
-            ThrowIfDisposed();
-            return new(Color, Alpha);
-        }
+        get => new(Color, Alpha);
 
         set
         {
-            ThrowIfDisposed();
             Alpha = value.Alpha;
             Color = (RGBColor)value;
         }
@@ -187,6 +182,24 @@ public class Texture : IDisposable
             ThrowIfDisposed();
             SDLTextureException.ThrowIfLessThan(SDL_QueryTexture(_handle, out _, out _, out int w, out int h), 0);
             return new(w, h);
+        }
+    }
+
+    /// <summary>
+    /// Get the scale mode used for texture scale operations. <see cref="SDL_GetTextureScaleMode" href="https://wiki.libsdl.org/SDL_GetTextureScaleMode"/> <see cref="SDL_SetTextureScaleMode" href="https://wiki.libsdl.org/SDL_SetTextureScaleMode"/>
+    /// </summary>
+    public ScaleMode ScaleMode
+    {
+        get
+        {
+            ThrowIfDisposed();
+            SDLTextureException.ThrowIfLessThan(SDL_GetTextureScaleMode(_handle, out var v), 0);
+            return (ScaleMode)v;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            SDLTextureException.ThrowIfLessThan(SDL_SetTextureScaleMode(_handle, (SDL_ScaleMode)value), 0);
         }
     }
 
@@ -304,6 +317,14 @@ public class Texture : IDisposable
                 Marshal.FreeHGlobal(drect);
         }
     }
+
+    /// <summary>
+    /// User defined Data attached to this Texture
+    /// </summary>
+    /// <remarks>
+    /// This is not the same as the user data that could be set using <see cref="SDL_SetTextureUserData(IntPtr, IntPtr)"/>
+    /// </remarks>
+    public UserData? UserData { get; set; }
 
     /// <summary>
     /// Copy a portion of the texture to the current rendering target. <see cref="SDL_RenderCopyEx" href="https://wiki.libsdl.org/SDL_RenderCopyEx"/>
