@@ -56,7 +56,18 @@ public struct FRectangle
     public static implicit operator FRectangle(SDL_FRect rect)
         => new(rect.w, rect.h, rect.x, rect.y);
 
-    internal void ToSDLFRect(ref SDL_FRect rect)
+    internal SDL_FRect ToSDL()
+    {
+        return new SDL_FRect()
+        {
+            h = Height,
+            w = Width,
+            x = X,
+            y = Y
+        };
+    }
+
+    internal void ToSDL(out SDL_FRect rect)
     {
         rect = new SDL_FRect()
         {
