@@ -1,6 +1,6 @@
 # SDL2.NET
-### <b>This library is still in early alpha!</b>
-#### But it's currently in a usable state, I invite you to use it, test it out, and perhaps even do a couple of PRs!
+### <b>This library is largely untested!</b>
+#### But most of SDL's features are implemented and stable! I invite you to use it, test it out, and perhaps even do a couple of PRs!
 #### Please read the [Installation Docs](https://github.com/DiegoG1019/SDL2.NET/tree/main/Installation%20Docs)
 #### Refer to [SDL2.NET Tests](https://github.com/DiegoG1019/SDL2.NET/tree/main/SDL2.NET%20Tests) for an example on how to use this library
 
