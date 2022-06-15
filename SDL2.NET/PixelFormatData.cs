@@ -32,12 +32,8 @@ public class PixelFormatData : IDisposable
         var f = Marshal.PtrToStructure<SDL_PixelFormat>(handle);
         Format = (PixelFormat)f.format;
         _pal = f.palette == IntPtr.Zero ? null : Palette.FetchOrNew(f.palette);
-        BitsPerPixel = f.BitsPerPixel;
-        BytesPerPixel = f.BytesPerPixel;
-        RedMask = f.Rmask;
-        GreenMask = f.Gmask;
-        BlueMask = f.Bmask;
-        AlphaMask = f.Amask;
+
+        Mask = new(f.BitsPerPixel, f.Rmask, f.Gmask, f.Bmask, f.Amask, f.BytesPerPixel);
     }
 
     /// <summary>
@@ -68,36 +64,9 @@ public class PixelFormatData : IDisposable
     private Palette? _pal;
 
     /// <summary>
-    /// The number of significant bits in a pixel value
+    /// Represents the Pixel Mask Data in this Instance
     /// </summary>
-    /// <remarks>i.e.: 8, 15, 16, 24, 32</remarks>
-    public byte BitsPerPixel { get; }
-
-    /// <summary>
-    /// The number of bytes required to hold a pixel value
-    /// </summary>
-    /// <remarks>i.e.: 1 (<see cref="byte"/>), 2 (<see cref="ushort"/>), 3 (<see cref="(byte red, byte green, byte blue)"/> or <see cref="RGBColor"/>), 4 (<see cref="uint"/> or <see cref="RGBAColor"/>)</remarks>
-    public byte BytesPerPixel { get; }
-
-    /// <summary>
-    /// A mask representing the location of the red component of the pixel
-    /// </summary>
-    public uint RedMask { get; }
-
-    /// <summary>
-    /// A mask representing the location of the green component of the pixel
-    /// </summary>
-    public uint GreenMask { get; }
-
-    /// <summary>
-    /// A mask representing the location of the blue component of the pixel
-    /// </summary>
-    public uint BlueMask { get; }
-
-    /// <summary>
-    /// A mask representing the location of the alpha component of the pixel or 0 if the pixel format doesn't have any alpha information
-    /// </summary>
-    public uint AlphaMask { get; }
+    public PixelFormatRGBAMask Mask { get; }
 
     #region IDisposable
 
