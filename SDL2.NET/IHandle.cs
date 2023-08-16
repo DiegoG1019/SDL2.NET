@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SDL2.NET;
+﻿namespace SDL2.NET;
 
 /// <summary>
 /// This interface allows access to the internal handle of each class. Using the handle directly may change the status of the object as seen from .NET or corrupt it completely. Use with care.

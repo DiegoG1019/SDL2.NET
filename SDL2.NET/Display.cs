@@ -1,10 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -65,7 +60,7 @@ public static class Display
     /// A new display has been connected
     /// </summary>
     public static event DisplayEvent? DisplayConnected;
-    
+
     /// <summary>
     /// A display has been disconnected
     /// </summary>
@@ -131,7 +126,7 @@ public static class Display
 
         public IEnumerator<DisplayInfo> GetEnumerator()
         {
-            for (int i = 0; i < Count; i++) 
+            for (int i = 0; i < Count; i++)
                 yield return this[i];
         }
 

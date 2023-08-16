@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.HintTypes;
 
@@ -17,7 +12,7 @@ public class Hint
 
     protected readonly string HintName;
 
-    internal Hint(string name) 
+    internal Hint(string name)
     {
         HintName = name;
         //SDL.SDL_AddHintCallback()
@@ -26,7 +21,7 @@ public class Hint
     protected bool Set(string value)
         => SDL_SetHint(HintName, value) is SDL_bool.SDL_TRUE;
 
-    protected bool Set(string value, HintPriority priority) 
+    protected bool Set(string value, HintPriority priority)
         => SDL_SetHintWithPriority(HintName, value, (SDL_HintPriority)priority) is SDL_bool.SDL_TRUE;
 
     protected string? Get()

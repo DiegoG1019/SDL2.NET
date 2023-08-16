@@ -1,6 +1,4 @@
 ﻿using SDL2.NET.Exceptions;
-using System;
-using System.Collections.Concurrent;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Input;
@@ -33,18 +31,18 @@ public sealed class MouseCursor : IDisposable, IHandle
 
     #region System Cursor
 
-    static MouseCursor? arrow;
-    static MouseCursor? ibeam;
-    static MouseCursor? wait;
-    static MouseCursor? crosshair;
-    static MouseCursor? waitarrow;
-    static MouseCursor? sizeupleft;
-    static MouseCursor? sizeupright;
-    static MouseCursor? sizeleftright;
-    static MouseCursor? sizeupdown;
-    static MouseCursor? sizeall;
-    static MouseCursor? no;
-    static MouseCursor? hand;
+    private static MouseCursor? arrow;
+    private static MouseCursor? ibeam;
+    private static MouseCursor? wait;
+    private static MouseCursor? crosshair;
+    private static MouseCursor? waitarrow;
+    private static MouseCursor? sizeupleft;
+    private static MouseCursor? sizeupright;
+    private static MouseCursor? sizeleftright;
+    private static MouseCursor? sizeupdown;
+    private static MouseCursor? sizeall;
+    private static MouseCursor? no;
+    private static MouseCursor? hand;
 
     /// <summary>
     /// Obtains a system cursor

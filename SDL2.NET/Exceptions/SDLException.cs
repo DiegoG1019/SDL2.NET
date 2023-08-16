@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SDL2.NET.Exceptions;
+﻿namespace SDL2.NET.Exceptions;
 
 [Serializable]
 public class SDLException : Exception

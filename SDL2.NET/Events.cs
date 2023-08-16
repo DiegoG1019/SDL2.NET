@@ -1,6 +1,5 @@
-﻿using SDL2.NET.Input;
-using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
+﻿using System.Runtime.CompilerServices;
+using SDL2.NET.Input;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -51,7 +50,7 @@ public static class Events
     private static int Filter_method(IntPtr udat, SDL_Event e)
     {
         if ((OperatingSystem.IsAndroid() || OperatingSystem.IsIOS()) && e.type == SDL_EventType.SDL_APP_LOWMEMORY)
-                SDLApplication.TriggerLowMemory();
+            SDLApplication.TriggerLowMemory();
 
         if (OperatingSystem.IsWindows() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS())
             switch (e.type)
@@ -234,15 +233,15 @@ public static class Events
                 if (Joystick.TryGetJoystick(e.jball.which, out joy))
                     joy.TriggerJoyBallMotion(e.jball);
                 return i;
-            case SDL_EventType.SDL_JOYHATMOTION: 
+            case SDL_EventType.SDL_JOYHATMOTION:
                 if (Joystick.TryGetJoystick(e.jhat.which, out joy))
                     joy.TriggerJoyHatMotion(e.jhat);
                 return i;
-            case SDL_EventType.SDL_JOYBUTTONDOWN: 
+            case SDL_EventType.SDL_JOYBUTTONDOWN:
                 if (Joystick.TryGetJoystick(e.jbutton.which, out joy))
                     joy.TriggerJoyButtonDown(e.jbutton);
                 return i;
-            case SDL_EventType.SDL_JOYBUTTONUP: 
+            case SDL_EventType.SDL_JOYBUTTONUP:
                 if (Joystick.TryGetJoystick(e.jbutton.which, out joy))
                     joy.TriggerJoyButtonUp(e.jbutton);
                 return i;
@@ -256,14 +255,14 @@ public static class Events
                 return i;
 
             case SDL_EventType.SDL_CONTROLLERAXISMOTION:
-                if (GameController.TryGetGameController(e.caxis.which, out var gc)) 
+                if (GameController.TryGetGameController(e.caxis.which, out var gc))
                     gc.TriggerControllerAxisMotion(e.caxis);
                 return i;
             case SDL_EventType.SDL_CONTROLLERBUTTONDOWN:
                 if (GameController.TryGetGameController(e.cbutton.which, out gc))
                     gc.TriggerControllerButtonDown(e.cbutton);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERBUTTONUP: 
+            case SDL_EventType.SDL_CONTROLLERBUTTONUP:
                 if (GameController.TryGetGameController(e.cbutton.which, out gc))
                     gc.TriggerControllerButtonUp(e.cbutton);
                 return i;
@@ -279,15 +278,15 @@ public static class Events
                 if (GameController.TryGetGameController(e.cdevice.which, out gc))
                     gc.TriggerRemapped(e.cdevice);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERTOUCHPADDOWN: 
+            case SDL_EventType.SDL_CONTROLLERTOUCHPADDOWN:
                 if (GameController.TryGetGameController(e.ctouchpad.which, out gc))
                     gc.TriggerControllerPadDown(e.ctouchpad);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERTOUCHPADMOTION: 
+            case SDL_EventType.SDL_CONTROLLERTOUCHPADMOTION:
                 if (GameController.TryGetGameController(e.ctouchpad.which, out gc))
                     gc.TriggerControllerPadMotion(e.ctouchpad);
                 return i;
-            case SDL_EventType.SDL_CONTROLLERTOUCHPADUP: 
+            case SDL_EventType.SDL_CONTROLLERTOUCHPADUP:
                 if (GameController.TryGetGameController(e.ctouchpad.which, out gc))
                     gc.TriggerControllerPadUp(e.ctouchpad);
                 return i;
@@ -298,19 +297,19 @@ public static class Events
             case SDL_EventType.SDL_FINGERDOWN:
                 Touch.TriggerFingerPressed(e.tfinger);
                 return i;
-            case SDL_EventType.SDL_FINGERUP: 
+            case SDL_EventType.SDL_FINGERUP:
                 Touch.TriggerFingerReleased(e.tfinger);
                 return i;
-            case SDL_EventType.SDL_FINGERMOTION: 
+            case SDL_EventType.SDL_FINGERMOTION:
                 Touch.TriggerFingerMotion(e.tfinger);
                 return i;
-            case SDL_EventType.SDL_DOLLARGESTURE: 
+            case SDL_EventType.SDL_DOLLARGESTURE:
                 Touch.TriggerDollarGesture(e.dgesture);
                 return i;
-            case SDL_EventType.SDL_DOLLARRECORD: 
+            case SDL_EventType.SDL_DOLLARRECORD:
                 Touch.TriggerDollarRecord(e.dgesture);
                 return i;
-            case SDL_EventType.SDL_MULTIGESTURE: 
+            case SDL_EventType.SDL_MULTIGESTURE:
                 Touch.TriggerMultiGesture(e.mgesture);
                 return i;
 
@@ -347,7 +346,7 @@ public static class Events
                 return i;
 
             case SDL_EventType.SDL_SENSORUPDATE:
-                #warning Not Implemented, also not in the web docs
+#warning Not Implemented, also not in the web docs
                 return i;
 
             case SDL_EventType.SDL_RENDER_TARGETS_RESET:
@@ -359,7 +358,7 @@ public static class Events
                 return i;
 
             case SDL_EventType.SDL_POLLSENTINEL:
-                #warning Not Implemented, also not in the web docs
+#warning Not Implemented, also not in the web docs
                 return i;
         }
 

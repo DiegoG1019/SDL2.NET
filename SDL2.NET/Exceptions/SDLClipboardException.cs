@@ -1,6 +1,6 @@
-﻿using SDL2.Bindings;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using SDL2.Bindings;
 
 namespace SDL2.NET.Exceptions;
 
@@ -23,11 +23,11 @@ public class SDLClipboardException : SDLException
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull("value")]
-    public static string? ThrowIfEmpty(string? value) 
+    public static string? ThrowIfEmpty(string? value)
         => value == "" ? throw new SDLClipboardException(SDL.SDL_GetAndClearError()) : value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull("value")]
-    public static string? ThrowIfNullOrEmpty(string? value) 
+    public static string? ThrowIfNullOrEmpty(string? value)
         => string.IsNullOrEmpty(value) ? throw new SDLClipboardException(SDL.SDL_GetAndClearError()) : value;
 }

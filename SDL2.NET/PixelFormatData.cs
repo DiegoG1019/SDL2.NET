@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using SDL2.Bindings;
 using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 

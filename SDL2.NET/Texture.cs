@@ -1,13 +1,6 @@
-﻿using SDL2.NET.Exceptions;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -21,7 +14,7 @@ public class Texture : IDisposable, IHandle
     internal readonly IntPtr _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<Texture>> _textDict = new(2, 20);
 
-    static internal Texture? FetchTexture(IntPtr handle)
+    internal static Texture? FetchTexture(IntPtr handle)
     {
         if (_textDict.TryGetValue(handle, out var reference))
             if (reference.TryGetTarget(out var target))
@@ -327,7 +320,7 @@ public class Texture : IDisposable, IHandle
         }
         finally
         {
-            if (srect != IntPtr.Zero) 
+            if (srect != IntPtr.Zero)
                 Marshal.FreeHGlobal(srect);
             if (drect != IntPtr.Zero)
                 Marshal.FreeHGlobal(drect);

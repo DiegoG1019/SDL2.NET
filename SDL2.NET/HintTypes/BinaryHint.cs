@@ -1,6 +1,4 @@
-﻿using static SDL2.Bindings.SDL;
-
-namespace SDL2.NET.HintTypes;
+﻿namespace SDL2.NET.HintTypes;
 
 public class BinaryHint : Hint
 {
@@ -11,7 +9,7 @@ public class BinaryHint : Hint
 
     private readonly bool def;
 
-    public void SetPriority(bool isEnabled, HintPriority priority) 
+    public void SetPriority(bool isEnabled, HintPriority priority)
         => Set(isEnabled ? "1" : "0", priority);
 
     public bool IsEnabled

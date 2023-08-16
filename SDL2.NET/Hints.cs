@@ -1,13 +1,6 @@
-﻿using Microsoft.VisualBasic;
+﻿using System.Runtime.Versioning;
 using SDL2.NET.HintTypes;
 using SDL2.NET.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;

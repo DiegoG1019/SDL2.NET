@@ -1,11 +1,4 @@
-﻿using SDL2.Bindings;
-using SDL2.NET.Exceptions;
-using SDL2.NET.SDLImage.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SDL2.NET.SDLImage.Exceptions;
 using static SDL2.Bindings.SDL_image;
 
 namespace SDL2.NET.SDLImage;

@@ -12,7 +12,7 @@ public static class ScancodeAndKeyExtensions
     /// </summary>
     /// <param name="code">The <see cref="Scancode"/> to match</param>
     /// <returns>The matched <see cref="Keycode"/></returns>
-    public static Keycode ToKeycode(this Scancode code) 
+    public static Keycode ToKeycode(this Scancode code)
         => (Keycode)SDL_GetKeyFromScancode((SDL_Scancode)code);
 
     /// <summary>

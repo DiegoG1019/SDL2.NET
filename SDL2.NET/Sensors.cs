@@ -1,6 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System;
-using System.Collections;
+﻿using System.Collections;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -11,9 +10,9 @@ namespace SDL2.NET;
 public sealed class Sensor : IHandle
 {
     IntPtr IHandle.Handle => _handle;
-#region static
+    #region static
 
-private static readonly Dictionary<int, WeakReference<Sensor>> _dict = new();
+    private static readonly Dictionary<int, WeakReference<Sensor>> _dict = new();
 
     /// <summary>
     /// Represents the constant Standard Gravity of Earth: <c>9.80665 (m/s)^2</c>
@@ -77,7 +76,7 @@ private static readonly Dictionary<int, WeakReference<Sensor>> _dict = new();
 
     private sealed class SensorCollection : IReadOnlyList<SensorReport>
     {
-        public SensorReport this[int index] 
+        public SensorReport this[int index]
             => index < 0 || index >= Count
                ? throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be greater than 0 and less than the amount of available sensors")
                : (new(index));

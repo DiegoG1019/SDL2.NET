@@ -1,11 +1,5 @@
 ﻿using SDL2.Bindings;
-using SDL2.NET.HintTypes;
 using SDL2.NET.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -91,17 +85,17 @@ public enum TouchDeviceType
     /// <summary>
     /// Touch screen with window-relative coordinates
     /// </summary>
-    Direct = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_DIRECT,           
-    
+    Direct = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_DIRECT,
+
     /// <summary>
     /// Trackpad with absolute device coordinates
     /// </summary>
     IndirectAbsolute = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE,
-    
+
     /// <summary>
     /// Trackpad with screen cursor-relative coordinates
     /// </summary>
-    IndirectRelative = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_INDIRECT_RELATIVE, 
+    IndirectRelative = SDL_TouchDeviceType.SDL_TOUCH_DEVICE_INDIRECT_RELATIVE,
 }
 
 public enum EventState
@@ -198,16 +192,16 @@ public enum GameControllerButton
 
 public enum GameControllerType
 {
-    Unknown                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_UNKNOWN,
-    Xbox360                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_XBOX360,
-    XboxOne                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_XBOXONE,
-    PS3                         = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS3,
-    PS4                         = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS4,
+    Unknown = SDL_GameControllerType.SDL_CONTROLLER_TYPE_UNKNOWN,
+    Xbox360 = SDL_GameControllerType.SDL_CONTROLLER_TYPE_XBOX360,
+    XboxOne = SDL_GameControllerType.SDL_CONTROLLER_TYPE_XBOXONE,
+    PS3 = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS3,
+    PS4 = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS4,
     NintendoSwitchProController = SDL_GameControllerType.SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO,
-    Virtual                     = SDL_GameControllerType.SDL_CONTROLLER_TYPE_VIRTUAL,
-    PS5                         = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS5,
-    AmazonLuna                  = SDL_GameControllerType.SDL_CONTROLLER_TYPE_AMAZON_LUNA,
-    GoogleStadia                = SDL_GameControllerType.SDL_CONTROLLER_TYPE_GOOGLE_STADIA,
+    Virtual = SDL_GameControllerType.SDL_CONTROLLER_TYPE_VIRTUAL,
+    PS5 = SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS5,
+    AmazonLuna = SDL_GameControllerType.SDL_CONTROLLER_TYPE_AMAZON_LUNA,
+    GoogleStadia = SDL_GameControllerType.SDL_CONTROLLER_TYPE_GOOGLE_STADIA,
 }
 
 [Flags]
@@ -317,27 +311,27 @@ public enum SystemCursor
     /// <summary>
     /// Arrow (standard) cursor
     /// </summary>
-    Arrow,   
+    Arrow,
 
     /// <summary>
     /// I-Beam cursor
     /// </summary>
-    IBeam,   
+    IBeam,
 
     /// <summary>
     /// Wait cursor
     /// </summary>
-    Wait,    
+    Wait,
 
     /// <summary>
     /// Crosshair cursor
     /// </summary>
-    Crosshair,   
+    Crosshair,
 
     /// <summary>
     /// Small wait cursor, or <see cref="Wait"/> if unavailable
     /// </summary>
-    WaitArrow,   
+    WaitArrow,
 
     /// <summary>
     /// Double arrow pointing up and to the left, and down and to the right ( \ )
@@ -352,22 +346,22 @@ public enum SystemCursor
     /// <summary>
     /// Double arrow pointing left and right ( - )
     /// </summary>
-    SizeLeftRight,  
+    SizeLeftRight,
 
     /// <summary>
     /// Double arrow pointing up and down ( | )
     /// </summary>
-    SizeUpDown,  
-    
+    SizeUpDown,
+
     /// <summary>
     /// Four pointed arrow pointing up, down, left and right ( + )
     /// </summary>
-    SizeAll, 
+    SizeAll,
 
     /// <summary>
     /// Slashed circle or crossbones
     /// </summary>
-    No,      
+    No,
 
     /// <summary>
     /// Hand cursor
@@ -413,16 +407,16 @@ public enum WindowFlags : uint
     MouseFocus = 0x00000400,
     FullscreenDesktop = Fullscreen | 0x00001000,
     Foreign = 0x00000800,
-    AllowHighDPI = 0x00002000, 
-    MouseCapture = 0x00004000, 
-    AlwaysOnTop = 0x00008000, 
-    SkipTaskbar = 0x00010000,  
-    Utility = 0x00020000,   
-    Tooltip = 0x00040000,   
+    AllowHighDPI = 0x00002000,
+    MouseCapture = 0x00004000,
+    AlwaysOnTop = 0x00008000,
+    SkipTaskbar = 0x00010000,
+    Utility = 0x00020000,
+    Tooltip = 0x00040000,
     PopupMenu = 0x00080000,
-    KeyboardGrabbed = 0x00100000,  
+    KeyboardGrabbed = 0x00100000,
     Vulkan = 0x10000000,
-    Metal = 0x2000000,  
+    Metal = 0x2000000,
     InputGrabbed = MouseGrabbed,
 }
 
@@ -438,20 +432,20 @@ public enum MouseButton : byte
 
 public enum ClipRectangleStatus
 {
-	/// <summary>
-	/// The <see cref="Surface"/> has clipping enabled
-	/// </summary>
-	Enabled,
+    /// <summary>
+    /// The <see cref="Surface"/> has clipping enabled
+    /// </summary>
+    Enabled,
 
-	/// <summary>
-	/// The <see cref="Surface"/> does not have clipping enabled
-	/// </summary>
-	Disabled,
+    /// <summary>
+    /// The <see cref="Surface"/> does not have clipping enabled
+    /// </summary>
+    Disabled,
 
-	/// <summary>
-	/// The <see cref="Surface"/> has clipping enabled, but the rectangles do not intersect and blits will be completely clipped
-	/// </summary>
-	Invalid
+    /// <summary>
+    /// The <see cref="Surface"/> has clipping enabled, but the rectangles do not intersect and blits will be completely clipped
+    /// </summary>
+    Invalid
 }
 
 public enum FullscreenMode : uint
@@ -463,189 +457,189 @@ public enum FullscreenMode : uint
 
 public enum HitTestResult
 {
-	/// <summary>
-	/// Represents a normal region, with no special properties.
-	/// </summary>
-	Normal = SDL_HitTestResult.SDL_HITTEST_NORMAL,
+    /// <summary>
+    /// Represents a normal region, with no special properties.
+    /// </summary>
+    Normal = SDL_HitTestResult.SDL_HITTEST_NORMAL,
 
-	/// <summary>
-	/// Represents an area of the window that is draggable, much like the title bar. This will tell the OS to take all mouse input recorded here to drag the window.
-	/// </summary>
-	Draggable = SDL_HitTestResult.SDL_HITTEST_DRAGGABLE,
+    /// <summary>
+    /// Represents an area of the window that is draggable, much like the title bar. This will tell the OS to take all mouse input recorded here to drag the window.
+    /// </summary>
+    Draggable = SDL_HitTestResult.SDL_HITTEST_DRAGGABLE,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the top left corner, much like the top left corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the top and left borders.
-	/// </summary>
-	ResizeTopLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_TOPLEFT,
+    /// <summary>
+    /// Represents an area of the window that resizes the top left corner, much like the top left corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the top and left borders.
+    /// </summary>
+    ResizeTopLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_TOPLEFT,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the top border, much like the top border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the top border.
-	/// </summary>
-	ResizeTop = SDL_HitTestResult.SDL_HITTEST_RESIZE_TOP,
+    /// <summary>
+    /// Represents an area of the window that resizes the top border, much like the top border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the top border.
+    /// </summary>
+    ResizeTop = SDL_HitTestResult.SDL_HITTEST_RESIZE_TOP,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the top right corner, much like the top right corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the top and right borders.
-	/// </summary>
-	ResizeTopRight = SDL_HitTestResult.SDL_HITTEST_RESIZE_TOPRIGHT,
+    /// <summary>
+    /// Represents an area of the window that resizes the top right corner, much like the top right corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the top and right borders.
+    /// </summary>
+    ResizeTopRight = SDL_HitTestResult.SDL_HITTEST_RESIZE_TOPRIGHT,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the right border, much like the right border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the right border.
-	/// </summary>
-	ResizeRight = SDL_HitTestResult.SDL_HITTEST_RESIZE_RIGHT,
+    /// <summary>
+    /// Represents an area of the window that resizes the right border, much like the right border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the right border.
+    /// </summary>
+    ResizeRight = SDL_HitTestResult.SDL_HITTEST_RESIZE_RIGHT,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the bottom right corner, much like the bottom right corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the bottom and right borders.
-	/// </summary>
-	ResizeBottomRight = SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOMRIGHT,
+    /// <summary>
+    /// Represents an area of the window that resizes the bottom right corner, much like the bottom right corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the bottom and right borders.
+    /// </summary>
+    ResizeBottomRight = SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOMRIGHT,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the bottom border, much like the bottom border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the bottom border.
-	/// </summary>
-	ResizeBottom = SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOM,
+    /// <summary>
+    /// Represents an area of the window that resizes the bottom border, much like the bottom border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the bottom border.
+    /// </summary>
+    ResizeBottom = SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOM,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the bottom left corner, much like the bottom left corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the bottom and left borders.
-	/// </summary>
-	ResizeBottomLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOMLEFT,
+    /// <summary>
+    /// Represents an area of the window that resizes the bottom left corner, much like the bottom left corner itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the bottom and left borders.
+    /// </summary>
+    ResizeBottomLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_BOTTOMLEFT,
 
-	/// <summary>
-	/// Represents an area of the window that resizes the left border, much like the left border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the left border.
-	/// </summary>
-	ResizeLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_LEFT
+    /// <summary>
+    /// Represents an area of the window that resizes the left border, much like the left border itself in a bordered window. This will tell the OS to take all mouse input recorded here to resize the left border.
+    /// </summary>
+    ResizeLeft = SDL_HitTestResult.SDL_HITTEST_RESIZE_LEFT
 }
 
 public enum HintPriority
 {
-	/// <summary>
-	/// Low priority, used for default values
-	/// </summary>
-	Default = SDL_HintPriority.SDL_HINT_DEFAULT,
+    /// <summary>
+    /// Low priority, used for default values
+    /// </summary>
+    Default = SDL_HintPriority.SDL_HINT_DEFAULT,
 
-	/// <summary>
-	/// Medium priority
-	/// </summary>
-	Normal = SDL_HintPriority.SDL_HINT_NORMAL,
+    /// <summary>
+    /// Medium priority
+    /// </summary>
+    Normal = SDL_HintPriority.SDL_HINT_NORMAL,
 
-	/// <summary>
-	/// High priority
-	/// </summary>
-	Override = SDL_HintPriority.SDL_HINT_OVERRIDE
+    /// <summary>
+    /// High priority
+    /// </summary>
+    Override = SDL_HintPriority.SDL_HINT_OVERRIDE
 }
 
 public enum PixelFormat : uint
 {
-	Unknown = 0u,
-	Index1LSB = 286261504u,
-	Index1MSB = 287310080u,
-	Index4LSB = 303039488u,
-	Index4MSB = 304088064u,
-	Index8 = 318769153u,
-	RGB332 = 336660481u,
-	XRGB444 = 353504258u,
-	RGB444 = 353504258u,
-	XBGR444 = 357698562u,
-	BGR444 = 357698562u,
-	XRGB1555 = 353570562u,
-	RGB555 = 353570562u,
-	XBGR1555 = 286461698u,
-	BGR555 = 286461698u,
-	ARGB4444 = 355602434u,
-	RGBA4444 = 356651010u,
-	ABGR4444 = 359796738u,
-	BGRA4444 = 360845314u,
-	ARGB1555 = 355667970u,
-	RGBA5551 = 356782082u,
-	ABGR1555 = 359862274u,
-	BGRA5551 = 360976386u,
-	RGB565 = 353701890u,
-	BGR565 = 357896194u,
-	RGB24 = 386930691u,
-	BGR24 = 390076419u,
-	XRGB888 = 370546692u,
-	RGB888 = 370546692u,
-	RGBX8888 = 371595268u,
-	XBGR888 = 374740996u,
-	BGR888 = 374740996u,
-	BGRX8888 = 375789572u,
-	ARGB8888 = 372645892u,
-	RGBA8888 = 373694468u,
-	ABGR8888 = 376840196u,
-	BGRA8888 = 377888772u,
-	ARGB2101010 = 372711428u,
-	YV12 = 842094169u,
-	IYUV = 1448433993u,
-	YUY2 = 844715353u,
-	UYVY = 1498831189u,
-	YVYU = 1431918169u,
+    Unknown = 0u,
+    Index1LSB = 286261504u,
+    Index1MSB = 287310080u,
+    Index4LSB = 303039488u,
+    Index4MSB = 304088064u,
+    Index8 = 318769153u,
+    RGB332 = 336660481u,
+    XRGB444 = 353504258u,
+    RGB444 = 353504258u,
+    XBGR444 = 357698562u,
+    BGR444 = 357698562u,
+    XRGB1555 = 353570562u,
+    RGB555 = 353570562u,
+    XBGR1555 = 286461698u,
+    BGR555 = 286461698u,
+    ARGB4444 = 355602434u,
+    RGBA4444 = 356651010u,
+    ABGR4444 = 359796738u,
+    BGRA4444 = 360845314u,
+    ARGB1555 = 355667970u,
+    RGBA5551 = 356782082u,
+    ABGR1555 = 359862274u,
+    BGRA5551 = 360976386u,
+    RGB565 = 353701890u,
+    BGR565 = 357896194u,
+    RGB24 = 386930691u,
+    BGR24 = 390076419u,
+    XRGB888 = 370546692u,
+    RGB888 = 370546692u,
+    RGBX8888 = 371595268u,
+    XBGR888 = 374740996u,
+    BGR888 = 374740996u,
+    BGRX8888 = 375789572u,
+    ARGB8888 = 372645892u,
+    RGBA8888 = 373694468u,
+    ABGR8888 = 376840196u,
+    BGRA8888 = 377888772u,
+    ARGB2101010 = 372711428u,
+    YV12 = 842094169u,
+    IYUV = 1448433993u,
+    YUY2 = 844715353u,
+    UYVY = 1498831189u,
+    YVYU = 1431918169u,
 }
 
 public enum TextureAccess
 {
-	/// <summary>
-	/// Changes rarely, not lockable
-	/// </summary>
-	Static = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC,
+    /// <summary>
+    /// Changes rarely, not lockable
+    /// </summary>
+    Static = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC,
 
-	/// <summary>
-	/// Changes frequently, lockable
-	/// </summary>
-	Streaming = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING,
+    /// <summary>
+    /// Changes frequently, lockable
+    /// </summary>
+    Streaming = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING,
 
-	/// <summary>
-	/// Can be used as a render target
-	/// </summary>
-	Target = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET
+    /// <summary>
+    /// Can be used as a render target
+    /// </summary>
+    Target = SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET
 }
 
 [Flags]
 public enum BlendMode
 {
-	None = SDL_BlendMode.SDL_BLENDMODE_NONE,
-	Blend = SDL_BlendMode.SDL_BLENDMODE_BLEND,
-	Add = SDL_BlendMode.SDL_BLENDMODE_ADD,
-	Mod = SDL_BlendMode.SDL_BLENDMODE_MOD,
-	Mul = SDL_BlendMode.SDL_BLENDMODE_MUL,
-	Invalid = SDL_BlendMode.SDL_BLENDMODE_INVALID
+    None = SDL_BlendMode.SDL_BLENDMODE_NONE,
+    Blend = SDL_BlendMode.SDL_BLENDMODE_BLEND,
+    Add = SDL_BlendMode.SDL_BLENDMODE_ADD,
+    Mod = SDL_BlendMode.SDL_BLENDMODE_MOD,
+    Mul = SDL_BlendMode.SDL_BLENDMODE_MUL,
+    Invalid = SDL_BlendMode.SDL_BLENDMODE_INVALID
 }
 
 public enum BlendOperation
 {
-	Add = SDL_BlendOperation.SDL_BLENDOPERATION_ADD,
-	Subtract = SDL_BlendOperation.SDL_BLENDOPERATION_SUBTRACT,
-	Rev_subtract = SDL_BlendOperation.SDL_BLENDOPERATION_REV_SUBTRACT,
-	Minimum = SDL_BlendOperation.SDL_BLENDOPERATION_MINIMUM,
-	Maximum = SDL_BlendOperation.SDL_BLENDOPERATION_MAXIMUM
+    Add = SDL_BlendOperation.SDL_BLENDOPERATION_ADD,
+    Subtract = SDL_BlendOperation.SDL_BLENDOPERATION_SUBTRACT,
+    Rev_subtract = SDL_BlendOperation.SDL_BLENDOPERATION_REV_SUBTRACT,
+    Minimum = SDL_BlendOperation.SDL_BLENDOPERATION_MINIMUM,
+    Maximum = SDL_BlendOperation.SDL_BLENDOPERATION_MAXIMUM
 }
 
 public enum BlendFactor
 {
-	Zero = SDL_BlendFactor.SDL_BLENDFACTOR_ZERO,
-	One = SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
-	SourceColor = SDL_BlendFactor.SDL_BLENDFACTOR_SRC_COLOR,
-	OneMinusSourceColor = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR,
-	SourceAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_SRC_ALPHA,
-	OneMinusSourceAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-	DestinationColor = SDL_BlendFactor.SDL_BLENDFACTOR_DST_COLOR,
-	OneMinusDestinationColor = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
-	DestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_DST_ALPHA,
-	OneMinusDestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA
+    Zero = SDL_BlendFactor.SDL_BLENDFACTOR_ZERO,
+    One = SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
+    SourceColor = SDL_BlendFactor.SDL_BLENDFACTOR_SRC_COLOR,
+    OneMinusSourceColor = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR,
+    SourceAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_SRC_ALPHA,
+    OneMinusSourceAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+    DestinationColor = SDL_BlendFactor.SDL_BLENDFACTOR_DST_COLOR,
+    OneMinusDestinationColor = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR,
+    DestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_DST_ALPHA,
+    OneMinusDestinationAlpha = SDL_BlendFactor.SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA
 }
 
 [Flags]
 public enum RendererFlags : uint
 {
-	Software = SDL_RendererFlags.SDL_RENDERER_SOFTWARE,
-	Accelerated = SDL_RendererFlags.SDL_RENDERER_ACCELERATED,
-	PresentVSync = SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC,
-	TargetTexture = SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE
+    Software = SDL_RendererFlags.SDL_RENDERER_SOFTWARE,
+    Accelerated = SDL_RendererFlags.SDL_RENDERER_ACCELERATED,
+    PresentVSync = SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC,
+    TargetTexture = SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE
 }
 
 [Flags]
 public enum Flip
 {
-	None = SDL_RendererFlip.SDL_FLIP_NONE,
-	Horizontal = SDL_RendererFlip.SDL_FLIP_HORIZONTAL,
-	Vertical = SDL_RendererFlip.SDL_FLIP_VERTICAL
+    None = SDL_RendererFlip.SDL_FLIP_NONE,
+    Horizontal = SDL_RendererFlip.SDL_FLIP_HORIZONTAL,
+    Vertical = SDL_RendererFlip.SDL_FLIP_VERTICAL
 }
 
 public enum Scancode

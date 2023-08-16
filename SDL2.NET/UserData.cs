@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SDL2.NET;
+﻿namespace SDL2.NET;
 
 /// <summary>
 /// Represents User defined Data that can be attached to certain types or callbacks
@@ -24,7 +17,7 @@ public abstract class UserData
     /// Gets an abstracted (up-casted) form of the held data. This involves a boxing operation if the held data is a <see cref="ValueType"/> (struct or <see cref="ValueTuple"/>). See <see cref="IsValueType"/> if you want to avoid boxing
     /// </summary>
     public abstract object? Value { get; }
-    
+
     /// <summary>
     /// Whether the held data is a struct or not
     /// </summary>
@@ -58,7 +51,7 @@ public sealed class UserData<T> : UserData
     /// </summary>
     /// <param name="data"></param>
     public UserData(T data) : base(typeof(T).IsValueType) => _data = data;
-    
+
     /// <inheritdoc/>
     public override object? Value => _data;
 

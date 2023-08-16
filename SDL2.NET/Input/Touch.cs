@@ -1,5 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System.Collections;
+﻿using System.Collections;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Input;
@@ -32,7 +32,7 @@ public static class Touch
             Window? win = null;
             if (e.windowID > 0)
                 Window.TryGetWindow(e.windowID, out win);
-            
+
             del?.Invoke(tr, fr, TimeSpan.FromMilliseconds(e.timestamp), e.dx, e.dy, win);
         }
     }
@@ -163,7 +163,7 @@ public static class Touch
         {
             get
             {
-                if (index < 0 || index >= Count) 
+                if (index < 0 || index >= Count)
                     throw new IndexOutOfRangeException("Index is out of range");
 
                 var x = SDL_GetTouchDevice(index);

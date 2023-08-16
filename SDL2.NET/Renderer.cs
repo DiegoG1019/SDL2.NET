@@ -1,16 +1,9 @@
-﻿using SDL2.Bindings;
-using SDL2.NET.Exceptions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using SDL2.Bindings;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
-using static System.Net.WebRequestMethods;
 
 namespace SDL2.NET;
 
@@ -672,11 +665,11 @@ public abstract class Renderer : IDisposable, IHandle
     /// </summary>
     public sealed class RenderDriverInfoCollection : IReadOnlyList<RendererInfo>
     {
-        internal readonly static RenderDriverInfoCollection inst = new();
+        internal static readonly RenderDriverInfoCollection inst = new();
         private RenderDriverInfoCollection() { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe static RendererInfo fetch(int index)
+        private static unsafe RendererInfo fetch(int index)
         {
             SDLRendererException.ThrowIfLessThan(SDL_GetRenderDriverInfo(index, out var sdli), 0);
             return new RendererInfo(Marshal.PtrToStringAnsi(sdli.name)!, (RendererFlags)sdli.flags, new(sdli.max_texture_width, sdli.max_texture_height), new(sdli.texture_formats, sdli.num_texture_formats));

@@ -1,5 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Platform.AndroidSpecific;
@@ -123,7 +123,7 @@ public static class Android
     /// <param name="XOffset">Set this parameter only when gravity >= 0</param>
     /// <param name="YOffset">Set this parameter only when gravity >= 0</param>
     public static void ShowToast(string message, int duration, int gravity, int XOffset, int YOffset)
-    {   
+    {
         if (SDL_AndroidShowToast(message, duration, gravity, XOffset, YOffset) < 0)
             throw new SDLException(SDL_GetAndClearError());
     }

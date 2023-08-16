@@ -1,11 +1,6 @@
-﻿using SDL2.Bindings;
+﻿using System.Runtime.CompilerServices;
+using SDL2.Bindings;
 using SDL2.NET.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SDL2.NET.SDLFont.Exceptions;
 public class SDLFontException : SDLException
@@ -32,6 +27,6 @@ public class SDLFontException : SDLException
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IntPtr ThrowIfPointerNull(IntPtr ptr) 
+    public static IntPtr ThrowIfPointerNull(IntPtr ptr)
         => ptr == IntPtr.Zero ? throw new SDLFontException(SDL_ttf.TTF_GetError()) : ptr;
 }

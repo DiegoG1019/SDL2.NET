@@ -1,10 +1,9 @@
-﻿using SDL2.Bindings;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
+using SDL2.Bindings;
 using SDL2.NET.Exceptions;
 using SDL2.NET.Input;
-using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -17,7 +16,7 @@ public class Window : IDisposable, IHandle
     IntPtr IHandle.Handle => _handle;
     internal static readonly ConcurrentDictionary<IntPtr, WeakReference<Window>> _handleDict = new(2, 2);
     internal static readonly ConcurrentDictionary<uint, WeakReference<Window>> _idDict = new(2, 2);
-    
+
     /// <summary>
     /// The internal handle that points to the <see cref="Window"/> object in SDL
     /// </summary>
@@ -71,7 +70,7 @@ public class Window : IDisposable, IHandle
         ThreadID = Environment.CurrentManagedThreadId;
 
         _handle = SDL_CreateWindow(
-            title, 
+            title,
             centerPointX ?? SDL_WINDOWPOS_CENTERED,
             centerPointY ?? SDL_WINDOWPOS_CENTERED,
             width,
@@ -225,7 +224,7 @@ public class Window : IDisposable, IHandle
             MouseExited?.Invoke(this, tm, delta, np, mouse, pressed);
             return;
         }
-        
+
         if (!IsMouseOver && Rectangle.Contains(np))
         {
             IsMouseOver = true;
@@ -496,72 +495,72 @@ public class Window : IDisposable, IHandle
             case SDL_WindowEventID.SDL_WINDOWEVENT_SHOWN:
                 Shown?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_HIDDEN:
                 Hidden?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED:
                 Exposed?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_MOVED:
                 Moved?.Invoke(this, time(), new Point(e.data1, e.data2));
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
                 Resized?.Invoke(this, time(), new Size(e.data1, e.data2));
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
                 SizeChanged?.Invoke(this, time(), new Size(e.data1, e.data2));
                 UpdateCenterPoint();
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_MINIMIZED:
                 Minimized?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_MAXIMIZED:
                 Maximized?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_RESTORED:
                 Restored?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_ENTER:
                 Entered?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_LEAVE:
                 Left?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_GAINED:
                 FocusGained?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_LOST:
                 FocusLost?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
                 Closed?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_TAKE_FOCUS:
                 FocusTaken?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_HIT_TEST:
                 HitTest?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_ICCPROF_CHANGED:
                 IccprofChanged?.Invoke(this, time());
                 return;
-            
+
             case SDL_WindowEventID.SDL_WINDOWEVENT_DISPLAY_CHANGED:
                 DisplayChanged?.Invoke(this, time());
                 return;
@@ -720,7 +719,7 @@ public class Window : IDisposable, IHandle
     /// <param name="title">The title of the message box</param>
     /// <param name="message">The message to be shown in the messagebox</param>
     /// <param name="flags">The flags of the message box</param>
-    public void ShowMessageBox(string title, string message, MessageBoxFlags flags) 
+    public void ShowMessageBox(string title, string message, MessageBoxFlags flags)
     {
         SDLWindowException.ThrowIfLessThan(SDL_ShowSimpleMessageBox((SDL_MessageBoxFlags)flags, title, message, _handle), 0);
     }
@@ -1232,7 +1231,7 @@ public class Window : IDisposable, IHandle
             : throw new SDLWindowException("Could not match the returned pointer to a window object. Did you instantiate this Window directly through SDL?");
     }
 
-    internal static Window? GetGrabbedWindow(Window prospective, IntPtr ptr) 
+    internal static Window? GetGrabbedWindow(Window prospective, IntPtr ptr)
         => prospective._handle == ptr ? prospective : GetGrabbedWindow();
 
     /// <summary>

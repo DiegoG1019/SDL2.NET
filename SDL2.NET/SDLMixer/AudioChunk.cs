@@ -70,7 +70,6 @@ public partial class AudioChunk : IDisposable, IHandle
     /// <returns>The channel the audio is playing on</returns>
     public int Play(int loops = 0) => _play(-1, loops);
 
-
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops
     /// </summary>
@@ -85,7 +84,6 @@ public partial class AudioChunk : IDisposable, IHandle
     /// <param name="time">The amount of time to play the audio. Will only take effect if it's long enough, or it loops enough times</param>
     /// <returns>The channel the audio is playing on</returns>
     public int Play(TimeSpan time, int loops = 0) => _play(-1, loops, time);
-
 
     /// <summary>
     /// Plays the AudioChunk on the first unreserved channel for the set amount of loops, and for at most the set amount of time
@@ -125,7 +123,6 @@ public partial class AudioChunk : IDisposable, IHandle
     /// <returns>The channel the audio is playing on</returns>
     public int FadeIn(TimeSpan fadeInTime, int loops = 0) => _fadein(-1, loops, fadeInTime);
 
-
     /// <summary>
     /// Fades in the AudioChunk on the first unreserved channel for the set amount of loops
     /// </summary>
@@ -142,7 +139,6 @@ public partial class AudioChunk : IDisposable, IHandle
     /// <param name="fadeInTime">The amount of time it takes for the chunk to transition from Volume 0 to full volume</param>
     /// <returns>The channel the audio is playing on</returns>
     public int FadeIn(TimeSpan fadeInTime, TimeSpan time, int loops = 0) => _fadein(-1, loops, fadeInTime, time);
-
 
     /// <summary>
     /// Fades in the AudioChunk on the first unreserved channel for the set amount of loops, and for at most the set amount of time

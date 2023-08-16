@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Platform.WinRTSpecific;

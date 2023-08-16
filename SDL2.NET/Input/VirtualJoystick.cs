@@ -1,5 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Input;
@@ -30,7 +30,7 @@ public class VirtualJoystick : Joystick
         SDLJoystickException.ThrowIfLessThan(index, 0);
         return index;
     }
-    
+
     /// <summary>
     /// Attaches a Virtual Joystick and obtains a new object representing it
     /// </summary>

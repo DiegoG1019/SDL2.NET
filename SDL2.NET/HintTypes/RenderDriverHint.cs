@@ -15,7 +15,7 @@ public sealed class RenderDriverHint : Hint
     public void SetPriority(RenderDriver quality, HintPriority priority)
         => Set(((int)quality).ToString(), priority);
 
-    RenderDriver? _c;
+    private RenderDriver? _c;
 
     /// <summary>
     /// Retrieves the hint string from SDL and parses it, updating the cache

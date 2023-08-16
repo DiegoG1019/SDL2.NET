@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -100,7 +94,7 @@ public struct RGBAColor : IEquatable<RGBAColor>
     /// Converts the given <see cref="RGBColor"/> to an uint value specified by <paramref name="format"/>
     /// </summary>
     /// <returns></returns>
-    public uint ToUInt32(PixelFormatData format) 
+    public uint ToUInt32(PixelFormatData format)
         => IsBlack ? 0 : SDL_MapRGBA(format._handle, Red, Green, Blue, Alpha);
 
     /// <summary>
@@ -164,13 +158,13 @@ public struct RGBAColor : IEquatable<RGBAColor>
     public bool Equals(RGBAColor other)
         => other == this;
 
-    public override bool Equals(object? obj) 
+    public override bool Equals(object? obj)
         => obj is RGBAColor color && Equals(color);
 
     public static bool operator ==(RGBAColor left, RGBAColor right)
         => left.Red == right.Red && left.Green == right.Green && left.Blue == right.Blue && left.Alpha == right.Alpha;
 
-    public static bool operator !=(RGBAColor left, RGBAColor right) 
+    public static bool operator !=(RGBAColor left, RGBAColor right)
         => !(left == right);
 
     public override int GetHashCode()

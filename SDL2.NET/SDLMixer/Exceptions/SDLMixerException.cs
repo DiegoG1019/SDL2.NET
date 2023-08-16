@@ -1,10 +1,5 @@
-﻿using SDL2.Bindings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
+using SDL2.Bindings;
 
 namespace SDL2.NET.SDLMixer.Exceptions;
 

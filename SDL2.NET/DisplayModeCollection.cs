@@ -1,5 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System.Collections;
+﻿using System.Collections;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -40,7 +40,7 @@ public struct DisplayModeCollection : IReadOnlyList<DisplayMode>
 
     public IEnumerator<DisplayMode> GetEnumerator()
     {
-        for (int i = 0; i < dindex; i++) 
+        for (int i = 0; i < dindex; i++)
             yield return this[i];
     }
 

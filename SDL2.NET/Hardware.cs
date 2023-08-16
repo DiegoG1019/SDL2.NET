@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -41,7 +36,7 @@ public static class Hardware
     /// Determine whether the CPU has AltiVec features
     /// </summary>
     /// <remarks>This always returns false on CPUs that aren't using PowerPC instruction sets</remarks>
-    public static bool HasAltiVec  => SDL_HasAltiVec() == SDL_bool.SDL_TRUE;
+    public static bool HasAltiVec => SDL_HasAltiVec() == SDL_bool.SDL_TRUE;
 
     /// <summary>
     /// Determine whether the CPU has MMX features

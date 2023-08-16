@@ -1,14 +1,7 @@
-﻿using SDL2.Bindings;
-using SDL2.NET.Exceptions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Input;
@@ -78,7 +71,7 @@ public class GameController : Joystick, IDisposable, IHandle
         if (JoystickDict.TryGetValue(instanceId, out var wr))
             if (wr.TryGetTarget(out var j) && j.disposedValue is false)
             {
-                if (j is GameController gc) 
+                if (j is GameController gc)
                 {
                     gamecontroller = gc;
                     return true;
@@ -631,7 +624,7 @@ public class GameController : Joystick, IDisposable, IHandle
         {
             get
             {
-                foreach (var b in buttons) 
+                foreach (var b in buttons)
                     yield return this[b];
             }
         }

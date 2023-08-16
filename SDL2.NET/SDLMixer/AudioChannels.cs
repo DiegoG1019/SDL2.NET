@@ -1,7 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Threading.Channels;
 using static SDL2.Bindings.SDL_mixer;
-using static SDL2.NET.SDLMixer.AudioMixer;
 
 namespace SDL2.NET.SDLMixer;
 

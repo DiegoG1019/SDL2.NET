@@ -1,14 +1,7 @@
-﻿using SDL2.NET.Exceptions;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Input;
@@ -123,7 +116,7 @@ public class Joystick : IJoystickDefinition, IDisposable, IHandle
 
         joystick = null;
         return false;
-    } 
+    }
 
     /// <summary>
     /// Attempts to open and instantiate a new Joystick, or return an old one if already instantiated
@@ -139,7 +132,7 @@ public class Joystick : IJoystickDefinition, IDisposable, IHandle
         {
             var id = SDL_JoystickGetDeviceInstanceID(index);
             if (JoystickDict.TryGetValue(id, out var wr))
-                if (wr.TryGetTarget(out joystick) && joystick.disposedValue is false) 
+                if (wr.TryGetTarget(out joystick) && joystick.disposedValue is false)
                     return true;
                 else
                     JoystickDict.Remove(id, out _);

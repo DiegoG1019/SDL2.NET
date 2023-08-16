@@ -1,5 +1,5 @@
-﻿using SDL2.Bindings;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using SDL2.Bindings;
 
 namespace SDL2.NET.SDLMixer.Exceptions;
 

@@ -15,7 +15,7 @@ public sealed class D3DCompilerHint : Hint
     public void SetPriority(D3DCompiler quality, HintPriority priority)
         => Set(((int)quality).ToString(), priority);
 
-    D3DCompiler? _c;
+    private D3DCompiler? _c;
 
     /// <summary>
     /// Retrieves the hint string from SDL and parses it, updating the cache

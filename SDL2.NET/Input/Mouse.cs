@@ -1,11 +1,5 @@
-﻿using SDL2.Bindings;
+﻿using System.Runtime.CompilerServices;
 using SDL2.NET.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Input;

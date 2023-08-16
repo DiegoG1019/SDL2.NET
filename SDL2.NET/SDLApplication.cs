@@ -1,16 +1,8 @@
-﻿using SDL2.Bindings;
+﻿using System.Runtime.Versioning;
+using SDL2.Bindings;
 using SDL2.NET.Exceptions;
 using SDL2.NET.SDLMixer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
 using static SDL2.Bindings.SDL;
-using System.Reflection.PortableExecutable;
 
 namespace SDL2.NET;
 
@@ -245,7 +237,7 @@ public abstract class SDLApplication<TApp> : SDLApplication, IDisposable where T
     /// <remarks>
     /// This class can only be instanced once, and will throw if multiple instances are attempted, even if attempted outside <see cref="Instance"/> or <see cref="Instance{TApp}"/> which should be avoided. If you want to override the behaviours of this class, feel free to inherit it and use <see cref="Instance{TApp}"/>. Otherwise, simply use <see cref="Instance"/>
     /// </remarks>
-    protected SDLApplication() 
+    protected SDLApplication()
     {
         lock (sync)
         {
@@ -269,7 +261,7 @@ public abstract class SDLApplication<TApp> : SDLApplication, IDisposable where T
     /// Fetches the instance of <see cref="SDLApplication{TApp}"/>, or instances a new one if not available
     /// </summary>
     /// <returns>The singleton instance of <see cref="SDLApplication{TApp}"/></returns>
-    public static TApp Instance 
+    public static TApp Instance
         => inst ??= ((SDLAppBuilder.AppInstance ?? throw new InvalidOperationException("SDLApplication has not been instanced, see SDLAppBuilder")) as TApp ?? throw new InvalidOperationException($"The instanced SDLApplication is not of type {typeof(TApp).FullName}"));
 
     #region Initialization
@@ -479,7 +471,7 @@ public abstract class SDLApplication<TApp> : SDLApplication, IDisposable where T
     /// <param name="flags">The preferred flags of the <see cref="Renderer"/></param>
     /// <returns>The instantiated <see cref="Renderer"/></returns>
     protected virtual Renderer InstantiateMainRenderer(Window mainWindow, RendererFlags flags)
-        => new WindowRenderer(mainWindow, flags, - 1);
+        => new WindowRenderer(mainWindow, flags, -1);
 
     /// <summary>
     /// The procedure that instantiates <see cref="MainWindow"/>

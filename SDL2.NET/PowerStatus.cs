@@ -12,7 +12,6 @@ public struct PowerStatus
         Charge = charge;
     }
 
-
     /// <summary>
     /// The current Power State
     /// </summary>

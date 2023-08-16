@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SDL2.NET.SDLMixer;
+﻿namespace SDL2.NET.SDLMixer;
 
 /// <summary>
 /// Represents an amount of loops for an AudioChunk to play
@@ -17,7 +11,7 @@ public static class AudioLoop
     /// <param name="loops">The amount of times to play the AudioChunk. Set to 1 for <see cref="Once"/></param>
     /// <returns>A loop instance representing the loop value</returns>
     /// <remarks>Same as new Loop(loops - 1)</remarks>
-    public static int FromTimes(int loops) 
+    public static int FromTimes(int loops)
         => loops <= 0
             ? throw new ArgumentOutOfRangeException(nameof(loops), loops, $"loops must be between 1 and {int.MaxValue}")
             : loops - 1;

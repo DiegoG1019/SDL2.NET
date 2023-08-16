@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -139,8 +138,8 @@ public sealed class WindowConfig
     /// <returns></returns>
     public WindowConfig OpenGL(bool allowOpenGL)
     {
-            AllowOpenGL = allowOpenGL;
-            return this;
+        AllowOpenGL = allowOpenGL;
+        return this;
     }
 
     /// <summary>
@@ -150,8 +149,8 @@ public sealed class WindowConfig
     /// <returns></returns>
     public WindowConfig Vulkan(bool allowVulkan)
     {
-            AllowVulkan = allowVulkan;
-            return this;
+        AllowVulkan = allowVulkan;
+        return this;
     }
 
     /// <summary>
@@ -161,8 +160,8 @@ public sealed class WindowConfig
     /// <returns></returns>
     public WindowConfig Metal(bool allowMetal)
     {
-            AllowMetal = allowMetal;
-            return this;
+        AllowMetal = allowMetal;
+        return this;
     }
 
     /// <summary>

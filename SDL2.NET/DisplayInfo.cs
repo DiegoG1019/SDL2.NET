@@ -84,7 +84,7 @@ public struct DisplayInfo
     /// </summary>
     /// <remarks>Dots per inch, in the context of a Video Display; is the number of individual dots that can be placed in a line within the span of 1 inch (2.54 cm). <see href="https://en.wikipedia.org/wiki/Dots_per_inch"/></remarks>
     public DPIInfo DPI
-    { 
+    {
         get
         {
             SDLDisplayException.ThrowIfLessThan(SDL_GetDisplayDPI(index, out var dpi, out var hdpi, out var vdpi), 0);

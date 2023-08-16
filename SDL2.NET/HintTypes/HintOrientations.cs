@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Metrics;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.HintTypes;
 
@@ -14,7 +13,7 @@ public sealed class HintOrientations : Hint
     public void SetPriority(AllowedOrientation quality, HintPriority priority)
         => Set(((int)quality).ToString(), priority);
 
-    AllowedOrientation? _c = AllowedOrientation.LandscapeRight | AllowedOrientation.LandscapeLeft | AllowedOrientation.Portrait | AllowedOrientation.PortraitUpsideDown;
+    private AllowedOrientation? _c = AllowedOrientation.LandscapeRight | AllowedOrientation.LandscapeLeft | AllowedOrientation.Portrait | AllowedOrientation.PortraitUpsideDown;
 
     /// <summary>
     /// Retrieves the hint string from SDL and parses it, updating the cache

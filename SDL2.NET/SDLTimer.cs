@@ -1,5 +1,4 @@
 ﻿using SDL2.NET.Exceptions;
-using SDL2.NET.Platform.WindowsSpecific;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;

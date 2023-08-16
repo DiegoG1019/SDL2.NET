@@ -1,5 +1,5 @@
-﻿using SDL2.NET.Exceptions;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET.Platform.iOSSpecific;

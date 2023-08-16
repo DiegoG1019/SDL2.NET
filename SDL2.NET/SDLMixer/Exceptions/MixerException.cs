@@ -3,7 +3,7 @@
 namespace SDL2.NET.SDLMixer.Exceptions;
 
 [Serializable]
-public class MixerException : SDLException 
+public class MixerException : SDLException
 {
     public MixerException() { }
     public MixerException(string message) : base(message) { }

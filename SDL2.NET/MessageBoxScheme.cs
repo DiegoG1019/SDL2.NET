@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -20,22 +15,22 @@ public sealed class MessageBoxColorScheme
     /// <summary>
     /// The text color of the Message box
     /// </summary>
-    public RGBColor Text {get; set; }
+    public RGBColor Text { get; set; }
 
     /// <summary>
     /// The color of a button's borders in the Message box
     /// </summary>
-    public RGBColor ButtonBorder {get; set; }
+    public RGBColor ButtonBorder { get; set; }
 
     /// <summary>
     /// The color of a button's background in the Message box
     /// </summary>
-    public RGBColor ButtonBackground {get; set; }
+    public RGBColor ButtonBackground { get; set; }
 
     /// <summary>
     /// The color of a selected button in the Message box
     /// </summary>
-    public RGBColor ButtonSelected {get; set; }
+    public RGBColor ButtonSelected { get; set; }
 
     internal SDL_MessageBoxColorScheme ToSDL()
     {

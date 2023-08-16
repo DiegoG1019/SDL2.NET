@@ -1,5 +1,5 @@
-﻿using SDL2.Bindings;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using SDL2.Bindings;
 
 namespace SDL2.NET.Exceptions;
 
@@ -14,11 +14,11 @@ public class SDLSensorException : SDLException
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ThrowIfLessThan(int value, int comparison) 
+    public static int ThrowIfLessThan(int value, int comparison)
         => value < comparison ? throw new SDLSensorException(SDL.SDL_GetAndClearError()) : value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ThrowIfEquals(int value, int comparison) 
+    public static int ThrowIfEquals(int value, int comparison)
         => value == comparison ? throw new SDLSensorException(SDL.SDL_GetAndClearError()) : value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

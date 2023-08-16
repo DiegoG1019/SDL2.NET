@@ -186,7 +186,7 @@ public struct Rectangle : IEquatable<Rectangle>
     public static bool operator ==(Rectangle a, Rectangle b) => a.Equals(b);
     public static bool operator !=(Rectangle a, Rectangle b) => !a.Equals(b);
 
-    public override bool Equals(object? obj) 
+    public override bool Equals(object? obj)
         => obj is Rectangle rectangle && Equals(rectangle);
 
     public override int GetHashCode()

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using static SDL2.Bindings.SDL_mixer;
 
 namespace SDL2.NET.SDLMixer;

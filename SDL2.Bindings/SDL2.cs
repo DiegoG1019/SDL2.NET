@@ -33,7 +33,6 @@
 
 #region Using Statements
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 #endregion
@@ -45,7 +44,6 @@ namespace SDL2.Bindings
         #region SDL2# Variables
 
         private const string nativeLibName = "SDL2";
-
 
         #endregion
 
@@ -102,7 +100,7 @@ namespace SDL2.Bindings
 
             /* We get to do strlen ourselves! */
             byte* ptr = (byte*)s;
-            while (*ptr != 0) 
+            while (*ptr != 0)
             {
                 ptr++;
             }
@@ -2075,14 +2073,14 @@ namespace SDL2.Bindings
         public static extern int SDL_UpdateWindowSurface(IntPtr window);
 
         /* window refers to an SDL_Window* */
-        [DllImport(nativeLibName,  EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl)]
-        public static unsafe extern int INTERNAL_SDL_UpdateWindowSurfaceRects(
+        [DllImport(nativeLibName, EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int INTERNAL_SDL_UpdateWindowSurfaceRects(
             IntPtr window,
             [In] SDL_Rect* rects,
             int numrects
         );
 
-        public unsafe static int SDL_UpdateWindowSurfaceRects(IntPtr window, ReadOnlySpan<SDL_Rect> rects, int numrects)
+        public static unsafe int SDL_UpdateWindowSurfaceRects(IntPtr window, ReadOnlySpan<SDL_Rect> rects, int numrects)
         {
             fixed (SDL_Rect* r = rects)
                 return INTERNAL_SDL_UpdateWindowSurfaceRects(window, r, numrects);
@@ -2763,7 +2761,7 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawLines", CallingConvention = CallingConvention.Cdecl)]
-        private static unsafe extern int INTERNAL_SDL_RenderDrawLines(
+        private static extern unsafe int INTERNAL_SDL_RenderDrawLines(
             IntPtr renderer,
             [In] SDL_Point* points,
             int count
@@ -2785,13 +2783,13 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawPoints", CallingConvention = CallingConvention.Cdecl)]
-        internal unsafe static extern int INTERNAL_SDL_RenderDrawPoints(
+        internal static extern unsafe int INTERNAL_SDL_RenderDrawPoints(
             IntPtr renderer,
             [In] SDL_Point* points,
             int count
         );
 
-        public unsafe static int SDL_RenderDrawPoints(IntPtr renderer, ReadOnlySpan<SDL_Point> points, int count)
+        public static unsafe int SDL_RenderDrawPoints(IntPtr renderer, ReadOnlySpan<SDL_Point> points, int count)
         {
             fixed (SDL_Point* p = points)
                 return INTERNAL_SDL_RenderDrawPoints(renderer, p, count);
@@ -2815,13 +2813,13 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawRects", CallingConvention = CallingConvention.Cdecl)]
-        internal unsafe static extern int INTERNAL_SDL_RenderDrawRects(
+        internal static extern unsafe int INTERNAL_SDL_RenderDrawRects(
             IntPtr renderer,
             [In] SDL_Rect* rects,
             int count
         );
 
-        public unsafe static int SDL_RenderDrawRects(IntPtr renderer, ReadOnlySpan<SDL_Rect> rects, int count)
+        public static unsafe int SDL_RenderDrawRects(IntPtr renderer, ReadOnlySpan<SDL_Rect> rects, int count)
         {
             fixed (SDL_Rect* p = rects)
                 return INTERNAL_SDL_RenderDrawRects(renderer, p, count);
@@ -2845,13 +2843,13 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderFillRects", CallingConvention = CallingConvention.Cdecl)]
-        internal unsafe static extern int INTERNAL_SDL_RenderFillRects(
+        internal static extern unsafe int INTERNAL_SDL_RenderFillRects(
             IntPtr renderer,
             [In] SDL_Rect* rects,
             int count
         );
 
-        public unsafe static int SDL_RenderFillRects(IntPtr renderer, ReadOnlySpan<SDL_Rect> rects, int count)
+        public static unsafe int SDL_RenderFillRects(IntPtr renderer, ReadOnlySpan<SDL_Rect> rects, int count)
         {
             fixed (SDL_Rect* p = rects)
                 return INTERNAL_SDL_RenderFillRects(renderer, p, count);
@@ -3042,7 +3040,7 @@ namespace SDL2.Bindings
 		 * Only available in 2.0.18 or higher.
 		 */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderGeometry", CallingConvention = CallingConvention.Cdecl)]
-        internal unsafe static extern int INTERNAL_SDL_RenderGeometry(
+        internal static extern unsafe int INTERNAL_SDL_RenderGeometry(
             IntPtr renderer,
             IntPtr texture,
             [In] SDL_Vertex* vertices,
@@ -3096,7 +3094,7 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawPointsF", CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern int INTERNAL_SDL_RenderDrawPointsF(
+        private static extern unsafe int INTERNAL_SDL_RenderDrawPointsF(
             IntPtr renderer,
             [In] SDL_FPoint* points,
             int count
@@ -3120,7 +3118,7 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawLinesF", CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern int INTERNAL_SDL_RenderDrawLinesF(
+        private static extern unsafe int INTERNAL_SDL_RenderDrawLinesF(
             IntPtr renderer,
             [In] SDL_FPoint* points,
             int count
@@ -3150,7 +3148,7 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderDrawRectsF", CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern int INTERNAL_SDL_RenderDrawRectsF(
+        private static extern unsafe int INTERNAL_SDL_RenderDrawRectsF(
             IntPtr renderer,
             [In] SDL_FRect* rects,
             int count
@@ -3180,7 +3178,7 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, EntryPoint = "SDL_RenderFillRectsF", CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern int INTERNAL_SDL_RenderFillRectsF(
+        private static extern unsafe int INTERNAL_SDL_RenderFillRectsF(
             IntPtr renderer,
             [In] SDL_FRect* rects,
             int count
@@ -4060,14 +4058,14 @@ namespace SDL2.Bindings
 
         /* palette refers to an SDL_Palette* */
         [DllImport(nativeLibName, EntryPoint = "SDL_SetPaletteColors", CallingConvention = CallingConvention.Cdecl)]
-        internal unsafe static extern int INTERNAL_SDL_SetPaletteColors(
+        internal static extern unsafe int INTERNAL_SDL_SetPaletteColors(
             IntPtr palette,
             [In] SDL_Color* colors,
             int firstcolor,
             int ncolors
         );
 
-        public unsafe static int SDL_SetPaletteColors(IntPtr palette, ReadOnlySpan<SDL_Color> colors, int firstColor, int ncolors)
+        public static unsafe int SDL_SetPaletteColors(IntPtr palette, ReadOnlySpan<SDL_Color> colors, int firstColor, int ncolors)
         {
             fixed (SDL_Color* p = colors)
                 return INTERNAL_SDL_SetPaletteColors(palette, p, firstColor, ncolors);
@@ -4130,7 +4128,7 @@ namespace SDL2.Bindings
         }
 
         [DllImport(nativeLibName, EntryPoint = "SDL_EnclosePoints", CallingConvention = CallingConvention.Cdecl)]
-        private static unsafe extern SDL_bool INTERNAL_SDL_EnclosePoints(
+        private static extern unsafe SDL_bool INTERNAL_SDL_EnclosePoints(
             [In] SDL_Point* points,
             int count,
             ref SDL_Rect clip,
@@ -4144,7 +4142,7 @@ namespace SDL2.Bindings
         }
 
         [DllImport(nativeLibName, EntryPoint = "SDL_EnclosePoints", CallingConvention = CallingConvention.Cdecl)]
-        private static unsafe extern SDL_bool INTERNAL_SDL_EnclosePoints(
+        private static extern unsafe SDL_bool INTERNAL_SDL_EnclosePoints(
             [In] SDL_Point* points,
             int count,
             IntPtr clip,
@@ -4458,7 +4456,7 @@ namespace SDL2.Bindings
 
         /* dst refers to an SDL_Surface* */
         [DllImport(nativeLibName, EntryPoint = "SDL_FillRects", CallingConvention = CallingConvention.Cdecl)]
-        internal static unsafe extern int INTERNAL_SDL_FillRects(
+        internal static extern unsafe int INTERNAL_SDL_FillRects(
             IntPtr dst,
             [In] SDL_Rect* rects,
             int count,
@@ -4467,7 +4465,7 @@ namespace SDL2.Bindings
 
         public static unsafe int SDL_FillRects(IntPtr dst, ReadOnlySpan<SDL_Rect> rects, int count, uint color)
         {
-            fixed (SDL_Rect* r = rects) 
+            fixed (SDL_Rect* r = rects)
                 return INTERNAL_SDL_FillRects(dst, r, count, color);
         }
 
@@ -5316,7 +5314,7 @@ namespace SDL2.Bindings
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SDL_EventFilter(
             IntPtr userdata, // void*
-            SDL_Event sdlevent 
+            SDL_Event sdlevent
         );
 
         /* Pump the event loop, getting events from the input devices*/
@@ -7839,13 +7837,13 @@ namespace SDL2.Bindings
 
         /* sensor refers to an SDL_Sensor* */
         [DllImport(nativeLibName, EntryPoint = "SDL_SensorGetData", CallingConvention = CallingConvention.Cdecl)]
-        public unsafe static extern int INTERNAL_SDL_SensorGetData(
+        public static extern unsafe int INTERNAL_SDL_SensorGetData(
             IntPtr sensor,
             float* data,
             int num_values
         );
 
-        public unsafe static int SDL_SensorGetData(IntPtr sensor, in Span<float> values, int numvalues)
+        public static unsafe int SDL_SensorGetData(IntPtr sensor, in Span<float> values, int numvalues)
         {
             fixed (float* r = values)
                 return INTERNAL_SDL_SensorGetData(sensor, r, numvalues);
@@ -8433,7 +8431,7 @@ namespace SDL2.Bindings
 
         /* Only available in 2.0.14 or higher. */
         [DllImport(nativeLibName, EntryPoint = "SDL_AndroidRequestPermission", CallingConvention = CallingConvention.Cdecl)]
-        private static unsafe extern SDL_bool INTERNAL_SDL_AndroidRequestPermission(
+        private static extern unsafe SDL_bool INTERNAL_SDL_AndroidRequestPermission(
             byte* permission
         );
         public static unsafe SDL_bool SDL_AndroidRequestPermission(
@@ -8450,7 +8448,7 @@ namespace SDL2.Bindings
 
         /* Only available in 2.0.16 or higher. */
         [DllImport(nativeLibName, EntryPoint = "SDL_AndroidShowToast", CallingConvention = CallingConvention.Cdecl)]
-        private static unsafe extern int INTERNAL_SDL_AndroidShowToast(
+        private static extern unsafe int INTERNAL_SDL_AndroidShowToast(
             byte* message,
             int duration,
             int gravity,
@@ -8604,9 +8602,9 @@ namespace SDL2.Bindings
         [StructLayout(LayoutKind.Sequential)]
         public struct INTERNAL_kmsdrm_wminfo
         {
-            int dev_index;
-            int drm_fd;
-            IntPtr gbm_dev; // Refers to a gbm_device*
+            private int dev_index;
+            private int drm_fd;
+            private IntPtr gbm_dev; // Refers to a gbm_device*
         }
 
         [StructLayout(LayoutKind.Explicit)]
@@ -8788,8 +8786,8 @@ namespace SDL2.Bindings
         [StructLayout(LayoutKind.Sequential)]
         public struct SDL_Locale
         {
-            IntPtr language;
-            IntPtr country;
+            private IntPtr language;
+            private IntPtr country;
         }
 
         /* IntPtr refers to an SDL_Locale*.
@@ -8804,7 +8802,7 @@ namespace SDL2.Bindings
 
         /* Only available in 2.0.14 or higher. */
         [DllImport(nativeLibName, EntryPoint = "SDL_OpenURL", CallingConvention = CallingConvention.Cdecl)]
-        private static unsafe extern int INTERNAL_SDL_OpenURL(byte* url);
+        private static extern unsafe int INTERNAL_SDL_OpenURL(byte* url);
         public static unsafe int SDL_OpenURL(string url)
         {
             byte* urlPtr = Utf8EncodeHeap(url);

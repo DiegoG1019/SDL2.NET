@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static SDL2.Bindings.SDL;
+﻿using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -31,7 +25,7 @@ public static class SDLLog
         );
 
     private static LogSinkMethodDelegate? outmethod;
-    private readonly static SDL_LogOutputFunction outfunc = (u, c, p, m) =>
+    private static readonly SDL_LogOutputFunction outfunc = (u, c, p, m) =>
     {
         var meth = outmethod;
         if (meth is null)

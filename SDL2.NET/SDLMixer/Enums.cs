@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static SDL2.Bindings.SDL_mixer;
+﻿using static SDL2.Bindings.SDL_mixer;
 
 namespace SDL2.NET.SDLMixer;
 

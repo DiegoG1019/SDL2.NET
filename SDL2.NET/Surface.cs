@@ -1,13 +1,6 @@
-﻿using SDL2.Bindings;
-using SDL2.NET.Exceptions;
-using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -104,7 +97,7 @@ public class Surface : IDisposable, IHandle
     /// </summary>
     /// <param name="format">the <see cref="PixelFormat"/> that the new surface is optimized for</param>
     /// <returns>Returns the new <see cref="Surface"/> structure that is created</returns>
-    public Surface Convert(PixelFormat format) 
+    public Surface Convert(PixelFormat format)
         => new(SDL_ConvertSurfaceFormat(_handle, (uint)format, 0));
 
     /// <summary>
@@ -238,7 +231,7 @@ public class Surface : IDisposable, IHandle
         Span<SDL_Rect> rects = stackalloc SDL_Rect[rectangles.Length];
         for (int i = 0; i < rectangles.Length; i++)
             rectangles[i].ToSDL(out rects[i]);
-        
+
         SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(Format)), 0);
     }
 
@@ -264,9 +257,9 @@ public class Surface : IDisposable, IHandle
         {
             ThrowIfDisposed();
             SDLSurfaceException.ThrowIfLessThan(
-                value is RGBColor color ? 
-                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_TRUE, color.ToUInt32(Format)) : 
-                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_FALSE, 0), 
+                value is RGBColor color ?
+                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_TRUE, color.ToUInt32(Format)) :
+                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_FALSE, 0),
                 0
             );
         }
@@ -357,7 +350,7 @@ public class Surface : IDisposable, IHandle
 
         destinationRect.ToSDL(out var d);
 
-        if(sourceRect is Rectangle src)
+        if (sourceRect is Rectangle src)
         {
             src.ToSDL(out var r);
             SDLTextureException.ThrowIfLessThan(SDL_LowerBlit(_handle, ref r, destination._handle, ref d), 0);

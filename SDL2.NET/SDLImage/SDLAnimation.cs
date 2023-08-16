@@ -26,7 +26,7 @@ public class SDLAnimation : IDisposable, IHandle
             _frames[i] = new(Surface.FetchOrNew(frames[i]), delays[i]);
     }
 
-    public SDLAnimationFrame this[int index] 
+    public SDLAnimationFrame this[int index]
         => _frames[index];
 
     public int Frames { get; }
