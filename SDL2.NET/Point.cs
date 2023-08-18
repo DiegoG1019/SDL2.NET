@@ -1,4 +1,5 @@
-﻿using static SDL2.Bindings.SDL;
+﻿using System.Numerics;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 
@@ -18,7 +19,7 @@ public struct Point
     /// </summary>
     /// <param name="rectangle">The <see cref="Rectangle"/> to check if is residency of <see cref="this"/> <see cref="Point"/></param>
     /// <returns>Whether <see cref="this"/> <see cref="Point"/> <paramref name="point"/> resides within <see cref="Rectangle"/> <paramref name="rectangle"/></returns>
-    public bool IsContainedIn(Rectangle rectangle)
+    public readonly bool IsContainedIn(Rectangle rectangle)
         => X >= rectangle.X && X < rectangle.X + rectangle.Width && Y >= rectangle.Y && Y < rectangle.Y + rectangle.Height;
     // It's better to just calc it here instead of bothering with marshalling and converting the types to their SDL counterparts. Not like native code has any advantage over compiled arithmetic expressions anyway
 
@@ -26,7 +27,7 @@ public struct Point
     /// Whether this <see cref="Point"/> is to the left of <paramref name="b"/>
     /// </summary>
     /// <returns>true if this is to the left of <paramref name="b"/></returns>
-    public bool IsToLeft(Point b) => -b.X + X > 0;
+    public readonly bool IsToLeft(Point b) => -b.X + X > 0;
 
     public static implicit operator Point(SDL_Point point)
         => new(point.x, point.y);
@@ -36,6 +37,13 @@ public struct Point
         x = X;
         y = Y;
     }
+
+    /// <summary>
+    /// Converts this <see cref="Point"/> into a <see cref="Vector2"/> with equivalent components
+    /// </summary>
+    /// <returns></returns>
+    public readonly Vector2 ToVector2()
+        => new(X, Y);
 
     internal void ToSDL(out SDL_Point point)
     {
