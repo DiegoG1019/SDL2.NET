@@ -3069,14 +3069,14 @@ namespace SDL2.Bindings
 		 * Only available in 2.0.18 or higher.
 		 */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SDL_RenderGeometryRaw(
+        public static unsafe extern int SDL_RenderGeometryRaw(
             IntPtr renderer,
             IntPtr texture,
-            [In] float[] xy,
+            [In] float* xy,
             int xy_stride,
-            [In] int[] color,
+            [In] SDL_Color* color,
             int color_stride,
-            [In] float[] uv,
+            [In] float* uv,
             int uv_stride,
             int num_vertices,
             IntPtr indices,
