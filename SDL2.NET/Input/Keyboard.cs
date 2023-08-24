@@ -15,7 +15,7 @@ public static class Keyboard
     /// <remarks>
     /// Not an actual list in the regular sense; simply conforming to the interface and backed by interoping with SDL's functions
     /// </remarks>
-    public static IReadOnlyList<KeyState> KeyStates { get; } = new KeyboardKeyStates();
+    public static KeyboardKeyStates KeyStates { get; } = new KeyboardKeyStates();
 
     /// <summary>
     /// The current modifier state of the keyboard
@@ -98,10 +98,23 @@ public static class Keyboard
 
     #endregion
 
-    private sealed class KeyboardKeyStates : IReadOnlyList<KeyState>
+    /// <summary>
+    /// A collection of indexable keystates
+    /// </summary>
+    /// <remarks>
+    /// This class cannot be instanced or inherited outside of this library
+    /// </remarks>
+    public sealed class KeyboardKeyStates : IReadOnlyList<KeyState>
     {
         internal KeyboardKeyStates() { }
 
+        /// <summary>
+        /// Gets the <see cref="KeyState"/> of the key identified by <paramref name="code"/>
+        /// </summary>
+        public KeyState this[Scancode code]
+            => this[(int)code];
+
+        /// <inheritdoc/>
         public KeyState this[int index]
         {
             get
@@ -113,6 +126,7 @@ public static class Keyboard
             }
         }
 
+        /// <inheritdoc/>
         public int Count
         {
             get
@@ -122,6 +136,7 @@ public static class Keyboard
             }
         }
 
+        /// <inheritdoc/>
         public IEnumerator<KeyState> GetEnumerator()
         {
             var ptr = SDL_GetKeyboardState(out int numkeys);
