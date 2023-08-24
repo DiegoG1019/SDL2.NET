@@ -26,10 +26,55 @@ public static class Image
         => new(IMG_Load(file));
 
     /// <summary>
+    /// Loads the given image from <paramref name="rwops"/>, and converts it into a <see cref="Surface"/> object. <see cref="IMG_Load_RW" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image_11.html#SEC11"/>
+    /// </summary>
+    /// <remarks>The type of the image is taken from the file extension, and works for any supported type (jpg, png, tga, bmp)</remarks>
+    /// <param name="rwops">The <see cref="RWops"/> object to load the image from.</param>
+    /// <returns>The converted surface object</returns>
+    public static Surface Load(RWops rwops)
+        => new(IMG_Load_RW(rwops.handle, 0));
+
+    /// <summary>
+    /// Loads the given image from a <see cref="Stream"/> presented as a <see cref="RWops"/> object to <see cref="Load(RWops)"/>, and converts it into a <see cref="Surface"/> object. <see cref="IMG_Load_RW" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image_11.html#SEC11"/>
+    /// </summary>
+    /// <remarks>The type of the image is taken from the file extension, and works for any supported type (jpg, png, tga, bmp)</remarks>
+    /// <param name="stream">The <see cref="Stream"/> object to load the image from.</param>
+    /// <returns>The converted surface object</returns>
+    public static Surface Load(Stream stream)
+    {
+        using var rwop = RWops.CreateFromStream(stream);
+        return Load(rwop);
+    }
+
+    /// <summary>
+    /// Loads the given image from <paramref name="rwops"/>, and converts it into a <see cref="Surface"/> object. <see cref="IMG_Load" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image_11.html#SEC11"/>
+    /// </summary>
+    /// <remarks>The type of the image is taken from the file extension, and works for any supported type (jpg, png, tga, bmp)</remarks>
+    /// <param name="rwops">The <see cref="RWops"/> object to load the image from.</param>
+    /// <param name="renderer">The <see cref="Renderer"/> to bind the image to.</param>
+    /// <returns>The converted surface object</returns>
+    public static Texture LoadTexture(Renderer renderer, RWops rwops)
+        => new(IMG_LoadTexture_RW(renderer._handle, rwops.handle, 0), renderer);
+
+    /// <summary>
+    /// Loads the given image from <see cref="Stream"/>, and converts it into a <see cref="Surface"/> object. <see cref="IMG_Load" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image_11.html#SEC11"/>
+    /// </summary>
+    /// <remarks>The type of the image is taken from the file extension, and works for any supported type (jpg, png, tga, bmp)</remarks>
+    /// <param name="stream">The <see cref="Stream"/> object to load the image from.</param>
+    /// <param name="renderer">The <see cref="Renderer"/> to bind the image to.</param>
+    /// <returns>The converted surface object</returns>
+    public static Texture LoadTexture(Renderer renderer, Stream stream)
+    {
+        using var rwop = RWops.CreateFromStream(stream);
+        return LoadTexture(renderer, rwop);
+    }
+
+    /// <summary>
     /// Loads the given image from disk, and converts it into a <see cref="Surface"/> object. <see cref="IMG_Load" href="https://www.libsdl.org/projects/SDL_image/docs/SDL_image_11.html#SEC11"/>
     /// </summary>
     /// <remarks>The type of the image is taken from the file extension, and works for any supported type (jpg, png, tga, bmp)</remarks>
     /// <param name="file">The file to load the image from.</param>
+    /// <param name="renderer">The <see cref="Renderer"/> to bind the image to.</param>
     /// <returns>The converted surface object</returns>
     public static Texture LoadTexture(Renderer renderer, string file)
         => new(IMG_LoadTexture(renderer._handle, file), renderer);

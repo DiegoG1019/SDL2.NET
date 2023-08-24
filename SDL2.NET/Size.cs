@@ -1,4 +1,5 @@
-﻿using static SDL2.Bindings.SDL;
+﻿using System.Numerics;
+using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
 public struct Size : IEquatable<Size>
@@ -29,6 +30,9 @@ public struct Size : IEquatable<Size>
         width = Width;
         height = Height;
     }
+
+    public Vector2 ToVector2()
+        => new(Width, Height);
 
     public bool Equals(Size other) => Height == other.Height && Width == other.Width;
     public static bool operator ==(Size a, Size b) => a.Equals(b);

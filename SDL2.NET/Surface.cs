@@ -11,9 +11,9 @@ namespace SDL2.NET;
 public class Surface : IDisposable, IHandle
 {
     IntPtr IHandle.Handle => _handle;
-    private static readonly ConcurrentDictionary<IntPtr, WeakReference<Surface>> _handleDict = new(2, 10);
-
     internal readonly IntPtr _handle;
+
+    private static readonly ConcurrentDictionary<IntPtr, WeakReference<Surface>> _handleDict = new(2, 10);
 
     internal static Surface FetchOrNew(IntPtr handle)
         => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);
