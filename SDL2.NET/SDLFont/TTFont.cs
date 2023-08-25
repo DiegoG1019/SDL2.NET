@@ -8,7 +8,15 @@ namespace SDL2.NET.SDLFont;
 /// </summary>
 public class TTFont : IDisposable, IHandle
 {
+    static TTFont()
+    {
+        if (TTF_WasInit() <= 0)
+            if (TTF_Init() != 0)
+                throw new SDLFontException(TTF_GetError());
+    }
+
     IntPtr IHandle.Handle => _handle;
+
     private readonly IntPtr _handle;
     internal TTFont(IntPtr handle)
     {
@@ -17,9 +25,24 @@ public class TTFont : IDisposable, IHandle
             throw new SDLFontException(TTF_GetError());
     }
 
+    private static nint ReadFromStream(Stream stream, int size)
+    {
+        using var rw = RWops.CreateFromStream(stream);
+        return TTF_OpenFontRW(rw.handle, 0, size);
+    }
 
     /// <summary>
-    /// Loads a file for use as a font, at <see cref="size"/> . This can load TTF and FON files.
+    /// Reads a stream for use as a font, at <paramref name="size"/>. This can load TTF and FON files.
+    /// </summary>
+    /// <param name="stream">The stream from which to read the data</param>
+    /// <param name="size">The size of the font</param>
+    public TTFont(Stream stream, int size) : this(ReadFromStream(stream, size))
+    {
+        _size = size;
+    }
+
+    /// <summary>
+    /// Loads a file for use as a font, at <paramref name="size"/>. This can load TTF and FON files.
     /// </summary>
     /// <param name="file">The name of the file in the disk</param>
     /// <param name="size">The size of the font</param>
@@ -29,7 +52,7 @@ public class TTFont : IDisposable, IHandle
     }
 
     /// <summary>
-    /// Load file, face index, for use as a font, at <see cref="size"/> . This can load TTF and FON files.
+    /// Load file, face index, for use as a font, at <paramref name="size"/>. This can load TTF and FON files.
     /// </summary>
     /// <param name="file">The name of the file in the disk</param>
     /// <param name="size">The size of the font</param>
