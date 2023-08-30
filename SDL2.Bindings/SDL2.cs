@@ -235,15 +235,33 @@ namespace SDL2.Bindings
             string mode
         )
         {
-            byte* utf8File = Utf8EncodeHeap(file);
-            byte* utf8Mode = Utf8EncodeHeap(mode);
-            IntPtr rwOps = INTERNAL_SDL_RWFromFile(
-                utf8File,
-                utf8Mode
-            );
-            Marshal.FreeHGlobal((IntPtr)utf8Mode);
-            Marshal.FreeHGlobal((IntPtr)utf8File);
-            return rwOps;
+            var textSizeFile = Encoding.UTF8.GetByteCount(file);
+            var textSizeMode = Encoding.UTF8.GetByteCount(mode);
+            byte[]? rentedFile = null;
+            byte[]? rentedMode = null;
+            Span<byte> utf8File = textSizeFile > 1024 ? stackalloc byte[textSizeFile] : (rentedFile = ArrayPool<byte>.Shared.Rent(textSizeFile)).AsSpan(0, textSizeFile);
+            Span<byte> utf8Mode = textSizeMode > 1024 ? stackalloc byte[textSizeMode] : (rentedMode = ArrayPool<byte>.Shared.Rent(textSizeMode)).AsSpan(0, textSizeMode);
+            try
+            {
+                StringToUTF8(file, utf8File);
+                StringToUTF8(file, utf8Mode);
+                fixed (byte* f = utf8File)
+                fixed (byte* m = utf8Mode) 
+                {
+                    IntPtr rwOps = INTERNAL_SDL_RWFromFile(
+                        f,
+                        m
+                    );
+                    return rwOps;
+                }
+            }
+            finally
+            {
+                if (rentedFile != null)
+                    ArrayPool<byte>.Shared.Return(rentedFile);
+                if (rentedMode != null)
+                    ArrayPool<byte>.Shared.Return(rentedMode);
+            }
         }
 
         /* IntPtr refers to an SDL_RWops* */
