@@ -33,6 +33,7 @@
 
 #region Using Statements
 using System;
+using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
 #endregion
@@ -51,6 +52,7 @@ namespace SDL2.Bindings
 
         /* Used for stack allocated string marshaling. */
         internal static int Utf8Size(string str)
+        internal static Span<byte> StringToUTF8(string str, Span<byte> bytes)
         {
             if (str == null)
             {
@@ -88,6 +90,14 @@ namespace SDL2.Bindings
                 Encoding.UTF8.GetBytes(strPtr, str.Length + 1, buffer, bufferSize);
             }
             return buffer;
+            var len = Encoding.UTF8.GetByteCount(str);
+            var truelen = len + Encoding.UTF8.GetByteCount("\0");
+            if (bytes.Length < len)
+                throw new ArgumentException("The buffer does not have enough characters to encode the string", nameof(bytes));
+            if (bytes.Length < truelen)
+                throw new ArgumentException("The buffer is missing two bytes for the null terminator", nameof(bytes));
+            Encoding.UTF8.GetBytes(str + "\0", bytes);
+            return bytes[..truelen];
         }
 
         /* This is public because SDL_DropEvent needs it! */
