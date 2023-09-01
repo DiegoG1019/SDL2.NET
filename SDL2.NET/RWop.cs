@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SDL2.Bindings;
+using SDL2.NET.Exceptions;
 
 namespace SDL2.NET;
 
