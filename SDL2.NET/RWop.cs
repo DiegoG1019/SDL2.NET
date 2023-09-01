@@ -211,6 +211,14 @@ public class RWops : IHandle, IDisposable
     #endregion
 
     /// <summary>
+    /// The <see cref="RWopObject"/> around which this <see cref="RWops"/> is built
+    /// </summary>
+    /// <remarks>
+    /// If null, this <see cref="RWops"/> was created using delegates directly
+    /// </remarks>
+    public RWopObject? RWopObject { get; }
+
+    /// <summary>
     /// Creates an <see cref="RWops"/> object that represents <paramref name="stream"/>
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to wrap the newly created <see cref="RWops"/> around</param>
@@ -227,33 +235,62 @@ public class RWops : IHandle, IDisposable
             },
             cleanupStream ? null : (r) => stream.Dispose()
         );
+    public static RWops CreateFromMemory<T>( memory)
+        where T : unmanaged
+        => new(SDL.SDL_RWFromMem(memory.);
 
     /// <summary>
     /// The callback that obtains the size of the represented object
     /// </summary>
-    public GetRWopSize GetSizeCallback { get; }
+    /// <remarks>
+    /// Might be <see langword="null"/> if <see cref="FromNative"/> is <see langword="true"/>
+    /// </remarks>
+    public GetRWopSize? GetSizeCallback { get; }
 
     /// <summary>
     /// The callback that seeks in the represented object
     /// </summary>
-    public SeekRWop SeekCallback { get; }
+    /// <remarks>
+    /// Might be <see langword="null"/> if <see cref="FromNative"/> is <see langword="true"/>
+    /// </remarks>
+    public SeekRWop? SeekCallback { get; }
 
     /// <summary>
     /// The callback that reads from the represented object
     /// </summary>
-    public ReadRWop ReadCallback { get; }
+    /// <remarks>
+    /// Might be <see langword="null"/> if <see cref="FromNative"/> is <see langword="true"/>
+    /// </remarks>
+    public ReadRWop? ReadCallback { get; }
 
     /// <summary>
     /// The callback that writes into the represented object
     /// </summary>
-    public WriteRWop WriteCallback { get; }
+    /// <remarks>
+    /// Might be <see langword="null"/> if <see cref="FromNative"/> is <see langword="true"/>
+    /// </remarks>
+    public WriteRWop? WriteCallback { get; }
 
     /// <summary>
     /// The callback that closes the represented object after reading or writing is done
     /// </summary>
     public CloseRWop? CloseCallback { get; }
 
+    /// <summary>
+    /// <see langword="true"/> if this <see cref="RWops"/> object is backed directly by SDL or another unmanaged library, <see langword="false"/> if backed by a managed .NET type like a <see cref="StreamRWopObject"/>
+    /// </summary>
+    public bool FromNative { get; } = false;
+
     internal readonly nint handle;
+
+    internal RWops(nint handle)
+    {
+        if (handle == 0)
+            throw new SDLRWopCreationException(SDL.SDL_GetAndClearError());
+
+        this.handle = handle;
+        FromNative = true;
+    }
 
     /// <summary>
     /// Creates a new RWop
@@ -306,6 +343,9 @@ public class RWops : IHandle, IDisposable
 
             _handleDict.TryRemove(handle, out _);
             SDL.SDL_FreeRW(handle);
+
+            RWopObject?.Dispose();
+
             disposedValue = true;
         }
     }
