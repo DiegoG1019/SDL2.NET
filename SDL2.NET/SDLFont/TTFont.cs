@@ -1,4 +1,5 @@
-﻿using SDL2.NET.SDLFont.Exceptions;
+﻿using System.Diagnostics;
+using SDL2.NET.SDLFont.Exceptions;
 using static SDL2.Bindings.SDL_ttf;
 
 namespace SDL2.NET.SDLFont;
@@ -6,39 +7,75 @@ namespace SDL2.NET.SDLFont;
 /// <summary>
 /// Represents a True Type Font (TTF)
 /// </summary>
+/// <remarks>
+/// Be careful when using <see cref="TTFont(RWops, int)"/> or <see cref="TTFont(Stream, int)"/>. Disposing of the objects during this <see cref="TTFont"/>'s life might result in an <see cref="AccessViolationException"/>. Preferrably, allow the <see cref="TTFont"/> object to manage the data object's lifespan
+/// </remarks>
 public class TTFont : IDisposable, IHandle
 {
-    static TTFont()
-    {
-        if (TTF_WasInit() <= 0)
-            if (TTF_Init() != 0)
-                throw new SDLFontException(TTF_GetError());
-    }
-
     IntPtr IHandle.Handle => _handle;
 
     private readonly IntPtr _handle;
     internal TTFont(IntPtr handle)
     {
+        Debug.Assert(TTF_WasInit() == 1, $"SDL_TTF unexpectedly did not equal 1, but {TTF_WasInit()} instead");
         _handle = handle;
         if (_handle == IntPtr.Zero)
             throw new SDLFontException(TTF_GetError());
     }
 
-    private static nint ReadFromStream(Stream stream, int size)
+    private static void Init()
     {
-        using var rw = RWops.CreateFromStream(stream);
-        return TTF_OpenFontRW(rw.handle, 0, size);
+        if (TTF_WasInit() == 0)
+            if (TTF_Init() != 0)
+                throw new SDLFontException(TTF_GetError());
+    }
+
+    private static nint OpenFont(string file, int size)
+    {
+        Init();
+        return TTF_OpenFont(file, size);
+    }
+
+    private static nint OpenFontIndex(string file, int size, long index)
+    {
+        Init();
+        return TTF_OpenFontIndex(file, size, index);
+    }
+
+    private static nint ReadFromStream(Stream stream, int size, out RWops rwop)
+    {
+        rwop = RWops.CreateFromStream(stream);
+        return ReadFromRwops(rwop, size);
+    }
+
+    private static nint ReadFromRwops(RWops ops, int size)
+    {
+        Init();
+        return TTF_OpenFontRW(ops.handle, 0, size);
+    }
+
+    private readonly RWops? fontstream;
+
+    /// <summary>
+    /// Reads a stream for use as a font, at <paramref name="size"/>. This can load TTF and FON files.
+    /// </summary>
+    /// <param name="rwops">The RW object from which to read the data. This RWop is NOT TO BE DISPOSED OR FREED. It'll be disposed by this object when this object is disposed</param>
+    /// <param name="size">The size of the font</param>
+    public TTFont(RWops rwops, int size) : this(ReadFromRwops(rwops, size))
+    {
+        _size = size;
+        fontstream = rwops;
     }
 
     /// <summary>
     /// Reads a stream for use as a font, at <paramref name="size"/>. This can load TTF and FON files.
     /// </summary>
-    /// <param name="stream">The stream from which to read the data</param>
+    /// <param name="stream">The stream from which to read the data. This stream is NOT TO BE DISPOSED. It'll be disposed by this object when this object is disposed</param>
     /// <param name="size">The size of the font</param>
-    public TTFont(Stream stream, int size) : this(ReadFromStream(stream, size))
+    public TTFont(Stream stream, int size) : this(ReadFromStream(stream, size, out var rwop))
     {
         _size = size;
+        fontstream = rwop;
     }
 
     /// <summary>
@@ -46,7 +83,7 @@ public class TTFont : IDisposable, IHandle
     /// </summary>
     /// <param name="file">The name of the file in the disk</param>
     /// <param name="size">The size of the font</param>
-    public TTFont(string file, int size) : this(TTF_OpenFont(file, size))
+    public TTFont(string file, int size) : this(OpenFont(file, size))
     {
         _size = size;
     }
@@ -57,7 +94,7 @@ public class TTFont : IDisposable, IHandle
     /// <param name="file">The name of the file in the disk</param>
     /// <param name="size">The size of the font</param>
     /// <param name="index">The index of the fontface</param>
-    public TTFont(string file, int size, long index) : this(TTF_OpenFontIndex(file, size, index))
+    public TTFont(string file, int size, long index) : this(OpenFontIndex(file, size, index))
     {
         _size = size;
     }
@@ -538,6 +575,7 @@ public class TTFont : IDisposable, IHandle
         if (!disposedValue)
         {
             TTF_CloseFont(_handle);
+            fontstream?.Dispose();
             disposedValue = true;
         }
     }
