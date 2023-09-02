@@ -14,6 +14,7 @@ public class PixelFormatData : IDisposable, IHandle
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<PixelFormatData>> _handleDict = new(2, 10);
 
     internal readonly IntPtr _handle;
+    private bool Created;
 
     internal static PixelFormatData FetchOrNew(IntPtr handle)
         => (_handleDict.TryGetValue(handle, out var wp) && wp.TryGetTarget(out var p)) ? p : new(handle);
@@ -29,6 +30,7 @@ public class PixelFormatData : IDisposable, IHandle
         _pal = f.palette == IntPtr.Zero ? null : Palette.FetchOrNew(f.palette);
 
         Mask = new(f.BitsPerPixel, f.Rmask, f.Gmask, f.Bmask, f.Amask, f.BytesPerPixel);
+        Created = false;
     }
 
     /// <summary>
@@ -36,7 +38,21 @@ public class PixelFormatData : IDisposable, IHandle
     /// </summary>
     /// <param name="format"></param>
     public PixelFormatData(PixelFormat format)
-        : this(SDL_AllocFormat((uint)format)) { }
+        : this(SDL_AllocFormat((uint)format)) 
+    {
+        Created = true;
+    }
+
+    /// <summary>
+    /// Drops the control over the LifeSpan of this <see cref="PixelFormatData"/> this .NET wrapper object has over the backing native SDL object
+    /// </summary>
+    /// <remarks>
+    /// Calling this method carelessly may result in memory leaks
+    /// </remarks>
+    public void DropLifeSpanControl()
+    {
+        Created = false;
+    }
 
     /// <summary>
     /// The <see cref="PixelFormat"/> of this data object
@@ -71,7 +87,8 @@ public class PixelFormatData : IDisposable, IHandle
     {
         if (!disposedValue)
         {
-            SDL_FreeFormat(_handle);
+            if (Created)
+                SDL_FreeFormat(_handle);
             _handleDict.TryRemove(_handle, out _);
             disposedValue = true;
         }

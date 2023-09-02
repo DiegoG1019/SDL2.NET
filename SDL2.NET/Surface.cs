@@ -42,7 +42,6 @@ public class Surface : IDisposable, IHandle
             throw new SDLSurfaceCreationException(SDL_GetAndClearError());
 
         var str = BackingStruct;
-        Format = PixelFormatData.FetchOrNew(str.format);
         Pitch = str.pitch;
         Size = new(str.w, str.h);
     }
@@ -73,9 +72,10 @@ public class Surface : IDisposable, IHandle
 #warning missing https://wiki.libsdl.org/SDL_CreateRGBSurfaceFrom
 
     /// <summary>
-    /// The format of the pixels stored in the surface
+    /// Gets the format of the pixels stored in the surface
     /// </summary>
-    public PixelFormatData Format { get; }
+    public PixelFormatData GetFormat() 
+        => PixelFormatData.FetchOrNew(BackingStruct.format);
 
     /// <summary>
     /// The length of a row of pixels in <see cref="byte"/>s
@@ -120,9 +120,9 @@ public class Surface : IDisposable, IHandle
         if (rect is Rectangle re)
         {
             re.ToSDL(out var r);
-            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(Format)), 0);
+            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(GetFormat())), 0);
         }
-        SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(Format)), 0);
+        SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(GetFormat())), 0);
     }
 
     /// <summary>
@@ -232,7 +232,7 @@ public class Surface : IDisposable, IHandle
         for (int i = 0; i < rectangles.Length; i++)
             rectangles[i].ToSDL(out rects[i]);
 
-        SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(Format)), 0);
+        SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(GetFormat())), 0);
     }
 
     /// <summary>
@@ -251,14 +251,14 @@ public class Surface : IDisposable, IHandle
             if (r is -1)
                 return null;
             SDLSurfaceException.ThrowIfLessThan(r, 0);
-            return RGBColor.FromUInt32(key, Format);
+            return RGBColor.FromUInt32(key, GetFormat());
         }
         set
         {
             ThrowIfDisposed();
             SDLSurfaceException.ThrowIfLessThan(
                 value is RGBColor color ?
-                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_TRUE, color.ToUInt32(Format)) :
+                    SDL_SetColorKey(_handle, (int)SDL_bool.SDL_TRUE, color.ToUInt32(GetFormat())) :
                     SDL_SetColorKey(_handle, (int)SDL_bool.SDL_FALSE, 0),
                 0
             );
