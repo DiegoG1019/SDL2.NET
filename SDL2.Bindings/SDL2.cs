@@ -52,7 +52,6 @@ namespace SDL2.Bindings
 
         /* Used for stack allocated string marshaling. */
         internal static int Utf8Size(string str)
-        internal static Span<byte> StringToUTF8(string str, Span<byte> bytes)
         {
             if (str == null)
             {
@@ -60,6 +59,7 @@ namespace SDL2.Bindings
             }
             return str.Length * 4 + 1;
         }
+
         internal static unsafe byte* Utf8Encode(string str, byte* buffer, int bufferSize)
         {
             if (str == null)
@@ -90,14 +90,6 @@ namespace SDL2.Bindings
                 Encoding.UTF8.GetBytes(strPtr, str.Length + 1, buffer, bufferSize);
             }
             return buffer;
-            var len = Encoding.UTF8.GetByteCount(str);
-            var truelen = len + Encoding.UTF8.GetByteCount("\0");
-            if (bytes.Length < len)
-                throw new ArgumentException("The buffer does not have enough characters to encode the string", nameof(bytes));
-            if (bytes.Length < truelen)
-                throw new ArgumentException("The buffer is missing two bytes for the null terminator", nameof(bytes));
-            Encoding.UTF8.GetBytes(str + "\0", bytes);
-            return bytes[..truelen];
         }
 
         /* This is public because SDL_DropEvent needs it! */
@@ -235,33 +227,15 @@ namespace SDL2.Bindings
             string mode
         )
         {
-            var textSizeFile = Encoding.UTF8.GetByteCount(file);
-            var textSizeMode = Encoding.UTF8.GetByteCount(mode);
-            byte[]? rentedFile = null;
-            byte[]? rentedMode = null;
-            Span<byte> utf8File = textSizeFile > 1024 ? stackalloc byte[textSizeFile] : (rentedFile = ArrayPool<byte>.Shared.Rent(textSizeFile)).AsSpan(0, textSizeFile);
-            Span<byte> utf8Mode = textSizeMode > 1024 ? stackalloc byte[textSizeMode] : (rentedMode = ArrayPool<byte>.Shared.Rent(textSizeMode)).AsSpan(0, textSizeMode);
-            try
-            {
-                StringToUTF8(file, utf8File);
-                StringToUTF8(file, utf8Mode);
-                fixed (byte* f = utf8File)
-                fixed (byte* m = utf8Mode) 
-                {
-                    IntPtr rwOps = INTERNAL_SDL_RWFromFile(
-                        f,
-                        m
-                    );
-                    return rwOps;
-                }
-            }
-            finally
-            {
-                if (rentedFile != null)
-                    ArrayPool<byte>.Shared.Return(rentedFile);
-                if (rentedMode != null)
-                    ArrayPool<byte>.Shared.Return(rentedMode);
-            }
+            byte* utf8File = Utf8EncodeHeap(file);
+            byte* utf8Mode = Utf8EncodeHeap(mode);
+            IntPtr rwOps = INTERNAL_SDL_RWFromFile(
+                utf8File,
+                utf8Mode
+            );
+            Marshal.FreeHGlobal((IntPtr)utf8Mode);
+            Marshal.FreeHGlobal((IntPtr)utf8File);
+            return rwOps;
         }
 
         /* IntPtr refers to an SDL_RWops* */
