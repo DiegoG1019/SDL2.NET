@@ -55,32 +55,13 @@ public class Window : IDisposable, IHandle
         return false;
     }
 
-    /// <summary>
-    /// Instantiates a new <see cref="Window"/>
-    /// </summary>
-    /// <param name="title">The title of the <see cref="Window"/></param>
-    /// <param name="width">The width of the <see cref="Window"/></param>
-    /// <param name="height">The height of the <see cref="Window"/></param>
-    /// <param name="configuration">The configuration parameters of the <see cref="Window"/></param>
-    /// <param name="centerPointX">The center point along the X axis of the <see cref="Window"/></param>
-    /// <param name="centerPointY">The center point along the Y axis of the <see cref="Window"/></param>
-    /// <exception cref="SDLWindowCreationException"></exception>
-    public Window(string title, int width, int height, WindowConfig? configuration, int? centerPointX = null, int? centerPointY = null)
+    private Window(nint handle, int threadid)
     {
-        ThreadID = Environment.CurrentManagedThreadId;
+        ThreadID = threadid;
+        _handle = handle;
 
-        _handle = SDL_CreateWindow(
-            title,
-            centerPointX ?? SDL_WINDOWPOS_CENTERED,
-            centerPointY ?? SDL_WINDOWPOS_CENTERED,
-            width,
-            height,
-            (configuration ?? WindowConfig.Default).GenerateFlags()
-        );
         if (_handle == IntPtr.Zero)
             throw new SDLWindowCreationException(SDL_GetAndClearError());
-
-        Surface = new Surface(SDL_GetWindowSurface(_handle));
 
         hitTestDelegate = htcallback;
         IsHitTestSupported = SDL_SetWindowHitTest(_handle, hitTestDelegate, IntPtr.Zero) == 0;
@@ -95,6 +76,27 @@ public class Window : IDisposable, IHandle
         _handleDict[_handle] = r;
         _idDict[WindowId = SDL_GetWindowID(_handle)] = r;
     }
+
+    /// <summary>
+    /// Instantiates a new <see cref="Window"/>
+    /// </summary>
+    /// <param name="title">The title of the <see cref="Window"/></param>
+    /// <param name="width">The width of the <see cref="Window"/></param>
+    /// <param name="height">The height of the <see cref="Window"/></param>
+    /// <param name="configuration">The configuration parameters of the <see cref="Window"/></param>
+    /// <param name="centerPointX">The center point along the X axis of the <see cref="Window"/></param>
+    /// <param name="centerPointY">The center point along the Y axis of the <see cref="Window"/></param>
+    /// <exception cref="SDLWindowCreationException"></exception>
+    public Window(string title, int width, int height, WindowConfig? configuration, int? centerPointX = null, int? centerPointY = null)
+        : this(SDL_CreateWindow(
+            title,
+            centerPointX ?? SDL_WINDOWPOS_CENTERED,
+            centerPointY ?? SDL_WINDOWPOS_CENTERED,
+            width,
+            height,
+            (configuration ?? WindowConfig.Default).GenerateFlags()
+        ), Environment.CurrentManagedThreadId)
+    { }
 
     #region Events
 
