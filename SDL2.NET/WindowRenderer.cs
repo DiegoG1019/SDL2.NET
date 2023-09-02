@@ -12,6 +12,12 @@ public class WindowRenderer : Renderer
     /// </summary>
     public Window AttachedWindow { get; }
 
+    internal WindowRenderer(nint handle, Window window) : base(handle)
+    {
+        AttachedWindow = window;
+        window.AttachedRenderer = this;
+    }
+
     /// <summary>
     /// Instantiates a new <see cref="WindowRenderer"/> with a given <see cref="Window"/>
     /// </summary>
