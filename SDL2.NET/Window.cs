@@ -1086,9 +1086,10 @@ public class Window : IDisposable, IHandle
     }
 
     /// <summary>
-    /// The <see cref="Surface"/> of this <see cref="Window"/>
+    /// Gets the <see cref="Surface"/> of this <see cref="Window"/>
     /// </summary>
-    public Surface Surface { get; }
+    public Surface GetWindowSurface()
+        => Surface.FetchOrNew(SDL_GetWindowSurface(_handle));
 
     /// <summary>
     /// Copy areas of the window surface to the screen. <see cref="SDL_UpdateWindowSurfaceRects" href="https://wiki.libsdl.org/SDL_UpdateWindowSurfaceRects"/>
