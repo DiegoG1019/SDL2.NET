@@ -30,15 +30,20 @@ public class Window : IDisposable, IHandle
     /// <param name="width">The width of the <see cref="Window"/></param>
     /// <param name="height">The height of the <see cref="Window"/></param>
     /// <param name="configuration">The configuration parameters of the <see cref="Window"/></param>
-    /// <param name="centerPointX">The center point along the X axis of the <see cref="Window"/></param>
-    /// <param name="centerPointY">The center point along the Y axis of the <see cref="Window"/></param>
-    /// <param name="rendererIndex">The renderer index of the renderer</param>
     /// <param name="rendererFlags">The RendererFlags of the renderer</param>
+    /// <param name="renderer">The newly created <see cref="WindowRenderer"/> for <paramref name="window"/></param>
+    /// <param name="window">The newly created <see cref="Window"/></param>
     /// <returns></returns>
-    public static WindowRenderer CreateWindowAndRenderer(string title, int width, int height, int rendererIndex = -1, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync, WindowConfig? configuration = null, int? centerPointX = null, int? centerPointY = null)
+    public static void CreateWindowAndRenderer(string title, int width, int height, out Window window, out WindowRenderer renderer, RendererFlags rendererFlags = RendererFlags.Accelerated | RendererFlags.PresentVSync, WindowConfig? configuration = null)
     {
-        var win = new Window(title, width, height, configuration, centerPointX, centerPointY);
-        return new WindowRenderer(win, rendererIndex);
+        if (SDL_CreateWindowAndRenderer(width, height, (configuration ?? WindowConfig.Default).GenerateFlags(), out nint w, out nint r) != 0) 
+            throw new SDLWindowCreationException(SDL_GetAndClearError());
+        var win = new Window(w, Environment.CurrentManagedThreadId)
+        {
+            Title = title
+        };
+        window = win;
+        renderer = new WindowRenderer(r, win);
     }
 
     /// <summary>
