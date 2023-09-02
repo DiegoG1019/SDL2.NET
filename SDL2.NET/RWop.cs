@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SDL2.Bindings;
 using SDL2.NET.Exceptions;
+using SDL2.NET.Utilities;
 
 namespace SDL2.NET;
 
@@ -63,6 +64,7 @@ public class RWops : IHandle, IDisposable
 
         try
         {
+            Debug.Assert(rwop.GetSizeCallback is not null, "Function pointer of RWop was unexpectedly null");
             return rwop.GetSizeCallback(rwop);
         }
         catch(Exception e)
@@ -82,6 +84,7 @@ public class RWops : IHandle, IDisposable
 
         try
         {
+            Debug.Assert(rwop.SeekCallback is not null, "Function pointer of RWop was unexpectedly null");
             rwop.SeekCallback(rwop, o, (RWopSeekMode)m);
             return 0;
         }
@@ -102,6 +105,7 @@ public class RWops : IHandle, IDisposable
 
         try
         {
+            Debug.Assert(rwop.ReadCallback is not null, "Function pointer of RWop was unexpectedly null");
             Span<byte> sp = new(d, (int)(s * c));
             return (nint)rwop.ReadCallback(rwop, sp);
         }
@@ -122,6 +126,7 @@ public class RWops : IHandle, IDisposable
 
         try
         {
+            Debug.Assert(rwop.WriteCallback is not null, "Function pointer of RWop was unexpectedly null");
             ReadOnlySpan<byte> sp = new(d, (int)(s * c));
             return (nint)rwop.WriteCallback(rwop, sp);
         }
@@ -143,6 +148,7 @@ public class RWops : IHandle, IDisposable
         try
         {
             rwop.CloseCallback?.Invoke(rwop);
+            rwop.Dispose();
             return 0;
         }
         catch (Exception e)
@@ -212,12 +218,17 @@ public class RWops : IHandle, IDisposable
     #endregion
 
     /// <summary>
-    /// The <see cref="RWopObject"/> around which this <see cref="RWops"/> is built
+    /// The <see cref="object"/> around which this <see cref="RWops"/> is built
     /// </summary>
     /// <remarks>
-    /// If null, this <see cref="RWops"/> was created using delegates directly
+    /// If null, this <see cref="RWops"/> was created using delegates directly. This object might implement <see cref="IDisposable"/>
     /// </remarks>
-    public RWopObject? RWopObject { get; }
+    public object? RWopObject { get; private init; }
+
+    /// <summary>
+    /// Whether this <see cref="RWops"/> will dispose of <see cref="RWopObject"/> if it implements <see cref="IDisposable"/> when this <see cref="RWops"/> is disposed (either by managed or unmanaged code)
+    /// </summary>
+    public bool DisposeOfRWopObjectIfPossible { get; private init; }
 
     /// <summary>
     /// Creates an <see cref="RWops"/> object that represents <paramref name="stream"/>
@@ -236,9 +247,34 @@ public class RWops : IHandle, IDisposable
             },
             cleanupStream ? null : (r) => stream.Dispose()
         );
-    public static RWops CreateFromMemory<T>( memory)
+
+    /// <summary>
+    /// Creates an <see cref="RWops"/> that wraps the array pinned by <paramref name="array"/> through SDL's native methods
+    /// </summary>
+    /// <param name="array">The pinned buffer</param>
+    /// <param name="isReadonly"><see langword="true"/> if the array should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(nint, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(nint, int)"/>).</param>
+    /// <param name="freeOnDispose">Whether <paramref name="array"/> should automatically be freed from being pinned upon this <see cref="RWops"/> being disposed</param>
+    /// <typeparam name="T">The type of data the array has</typeparam>
+    public unsafe static RWops CreateFromMemory<T>(PinnedArray<T> array, bool isReadonly = false, bool freeOnDispose = false)
         where T : unmanaged
-        => new(SDL.SDL_RWFromMem(memory.);
+        => new(isReadonly ? SDL.SDL_RWFromConstMem(array.GetPointer(), array.Array.Length * sizeof(T)) : SDL.SDL_RWFromMem(array.GetPointer(), array.Array.Length * sizeof(T)))
+        {
+            RWopObject = array,
+            DisposeOfRWopObjectIfPossible = freeOnDispose
+        };
+
+    /// <summary>
+    /// Creates an <see cref="RWops"/> that wraps the unmanaged buffer through SDL's native methods
+    /// </summary>
+    /// <param name="buffer">The unmanaged buffer</param>
+    /// <param name="isReadonly"><see langword="true"/> if the array should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(nint, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(nint, int)"/>).</param>
+    /// <param name="freeOnDispose">Whether <paramref name="buffer"/>'s backing memory should automatically be freed upon this <see cref="RWops"/> being disposed</param>
+    public unsafe static RWops CreateFromMemory(UnmanagedBuffer buffer, bool isReadonly = false, bool freeOnDispose = false)
+        => new(isReadonly ? SDL.SDL_RWFromConstMem(buffer.GetPointer(), buffer.Length) : SDL.SDL_RWFromMem(buffer.GetPointer(), buffer.Length))
+        {
+            RWopObject = buffer,
+            DisposeOfRWopObjectIfPossible = freeOnDispose
+        };
 
     /// <summary>
     /// The callback that obtains the size of the represented object
@@ -345,7 +381,8 @@ public class RWops : IHandle, IDisposable
             _handleDict.TryRemove(handle, out _);
             SDL.SDL_FreeRW(handle);
 
-            RWopObject?.Dispose();
+            if (DisposeOfRWopObjectIfPossible && RWopObject is IDisposable disp)
+                disp.Dispose();
 
             disposedValue = true;
         }
