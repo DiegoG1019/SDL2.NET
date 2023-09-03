@@ -4,10 +4,10 @@ namespace SDL2.NET;
 
 public struct FRectangle
 {
-    public float Width { get; set; }
-    public float Height { get; set; }
     public float X { get; set; }
     public float Y { get; set; }
+    public float Width { get; set; }
+    public float Height { get; set; }
 
     public FRectangle(float width, float height, float x, float y)
     {

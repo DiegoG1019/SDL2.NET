@@ -78,12 +78,8 @@ public abstract class Renderer : IDisposable, IHandle
     public void DrawLines(ReadOnlySpan<Point> points, RGBAColor? color = null)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(out sdl_p[i]);
-
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLines(_handle, sdl_p, points.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLines(_handle, points.ToSDL(), points.Length), 0);
     }
 
     /// <summary>
@@ -93,12 +89,8 @@ public abstract class Renderer : IDisposable, IHandle
     public void DrawLines(ReadOnlySpan<FPoint> points, RGBAColor? color = null)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(out sdl_p[i]);
-
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLinesF(_handle, sdl_p, points.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawLinesF(_handle, points.ToSDL(), points.Length), 0);
     }
 
     /// <summary>
@@ -134,12 +126,9 @@ public abstract class Renderer : IDisposable, IHandle
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawPoints(ReadOnlySpan<Point> points, RGBAColor? color = null)
     {
-        ThrowIfInvalidAccess();
-        Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(out sdl_p[i]);
+        ThrowIfInvalidAccess();       
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoints(_handle, sdl_p, points.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPoints(_handle, points.ToSDL(), points.Length), 0);
     }
 
     /// <summary>
@@ -175,12 +164,9 @@ public abstract class Renderer : IDisposable, IHandle
     /// <param name="color">The <see cref="RGBAColor"/> to use when drawing this and next elements. Sets <see cref="RenderColor"/></param>
     public void DrawPoints(ReadOnlySpan<FPoint> points, RGBAColor? color = null)
     {
-        ThrowIfInvalidAccess();
-        Span<SDL_FPoint> sdl_p = stackalloc SDL_FPoint[points.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(out sdl_p[i]);
+        ThrowIfInvalidAccess();        
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPointsF(_handle, sdl_p, points.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawPointsF(_handle, points.ToSDL(), points.Length), 0);
     }
 
     /// <summary>
@@ -193,9 +179,8 @@ public abstract class Renderer : IDisposable, IHandle
         ThrowIfInvalidAccess();
         if (rectangle is Rectangle r)
         {
-            r.ToSDL(out var rect);
             TrySetColor(color);
-            SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRect(_handle, ref rect), 0);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRect(_handle, ref r.ToSDLRef()), 0);
             return;
         }
         TrySetColor(color);
@@ -212,9 +197,8 @@ public abstract class Renderer : IDisposable, IHandle
         ThrowIfInvalidAccess();
         if (rectangle is FRectangle r)
         {
-            r.ToSDL(out var rect);
             TrySetColor(color);
-            SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectF(_handle, ref rect), 0);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectF(_handle, ref r.ToSDLRef()), 0);
             return;
         }
         TrySetColor(color);
@@ -234,9 +218,8 @@ public abstract class Renderer : IDisposable, IHandle
         ThrowIfInvalidAccess();
         if (rectangle is FRectangle r)
         {
-            r.ToSDL(out var rect);
             TrySetColor(color);
-            SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectF(_handle, ref rect), 0);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectF(_handle, ref r.ToSDLRef()), 0);
             return;
         }
         TrySetColor(color);
@@ -256,9 +239,8 @@ public abstract class Renderer : IDisposable, IHandle
         ThrowIfInvalidAccess();
         if (rectangle is Rectangle r)
         {
-            r.ToSDL(out var rect);
             TrySetColor(color);
-            SDLRendererException.ThrowIfLessThan(SDL_RenderFillRect(_handle, ref rect), 0);
+            SDLRendererException.ThrowIfLessThan(SDL_RenderFillRect(_handle, ref r.ToSDLRef()), 0);
             return;
         }
         TrySetColor(color);
@@ -273,11 +255,8 @@ public abstract class Renderer : IDisposable, IHandle
     public void DrawRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor? color = null)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRects(_handle, sdl_p, rectangles.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRects(_handle, rectangles.ToSDL(), rectangles.Length), 0);
     }
 
     /// <summary>
@@ -288,11 +267,8 @@ public abstract class Renderer : IDisposable, IHandle
     public void DrawRectangles(ReadOnlySpan<FRectangle> rectangles, RGBAColor? color = null)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_FRect> sdl_p = stackalloc SDL_FRect[rectangles.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectsF(_handle, sdl_p, rectangles.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderDrawRectsF(_handle, rectangles.ToSDL(), rectangles.Length), 0);
     }
 
     /// <summary>
@@ -303,11 +279,8 @@ public abstract class Renderer : IDisposable, IHandle
     public void FillRectangles(ReadOnlySpan<FRectangle> rectangles, RGBAColor? color = null)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_FRect> sdl_p = stackalloc SDL_FRect[rectangles.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectsF(_handle, sdl_p, rectangles.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRectsF(_handle, rectangles.ToSDL(), rectangles.Length), 0);
     }
 
     /// <summary>
@@ -318,11 +291,8 @@ public abstract class Renderer : IDisposable, IHandle
     public void FillRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor? color = null)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_Rect> sdl_p = stackalloc SDL_Rect[rectangles.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            rectangles[i].ToSDL(out sdl_p[i]);
         TrySetColor(color);
-        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRects(_handle, sdl_p, rectangles.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderFillRects(_handle, rectangles.ToSDL(), rectangles.Length), 0);
     }
 
     /// <summary>
@@ -636,11 +606,7 @@ public abstract class Renderer : IDisposable, IHandle
 
     internal static void RenderGeometry(Renderer renderer, Texture? texture, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<int> indices = default)
     {
-        Span<SDL_Vertex> sdl_v = stackalloc SDL_Vertex[vertices.Length]; //If the array is too large, maybe use a heap allocated one instead? -- Is there a way to avoid this conversion altogether?
-        for (int i = 0; i < sdl_v.Length; i++)
-            vertices[i].ToSDL(ref sdl_v[i]);
-
-        SDLRendererException.ThrowIfLessThan(SDL_RenderGeometry(renderer._handle, texture?._handle ?? IntPtr.Zero, sdl_v, sdl_v.Length, indices, indices.Length), 0);
+        SDLRendererException.ThrowIfLessThan(SDL_RenderGeometry(renderer._handle, texture?._handle ?? IntPtr.Zero, vertices.ToSDL(), vertices.Length, indices, indices.Length), 0);
     }
 
     private bool HasRendererInfo;
