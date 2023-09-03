@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using System.IO;
 using System.Runtime.InteropServices;
 using SDL2.NET.Exceptions;
+using SDL2.NET.SDLImage.Exceptions;
 using static SDL2.Bindings.SDL;
 
 namespace SDL2.NET;
@@ -380,6 +382,27 @@ public class Surface : IDisposable, IHandle
     {
         ThrowIfDisposed();
         SDLSurfaceException.ThrowIfLessThan(SDL_SaveBMP(_handle, file), 0);
+    }
+
+    /// <summary>
+    /// Save a surface to a BMP file. <see cref="SDL_SaveBMP" href="https://wiki.libsdl.org/SDL_SaveBMP"/>
+    /// </summary>
+    /// <remarks>Surfaces with a 24-bit, 32-bit and paletted 8-bit format get saved in the BMP directly. Other RGB formats with 8-bit or higher get converted to a 24-bit surface or, if they have an alpha mask or a colorkey, to a 32-bit surface before they are saved. YUV and paletted 1-bit and 4-bit formats are not supported.</remarks>
+    public void SaveBMP(RWops output, bool freeStream = false)
+    {
+        ThrowIfDisposed();
+        SDLImageException.ThrowIfLessThan(SDL_SaveBMP_RW(_handle, output.handle, freeStream ? 1 : 0), 0);
+    }
+
+    /// <summary>
+    /// Save a surface to a BMP file. <see cref="SDL_SaveBMP" href="https://wiki.libsdl.org/SDL_SaveBMP"/>
+    /// </summary>
+    /// <remarks>Surfaces with a 24-bit, 32-bit and paletted 8-bit format get saved in the BMP directly. Other RGB formats with 8-bit or higher get converted to a 24-bit surface or, if they have an alpha mask or a colorkey, to a 32-bit surface before they are saved. YUV and paletted 1-bit and 4-bit formats are not supported.</remarks>
+    public void SaveBMP(Stream output, bool freeStream = false)
+    {
+        ThrowIfDisposed();
+        var rwops = RWops.CreateFromStream(output, freeStream);
+        SDLImageException.ThrowIfLessThan(SDL_SaveBMP_RW(_handle, rwops.handle, freeStream ? 1 : 0), 0);
     }
 
     /// <summary>

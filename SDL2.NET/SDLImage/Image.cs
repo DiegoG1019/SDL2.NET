@@ -100,6 +100,29 @@ public static class Image
     /// Saves the given surface as a PNG file
     /// </summary>
     /// <param name="surface"></param>
+    /// <param name="rwops"></param>
+    /// <param name="freeStream"></param>
+    public static void SavePNG(this Surface surface, RWops rwops, bool freeStream = false)
+    {
+        SDLImageException.ThrowIfLessThan(IMG_SavePNG_RW(surface._handle, rwops.handle, freeStream ? 1 : 0), 0);
+    }
+
+    /// <summary>
+    /// Saves the given surface as a JPG file
+    /// </summary>
+    /// <param name="surface"></param>
+    /// <param name="rwops"></param>
+    /// <param name="quality"></param>
+    /// <param name="freeStream"></param>
+    public static void SaveJPG(this Surface surface, RWops rwops, int quality, bool freeStream = false)
+    {
+        SDLImageException.ThrowIfLessThan(IMG_SaveJPG_RW(surface._handle, rwops.handle, freeStream ? 1 : 0, quality), 0);
+    }
+
+    /// <summary>
+    /// Saves the given surface as a PNG file
+    /// </summary>
+    /// <param name="surface"></param>
     /// <param name="stream"></param>
     /// <param name="freeStream"></param>
     public static void SavePNG(this Surface surface, Stream stream, bool freeStream = false)
