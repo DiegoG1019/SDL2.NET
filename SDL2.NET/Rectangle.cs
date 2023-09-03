@@ -10,6 +10,16 @@ public struct Rectangle : IEquatable<Rectangle>
     public int Width { get; set; }
     public int Height { get; set; }
 
+    public readonly Point TopLeft => new(X, Y);
+
+    public readonly Point TopRight => new(X + Width, Y);
+
+    public readonly Point BottomRight => new(X + Width, Y + Height);
+
+    public readonly Point BottomLeft => new(X, Y + Height);
+
+    public readonly Point Center => new(X + Width / 2, Y + Height / 2);
+
     public Rectangle(int width, int height, int x, int y)
     {
         Width = width;
@@ -64,22 +74,17 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns></returns>
     public static bool Enclose(ReadOnlySpan<Point> points, Rectangle? clip, out Rectangle result)
     {
-        Span<SDL_Point> sdl_p = stackalloc SDL_Point[points.Length];
-        for (int i = 0; i < sdl_p.Length; i++)
-            points[i].ToSDL(out sdl_p[i]);
-
-        SDL_Rect res = default;
         SDL_bool suc = SDL_bool.SDL_FALSE;
+        SDL_Rect res;
         if (clip is Rectangle c)
         {
-            c.ToSDL(out var r);
-            suc = SDL_EnclosePoints(sdl_p, points.Length, ref r, out res);
-            result = (Rectangle)res;
+            suc = SDL_EnclosePoints(points.ToSDL(), points.Length, ref c.ToSDLRef(), out res);
+            result = res.ToDotNETRef();
             return suc is SDL_bool.SDL_TRUE;
         }
 
-        SDL_EnclosePoints(sdl_p, points.Length, IntPtr.Zero, out res);
-        result = (Rectangle)res;
+        SDL_EnclosePoints(points.ToSDL(), points.Length, IntPtr.Zero, out res);
+        result = res.ToDotNETRef();
         return suc is SDL_bool.SDL_TRUE;
     }
 
@@ -92,12 +97,9 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns>Whether there exists an intersection between the two rectangles</returns>
     public bool Intersect(Rectangle other, out Rectangle intersection)
     {
-        ToSDL(out var a);
-        ToSDL(out var b);
-
-        if (SDL_IntersectRect(ref a, ref b, out var result) is SDL_bool.SDL_TRUE)
+        if (SDL_IntersectRect(ref this.ToSDLRef(), ref other.ToSDLRef(), out var result) is SDL_bool.SDL_TRUE)
         {
-            intersection = new(result.w, result.h, result.x, result.y);
+            intersection = result.ToDotNETRef();
             return true;
         }
         intersection = default;
@@ -112,10 +114,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns>Whether there exists an intersection between the two rectangles</returns>
     public bool Intersect(Rectangle other)
     {
-        ToSDL(out var a);
-        ToSDL(out var b);
-
-        return SDL_HasIntersection(ref a, ref b) is SDL_bool.SDL_TRUE;
+        return SDL_HasIntersection(ref this.ToSDLRef(), ref other.ToSDLRef()) is SDL_bool.SDL_TRUE;
     }
 
     /// <summary>
@@ -129,8 +128,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <returns>Whether there exists an intersection between the <see cref="Rectangle"/> and the line</returns>
     public bool Intersect(int ox, int oy, int dx, int dy)
     {
-        ToSDL(out var a);
-        return SDL_IntersectRectAndLine(ref a, ref ox, ref oy, ref dx, ref dy) is SDL_bool.SDL_TRUE;
+        return SDL_IntersectRectAndLine(ref this.ToSDLRef(), ref ox, ref oy, ref dx, ref dy) is SDL_bool.SDL_TRUE;
     }
 
     /// <summary>
@@ -150,10 +148,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <param name="rect"></param>
     public Rectangle Union(Rectangle other)
     {
-        ToSDL(out var a);
-        ToSDL(out var b);
-
-        SDL_UnionRect(ref a, ref b, out var result);
+        SDL_UnionRect(ref this.ToSDLRef(), ref other.ToSDLRef(), out var result);
         return (Rectangle)result;
     }
 
@@ -162,25 +157,11 @@ public struct Rectangle : IEquatable<Rectangle>
     /// </summary>
     /// <param name="point">The <see cref="Point"/> to check if is resident of this <see cref="Rectangle"/></param>
     /// <returns>Whether <see cref="Point"/> <paramref name="point"/> resides within <see cref="this"/> <see cref="Rectangle"/></returns>
-    public bool Contains(Point point)
+    public readonly bool Contains(Point point)
         => point.IsContainedIn(this);
 
     public static implicit operator Rectangle(SDL_Rect rect)
         => new(rect.w, rect.h, rect.x, rect.y);
-
-    internal SDL_Rect ToSDL()
-    {
-        return new SDL_Rect()
-        {
-            h = Height,
-            w = Width,
-            x = X,
-            y = Y
-        };
-    }
-
-    internal void ToSDL(out SDL_Rect rect)
-        => rect = ToSDL();
 
     public bool Equals(Rectangle other) => Height == other.Height && Width == other.Width && X == other.X && Y == other.Y;
     public static bool operator ==(Rectangle a, Rectangle b) => a.Equals(b);
