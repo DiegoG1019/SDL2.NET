@@ -17,6 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>sdl;native;window;gui;windows;graphic;gfx;lib-sdl;audio;sound;controller;joystick;keyboard;mouse;gui;game</PackageTags>
     <Version>1.2.3</Version>
+	<Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 	
   <ItemGroup>
