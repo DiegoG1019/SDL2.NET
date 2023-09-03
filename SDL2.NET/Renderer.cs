@@ -363,19 +363,28 @@ public abstract class Renderer : IDisposable, IHandle
     }
 
     /// <summary>
-    /// Read pixels from the current rendering target to an array of pixels. <see cref="SDL_RenderReadPixels" href="https://wiki.libsdl.org/SDL_RenderReadPixels"/>
+    /// Read pixels from the current rendering target to an array of pixels. <see cref="SDL_RenderReadPixels" href="https://wiki.libsdl.org/SDL_RenderReadPixels"/>.
     /// </summary>
     /// <param name="format">Value of the desired format of the pixel data, or 0 to use the format of the rendering target</param>
     /// <param name="pixels">An array to copy pixel data onto</param>
-    /// <param name="pitch">The pitch of the <paramref name="pixels"/> parameter</param>
-    /// <remarks><b>WARNING: </b>This is a very slow operation, and should not be used frequently. If you're using this on the main rendering target, it should be called after rendering and before <see cref="Present"/></remarks>
+    /// <param name="area">The area from which to copy the pixels, or <see langword="null"/> for the entire renderer</param>
+    /// <param name="pitch">The number of bytes between rows in the destination pixels data. This allows you to write to a subrectangle or have padded rows in the destination. Generally, pitch should equal the number of pixels per row in the pixels data times the number of bytes per pixel, but it might contain additional padding (for example, 24bit RGB Windows Bitmap data pads all rows to multiples of 4 bytes)</param>
+    /// <remarks> <b>WARNING: </b> no attempt is made to verify the length of <paramref name="pixels"/>, and SDL doesn't take a length parameter. Be extremely cautious, as you may incur a Memory Access Violation. <b>WARNING: </b>This is a very slow operation, and should not be used frequently. If you're using this on the main rendering target, it should be called after rendering and before <see cref="Present"/></remarks>
     /// <exception cref="NotImplementedException"></exception>
-    public void ReadPixels(PixelFormat format, object[] pixels, int pitch)
+    public unsafe void ReadPixels(PixelFormat format, Span<byte> pixels, int pitch, Rectangle? area = null)
     {
         ThrowIfInvalidAccess();
-        throw new NotImplementedException();
+        SDL_Rect* r = null;
+        SDL_Rect rb;
+        if (area is Rectangle rect)
+        {
+            rb = rect.ToSDL();
+            r = &rb;
+        }
+
+        fixed (byte* ptr = pixels)
+            SDLRendererException.ThrowIfLessThan(SDL_RenderReadPixels(_handle, r, (uint)format, (IntPtr)ptr, pitch), 0);
     }
-#warning Not Implemented
 
     /// <summary>
     /// The blend mode used for drawing operations. get: <see cref="SDL_GetRenderDrawBlendMode" href="https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode"/>; set: <see cref="SDL_SetRenderDrawBlendMode" href="https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode"/>

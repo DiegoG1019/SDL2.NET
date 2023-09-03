@@ -3254,9 +3254,9 @@ namespace SDL2.Bindings
 
         /* renderer refers to an SDL_Renderer* */
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SDL_RenderReadPixels(
+        public static extern unsafe int SDL_RenderReadPixels(
             IntPtr renderer,
-            ref SDL_Rect rect,
+            SDL_Rect* rect,
             uint format,
             IntPtr pixels,
             int pitch

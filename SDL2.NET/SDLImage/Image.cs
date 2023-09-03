@@ -92,8 +92,34 @@ public static class Image
     /// </summary>
     /// <param name="surface"></param>
     /// <param name="file"></param>
-    public static void SaveJPG(this Surface surface, string file)
-        => SDLImageException.ThrowIfLessThan(IMG_SavePNG(surface._handle, file), 0);
+    /// <param name="quality"></param>
+    public static void SaveJPG(this Surface surface, string file, int quality)
+        => SDLImageException.ThrowIfLessThan(IMG_SaveJPG(surface._handle, file, quality), 0);
+
+    /// <summary>
+    /// Saves the given surface as a PNG file
+    /// </summary>
+    /// <param name="surface"></param>
+    /// <param name="stream"></param>
+    /// <param name="freeStream"></param>
+    public static void SavePNG(this Surface surface, Stream stream, bool freeStream = false)
+    {
+        var rwops = RWops.CreateFromStream(stream, freeStream);
+        SDLImageException.ThrowIfLessThan(IMG_SavePNG_RW(surface._handle, rwops.handle, freeStream ? 1 : 0), 0);
+    }
+
+    /// <summary>
+    /// Saves the given surface as a JPG file
+    /// </summary>
+    /// <param name="surface"></param>
+    /// <param name="stream"></param>
+    /// <param name="quality"></param>
+    /// <param name="freeStream"></param>
+    public static void SaveJPG(this Surface surface, Stream stream, int quality, bool freeStream = false)
+    {
+        var rwops = RWops.CreateFromStream(stream, freeStream);
+        SDLImageException.ThrowIfLessThan(IMG_SaveJPG_RW(surface._handle, rwops.handle, freeStream ? 1 : 0, quality), 0);
+    }
 
     /// <summary>
     /// Loads the given file as an Animation.
