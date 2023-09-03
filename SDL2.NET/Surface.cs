@@ -45,6 +45,7 @@ public class Surface : IDisposable, IHandle
 
         var str = BackingStruct;
         Pitch = str.pitch;
+
         Size = new(str.w, str.h);
     }
 
@@ -83,6 +84,20 @@ public class Surface : IDisposable, IHandle
     /// The length of a row of pixels in <see cref="byte"/>s
     /// </summary>
     public int Pitch { get; }
+
+    /// <summary>
+    /// Gets a Span representing the pixel data in this <see cref="Surface"/>
+    /// </summary>
+    /// <remarks>
+    /// The pointer to the span is the same as SDL_Surface->pixels, while the length is calculated in .NET as <c><see cref="Size.Width"/> * <see cref="Size.Height"/> * <see cref="GetFormat()"/>'s <see cref="PixelFormatData.BytesPerPixel"/></c>
+    /// </remarks>
+    /// <returns></returns>
+    public unsafe Span<byte> GetPixels(out int bytesPerPixel)
+    {
+        bytesPerPixel = GetFormat().BytesPerPixel;
+        var len = Size.Width * Size.Height * bytesPerPixel;
+        return new((byte*)BackingStruct.pixels, len);
+    }
 
     /// <summary>
     /// The width and height in pixels

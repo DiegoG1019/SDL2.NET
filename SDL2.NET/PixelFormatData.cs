@@ -28,6 +28,7 @@ public class PixelFormatData : IDisposable, IHandle
         var f = Marshal.PtrToStructure<SDL_PixelFormat>(handle);
         Format = (PixelFormat)f.format;
         _pal = f.palette == IntPtr.Zero ? null : Palette.FetchOrNew(f.palette);
+        BytesPerPixel = f.BytesPerPixel;
 
         Mask = new(f.BitsPerPixel, f.Rmask, f.Gmask, f.Bmask, f.Amask, f.BytesPerPixel);
         Created = false;
@@ -53,6 +54,11 @@ public class PixelFormatData : IDisposable, IHandle
     {
         Created = false;
     }
+
+    /// <summary>
+    /// The amount of bytes per pixel in this surface
+    /// </summary>
+    public int BytesPerPixel { get; }
 
     /// <summary>
     /// The <see cref="PixelFormat"/> of this data object
