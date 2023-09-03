@@ -252,7 +252,7 @@ public class RWops : IHandle, IDisposable
     /// Creates an <see cref="RWops"/> that wraps the array pinned by <paramref name="array"/> through SDL's native methods
     /// </summary>
     /// <param name="array">The pinned buffer</param>
-    /// <param name="isReadonly"><see langword="true"/> if the array should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(nint, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(nint, int)"/>).</param>
+    /// <param name="isReadonly"><see langword="true"/> if the array should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(IntPtr, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(IntPtr, int)"/>).</param>
     /// <param name="freeOnDispose">Whether <paramref name="array"/> should automatically be freed from being pinned upon this <see cref="RWops"/> being disposed</param>
     /// <typeparam name="T">The type of data the array has</typeparam>
     public unsafe static RWops CreateFromMemory<T>(PinnedArray<T> array, bool isReadonly = false, bool freeOnDispose = false)
@@ -267,7 +267,7 @@ public class RWops : IHandle, IDisposable
     /// Creates an <see cref="RWops"/> that wraps the unmanaged buffer through SDL's native methods
     /// </summary>
     /// <param name="buffer">The unmanaged buffer</param>
-    /// <param name="isReadonly"><see langword="true"/> if the array should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(nint, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(nint, int)"/>).</param>
+    /// <param name="isReadonly"><see langword="true"/> if the array should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(IntPtr, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(IntPtr, int)"/>).</param>
     /// <param name="freeOnDispose">Whether <paramref name="buffer"/>'s backing memory should automatically be freed upon this <see cref="RWops"/> being disposed</param>
     public unsafe static RWops CreateFromMemory(UnmanagedBuffer buffer, bool isReadonly = false, bool freeOnDispose = false)
         => new(isReadonly ? SDL.SDL_RWFromConstMem(buffer.GetPointer(), buffer.Length) : SDL.SDL_RWFromMem(buffer.GetPointer(), buffer.Length))
