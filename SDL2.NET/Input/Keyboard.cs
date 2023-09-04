@@ -53,10 +53,7 @@ public static class Keyboard
     public static void SetTextInputArea(Rectangle? area)
     {
         if (area is Rectangle r)
-        {
-            r.ToSDL(out var rect);
-            SDL_SetTextInputRect(ref rect);
-        }
+            SDL_SetTextInputRect(ref r.ToSDLRef());
         else
             SDL_SetTextInputRect(IntPtr.Zero);
     }

@@ -135,10 +135,7 @@ public class Surface : IDisposable, IHandle
     {
         ThrowIfDisposed();
         if (rect is Rectangle re)
-        {
-            re.ToSDL(out var r);
-            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref r, color.ToUInt32(GetFormat())), 0);
-        }
+            SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, ref re.ToSDLRef(), color.ToUInt32(GetFormat())), 0);
         SDLSurfaceException.ThrowIfLessThan(SDL_FillRect(_handle, IntPtr.Zero, color.ToUInt32(GetFormat())), 0);
     }
 
@@ -245,11 +242,7 @@ public class Surface : IDisposable, IHandle
     public void FillRectangles(ReadOnlySpan<Rectangle> rectangles, RGBAColor color)
     {
         ThrowIfDisposed();
-        Span<SDL_Rect> rects = stackalloc SDL_Rect[rectangles.Length];
-        for (int i = 0; i < rectangles.Length; i++)
-            rectangles[i].ToSDL(out rects[i]);
-
-        SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rects, rects.Length, color.ToUInt32(GetFormat())), 0);
+        SDLSurfaceException.ThrowIfLessThan(SDL_FillRects(_handle, rectangles.ToSDL(), rectangles.Length, color.ToUInt32(GetFormat())), 0);
     }
 
     /// <summary>
@@ -365,15 +358,10 @@ public class Surface : IDisposable, IHandle
     {
         ThrowIfDisposed();
 
-        destinationRect.ToSDL(out var d);
-
         if (sourceRect is Rectangle src)
-        {
-            src.ToSDL(out var r);
-            SDLTextureException.ThrowIfLessThan(SDL_LowerBlit(_handle, ref r, destination._handle, ref d), 0);
-        }
+            SDLTextureException.ThrowIfLessThan(SDL_LowerBlit(_handle, ref src.ToSDLRef(), destination._handle, ref destinationRect.ToSDLRef()), 0);
         else
-            SDLTextureException.ThrowIfLessThan(SDL_LowerBlit(_handle, IntPtr.Zero, destination._handle, ref d), 0);
+            SDLTextureException.ThrowIfLessThan(SDL_LowerBlit(_handle, IntPtr.Zero, destination._handle, ref destinationRect.ToSDLRef()), 0);
     }
 
     /// <summary>
@@ -449,12 +437,7 @@ public class Surface : IDisposable, IHandle
     /// </summary>
     /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledTo"/> instead</remarks>
     public void SoftStretchLinearTo(Surface destination, Rectangle sourceRect, Rectangle destinationRect)
-    {
-        sourceRect.ToSDL(out var src);
-        destinationRect.ToSDL(out var dst);
-
-        SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretchLinear(_handle, ref src, destination._handle, ref dst), 0);
-    }
+        => SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretchLinear(_handle, ref sourceRect.ToSDLRef(), destination._handle, ref destinationRect.ToSDLRef()), 0);
 
     /// <summary>
     /// Perform bilinear scaling between two surfaces of the same format, 32BPP. <see cref="SDL_SoftStretchLinear" href="https://wiki.libsdl.org/SDL_SoftStretchLinear"/>
@@ -477,13 +460,8 @@ public class Surface : IDisposable, IHandle
     /// Perform a fast, low quality, stretch blit between two surfaces of the same format. <see cref="SDL_SoftStretch" href="https://wiki.libsdl.org/SDL_SoftStretch"/>
     /// </summary>
     /// <remarks>Unless you know exactly what this does and why you're using it, use <see cref="BlitScaledTo"/> instead</remarks>
-    public void SoftStretchTo(Surface destination, Rectangle sourceRect, Rectangle destinationRect)
-    {
-        sourceRect.ToSDL(out var src);
-        destinationRect.ToSDL(out var dst);
-
-        SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretch(_handle, ref src, destination._handle, ref dst), 0);
-    }
+    public void SoftStretchTo(Surface destination, Rectangle sourceRect, Rectangle destinationRect) 
+        => SDLSurfaceException.ThrowIfLessThan(SDL_SoftStretch(_handle, ref sourceRect.ToSDLRef(), destination._handle, ref destinationRect.ToSDLRef()), 0);
 
     /// <summary>
     /// Perform a fast, low quality, stretch blit between two surfaces of the same format. <see cref="SDL_SoftStretch" href="https://wiki.libsdl.org/SDL_SoftStretch"/>
@@ -495,7 +473,7 @@ public class Surface : IDisposable, IHandle
     /// <summary>
     /// The clipping rectangle for a surface. get: <see cref="SDL_GetClipRect" href="https://wiki.libsdl.org/SDL_GetClipRect"/>; set: <see cref="SDL_SetClipRect" href="https://wiki.libsdl.org/SDL_SetClipRect"/>
     /// </summary>
-    /// <remarks>When <see cref="this"/> <see cref="Surface"/> is the destination of a blit, only the area within the clip rectangle is drawn into.</remarks>
+    /// <remarks>When this <see cref="Surface"/> is the destination of a blit, only the area within the clip rectangle is drawn into.</remarks>
     public Rectangle? Clip
     {
         get
@@ -510,8 +488,7 @@ public class Surface : IDisposable, IHandle
             ThrowIfDisposed();
             if (value is Rectangle r)
             {
-                r.ToSDL(out var clipRect);
-                ClipStatus = SDL_SetClipRect(_handle, ref clipRect) is SDL_bool.SDL_TRUE ? ClipRectangleStatus.Enabled : ClipRectangleStatus.Invalid;
+                ClipStatus = SDL_SetClipRect(_handle, ref r.ToSDLRef()) is SDL_bool.SDL_TRUE ? ClipRectangleStatus.Enabled : ClipRectangleStatus.Invalid;
                 return;
             }
             SDL_SetClipRect(_handle, IntPtr.Zero);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SDL2.NET.Exceptions;
 using static SDL2.Bindings.SDL;
@@ -218,25 +219,32 @@ public class Texture : IDisposable, IHandle
     /// Lock a portion of the texture for write-only pixel access. The texture must have been created with <see cref="TextureAccess.Streaming"/>. <see cref="SDL_LockTexture" href="https://wiki.libsdl.org/SDL_LockTexture"/>
     /// </summary>
     /// <remarks>As an optimization, the pixels made available for editing don't necessarily contain the old texture data. This is a write-only operation, and if you need to keep a copy of the texture data you should do that at the application level. You must use SDL_UnlockTexture() to unlock the pixels and apply any changes.</remarks>
-    public void Lock(Rectangle? area)
+    public unsafe void Lock(Rectangle? area, out Span<byte> pixels, out int pitch)
     {
         ThrowIfDisposed();
-        throw new NotImplementedException();
         if (Access is not TextureAccess.Streaming)
             throw new InvalidOperationException("Cannot lock a texture that was not created with TextureAccess.Streaming");
 
-        var pixels = IntPtr.Zero;
-#warning I have NO idea what to do about pixels**. https://gamedev.stackexchange.com/questions/175341/what-do-i-provide-to-sdl-locktexture-pixels
-#warning more docs https://slouken.blogspot.com/2011/02/streaming-textures-with-sdl-13.html
-
-        if (area is null)
+        IntPtr rect;
+        int h, w;
+        if (area is Rectangle r)
         {
-            SDLTextureException.ThrowIfLessThan(SDL_LockTexture(_handle, IntPtr.Zero, out pixels, out _), 0);
-            return;
+            rect = (nint)Unsafe.AsPointer(ref r.ToSDLRef());
+            h = r.Height;
+            w = r.Width;
+        }
+        else
+        {
+            rect = IntPtr.Zero;
+            h = Size.Height;
+            w = Size.Width;
         }
 
-        ((Rectangle)area).ToSDL(out var rect);
-        SDLTextureException.ThrowIfLessThan(SDL_LockTexture(_handle, ref rect, out pixels, out _), 0);
+        SDLTextureException.ThrowIfLessThan(SDL_LockTexture(_handle, rect, out var px, out pitch), 0);
+
+        var bytes = new PixelFormatData(Format).BytesPerPixel;
+
+        pixels = new Span<byte>((void*)px, bytes * h * w);
     }
 
     /// <summary>
@@ -246,7 +254,6 @@ public class Texture : IDisposable, IHandle
     public void Unlock()
     {
         ThrowIfDisposed();
-        throw new NotImplementedException();
         SDL_UnlockTexture(_handle);
     }
 
@@ -254,27 +261,16 @@ public class Texture : IDisposable, IHandle
     /// Update the given texture rectangle with new pixel data. <see cref="SDL_UpdateTexture" href="https://wiki.libsdl.org/SDL_UpdateTexture"/>
     /// </summary>
     /// <remarks>The pixel data must be in the <see cref="PixelFormat"/> of the <see cref="Texture"/>. Use <see cref="Format"/> to query the <see cref="PixelFormat"/> of the <see cref="Texture"/>. This is a fairly slow function, intended for use with static <see cref="Texture"/>s that do not change often. If the <see cref="Texture"/> is intended to be updated often, it is preferred to create the <see cref="Texture"/> as streaming and use the locking functions referenced below. While this function will work with streaming <see cref="Texture"/>s, for optimization reasons you may not get the pixels back if you lock the <see cref="Texture"/> afterward.</remarks>
-    public void Update(Rectangle? rectangle, ReadOnlySpan<RGBAColor> pixels)
+    public unsafe void Update(Rectangle? rectangle, ReadOnlySpan<byte> pixels, int pitch)
     {
         ThrowIfDisposed();
-        throw new NotImplementedException();
 
-        IntPtr sdlr = IntPtr.Zero;
-
-        try
+        fixed (void* ptr = pixels)
         {
             if (rectangle is Rectangle rect)
-            {
-                var s = rect.ToSDL();
-                sdlr = Marshal.AllocHGlobal(Marshal.SizeOf(s));
-                Marshal.StructureToPtr(s, sdlr, false);
-            }
-            var pf = new PixelFormatData(Format);
-        }
-        finally
-        {
-            if (sdlr != IntPtr.Zero)
-                Marshal.FreeHGlobal(sdlr);
+                SDLTextureException.ThrowIfLessThan(SDL_UpdateTexture(_handle, ref rect.ToSDLRef(), (IntPtr)ptr, pitch), 0);
+            else
+                SDLTextureException.ThrowIfLessThan(SDL_UpdateTexture(_handle, IntPtr.Zero, (IntPtr)ptr, pitch), 0);
         }
     }
 
@@ -294,37 +290,19 @@ public class Texture : IDisposable, IHandle
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
-    public void Render(Rectangle? source, Rectangle? destination = null)
+    public unsafe void Render(Rectangle? source, Rectangle? destination = null)
     {
         ThrowIfDisposed();
         IntPtr srect = IntPtr.Zero;
         IntPtr drect = IntPtr.Zero;
 
-        try
-        {
-            if (source is Rectangle src)
-            {
-                var s = src.ToSDL();
-                srect = Marshal.AllocHGlobal(Marshal.SizeOf(s));
-                Marshal.StructureToPtr(s, srect, false);
-            }
+        if (source is Rectangle src)
+            srect = (nint)Unsafe.AsPointer(ref src.ToSDLRef());
 
-            if (destination is Rectangle dst)
-            {
-                var d = dst.ToSDL();
-                drect = Marshal.AllocHGlobal(Marshal.SizeOf(d));
-                Marshal.StructureToPtr(d, drect, false);
-            }
+        if (destination is Rectangle dst)
+            drect = (nint)Unsafe.AsPointer(ref dst.ToSDLRef());
 
-            SDLTextureException.ThrowIfLessThan(SDL_RenderCopy(Renderer._handle, _handle, srect, drect), 0);
-        }
-        finally
-        {
-            if (srect != IntPtr.Zero)
-                Marshal.FreeHGlobal(srect);
-            if (drect != IntPtr.Zero)
-                Marshal.FreeHGlobal(drect);
-        }
+        SDLTextureException.ThrowIfLessThan(SDL_RenderCopy(Renderer._handle, _handle, srect, drect), 0);
     }
 
     /// <summary>
@@ -333,39 +311,21 @@ public class Texture : IDisposable, IHandle
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
-    public void Render(Rectangle? source = null, Rectangle? destination = null, double angle = 0, Point center = default, Flip flip = Flip.None)
+    public unsafe void Render(Rectangle? source = null, Rectangle? destination = null, double angle = 0, Point center = default, Flip flip = Flip.None)
     {
         ThrowIfDisposed();
         IntPtr srect = IntPtr.Zero;
         IntPtr drect = IntPtr.Zero;
 
-        try
-        {
-            if (source is Rectangle src)
-            {
-                var s = src.ToSDL();
-                srect = Marshal.AllocHGlobal(Marshal.SizeOf(s));
-                Marshal.StructureToPtr(s, srect, false);
-            }
+        if (source is Rectangle src)
+            srect = (nint)Unsafe.AsPointer(ref src.ToSDLRef());
 
-            if (destination is Rectangle dst)
-            {
-                var d = dst.ToSDL();
-                drect = Marshal.AllocHGlobal(Marshal.SizeOf(d));
-                Marshal.StructureToPtr(d, drect, false);
-            }
+        if (destination is Rectangle dst)
+            drect = (nint)Unsafe.AsPointer(ref dst.ToSDLRef());
 
-            center.ToSDL(out var sdl_p);
+        center.ToSDL(out var sdl_p);
 
-            SDLTextureException.ThrowIfLessThan(SDL_RenderCopyEx(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
-        }
-        finally
-        {
-            if (srect != IntPtr.Zero)
-                Marshal.FreeHGlobal(srect);
-            if (drect != IntPtr.Zero)
-                Marshal.FreeHGlobal(drect);
-        }
+        SDLTextureException.ThrowIfLessThan(SDL_RenderCopyEx(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
     }
 
     /// <summary>
@@ -374,37 +334,19 @@ public class Texture : IDisposable, IHandle
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
-    public void Render(Rectangle? source, FRectangle? destination = null)
+    public unsafe void Render(Rectangle? source, FRectangle? destination = null)
     {
         ThrowIfDisposed();
         IntPtr srect = IntPtr.Zero;
         IntPtr drect = IntPtr.Zero;
 
-        try
-        {
-            if (source is Rectangle src)
-            {
-                var s = src.ToSDL();
-                srect = Marshal.AllocHGlobal(Marshal.SizeOf(s));
-                Marshal.StructureToPtr(s, srect, false);
-            }
+        if (source is Rectangle src)
+            srect = (nint)Unsafe.AsPointer(ref src.ToSDLRef());
 
-            if (destination is FRectangle dst)
-            {
-                var d = dst.ToSDL();
-                drect = Marshal.AllocHGlobal(Marshal.SizeOf(d));
-                Marshal.StructureToPtr(d, drect, false);
-            }
+        if (destination is FRectangle dst)
+            drect = (nint)Unsafe.AsPointer(ref dst.ToSDLRef());
 
-            SDLTextureException.ThrowIfLessThan(SDL_RenderCopyF(Renderer._handle, _handle, srect, drect), 0);
-        }
-        finally
-        {
-            if (srect != IntPtr.Zero)
-                Marshal.FreeHGlobal(srect);
-            if (drect != IntPtr.Zero)
-                Marshal.FreeHGlobal(drect);
-        }
+        SDLTextureException.ThrowIfLessThan(SDL_RenderCopyF(Renderer._handle, _handle, srect, drect), 0);
     }
 
     /// <summary>
@@ -413,39 +355,21 @@ public class Texture : IDisposable, IHandle
     /// <remarks>The texture is blended with the destination based on its blend mode, color modulation and alpha modulation set with <see cref="BlendMode"/>, <see cref="Color"/>, and <see cref="Alpha"/> respectively.</remarks>
     /// <param name="source">The source rectangle for this operation. The rectangle will be used to capture a portion of the texture. Set to null to use the entire texture.</param>
     /// <param name="destination">The destination rectangle for this operation. The texture will be stretched to fill the given rectangle. Set to null to fill the entire rendering target</param>
-    public void Render(Rectangle? source = null, FRectangle? destination = null, double angle = 0, FPoint center = default, Flip flip = Flip.None)
+    public unsafe void Render(Rectangle? source = null, FRectangle? destination = null, double angle = 0, FPoint center = default, Flip flip = Flip.None)
     {
         ThrowIfDisposed();
         IntPtr srect = IntPtr.Zero;
         IntPtr drect = IntPtr.Zero;
 
-        try
-        {
-            if (source is Rectangle src)
-            {
-                var s = src.ToSDL();
-                srect = Marshal.AllocHGlobal(Marshal.SizeOf(s));
-                Marshal.StructureToPtr(s, srect, false);
-            }
+        if (source is Rectangle src)
+            srect = (nint)Unsafe.AsPointer(ref src.ToSDLRef());
 
-            if (destination is FRectangle dst)
-            {
-                var d = dst.ToSDL();
-                drect = Marshal.AllocHGlobal(Marshal.SizeOf(d));
-                Marshal.StructureToPtr(d, drect, false);
-            }
+        if (destination is FRectangle dst)
+            drect = (nint)Unsafe.AsPointer(ref dst.ToSDLRef());
 
-            center.ToSDL(out var sdl_p);
+        center.ToSDL(out var sdl_p);
 
-            SDLTextureException.ThrowIfLessThan(SDL_RenderCopyExF(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
-        }
-        finally
-        {
-            if (srect != IntPtr.Zero)
-                Marshal.FreeHGlobal(srect);
-            if (drect != IntPtr.Zero)
-                Marshal.FreeHGlobal(drect);
-        }
+        SDLTextureException.ThrowIfLessThan(SDL_RenderCopyExF(Renderer._handle, _handle, srect, drect, angle, ref sdl_p, (SDL_RendererFlip)flip), 0);
     }
 
     #region IDisposable

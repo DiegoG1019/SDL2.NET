@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SDL2.Bindings;
 using SDL2.NET.Exceptions;
@@ -1107,10 +1108,7 @@ public class Window : IDisposable, IHandle
     public void UpdateSurfaceRects(Span<Rectangle> rectangles, int? numrect)
     {
         ThrowIfInvalidAccess();
-        Span<SDL_Rect> rects = stackalloc SDL_Rect[numrect ?? rectangles.Length];
-        for (int i = 0; i < rects.Length; i++)
-            rectangles[i].ToSDL(out rects[i]);
-        SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurfaceRects(_handle, rects, rects.Length), 0);
+        SDLWindowException.ThrowIfLessThan(SDL_UpdateWindowSurfaceRects(_handle, rectangles.ToSDL(), rectangles.Length), 0);
     }
 
     private UserData? hitTestCallbackData;
@@ -1166,14 +1164,13 @@ public class Window : IDisposable, IHandle
         set
         {
             ThrowIfInvalidAccess();
-            if (value is null)
+            if (value is not Rectangle r)
             {
                 SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, IntPtr.Zero), 0);
                 return;
             }
 
-            ((Rectangle)value).ToSDL(out var r);
-            SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, ref r), 0);
+            SDLWindowException.ThrowIfLessThan(SDL_SetWindowMouseRect(_handle, ref r.ToSDLRef()), 0);
         }
     }
 
@@ -1185,7 +1182,7 @@ public class Window : IDisposable, IHandle
         get
         {
             ThrowIfInvalidAccess();
-            SDL_SysWMinfo info = default;
+            Unsafe.SkipInit(out SDL_SysWMinfo info);
             SDL_VERSION(out info.version);
             SDL_GetWindowWMInfo(_handle, ref info);
             return info;

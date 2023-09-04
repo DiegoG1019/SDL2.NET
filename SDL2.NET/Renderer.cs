@@ -345,12 +345,8 @@ public abstract class Renderer : IDisposable, IHandle
     {
         ThrowIfInvalidAccess();
         SDL_Rect* r = null;
-        SDL_Rect rb;
         if (area is Rectangle rect)
-        {
-            rb = rect.ToSDL();
-            r = &rb;
-        }
+            r = (SDL_Rect*)Unsafe.AsPointer(ref rect.ToSDLRef());
 
         fixed (byte* ptr = pixels)
             SDLRendererException.ThrowIfLessThan(SDL_RenderReadPixels(_handle, r, (uint)format, (IntPtr)ptr, pitch), 0);
@@ -427,10 +423,7 @@ public abstract class Renderer : IDisposable, IHandle
         {
             ThrowIfInvalidAccess();
             if (value is Rectangle r)
-            {
-                r.ToSDL(out var sdl_r);
-                SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, ref sdl_r), 0);
-            }
+                SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, ref r.ToSDLRef()), 0);
             SDLRendererException.ThrowIfLessThan(SDL_RenderSetViewport(_handle, IntPtr.Zero), 0);
         }
     }
@@ -485,8 +478,7 @@ public abstract class Renderer : IDisposable, IHandle
             ThrowIfInvalidAccess();
             if (value is Rectangle r)
             {
-                r.ToSDL(out var sl);
-                SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, ref sl), 0);
+                SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, ref r.ToSDLRef()), 0);
                 return;
             }
             SDLRendererException.ThrowIfLessThan(SDL_RenderSetClipRect(_handle, IntPtr.Zero), 0);
