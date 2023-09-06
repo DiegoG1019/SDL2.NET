@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Buffers;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 using SDL2.NET.Exceptions;

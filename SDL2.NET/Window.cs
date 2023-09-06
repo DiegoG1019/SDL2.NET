@@ -857,6 +857,7 @@ public class Window : IDisposable, IHandle
     /// <remarks>
     /// This only affects the display mode used when the window is fullscreen. To change the window size when the window is not fullscreen, use <see cref="Size" />.
     /// </remarks>
+    [NotNull]
     public DisplayMode? DisplayMode
     {
         [return: NotNull]
