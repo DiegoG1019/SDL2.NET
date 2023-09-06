@@ -29,6 +29,7 @@ public class PixelFormatData : IDisposable, IHandle
         Format = (PixelFormat)f.format;
         _pal = f.palette == IntPtr.Zero ? null : Palette.FetchOrNew(f.palette);
         BytesPerPixel = f.BytesPerPixel;
+        BitsPerPixel = f.BitsPerPixel;
 
         Mask = new(f.BitsPerPixel, f.Rmask, f.Gmask, f.Bmask, f.Amask, f.BytesPerPixel);
         Created = false;
@@ -56,9 +57,14 @@ public class PixelFormatData : IDisposable, IHandle
     }
 
     /// <summary>
-    /// The amount of bytes per pixel in this surface
+    /// The amount of bytes per pixel for images in this format
     /// </summary>
     public int BytesPerPixel { get; }
+
+    /// <summary>
+    /// The amount of bits per pixel for images in this format
+    /// </summary>
+    public int BitsPerPixel { get; }
 
     /// <summary>
     /// The <see cref="PixelFormat"/> of this data object
