@@ -863,7 +863,6 @@ public class Window : IDisposable, IHandle
         [return: NotNull]
         get
         {
-            ThrowIfInvalidAccess();
             SDLWindowException.ThrowIfLessThan(SDL_GetWindowDisplayMode(_handle, out var mode), 0);
             return (DisplayMode)mode;
         }
