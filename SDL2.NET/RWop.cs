@@ -249,6 +249,21 @@ public class RWops : IHandle, IDisposable
         );
 
     /// <summary>
+    /// Creates an <see cref="RWops"/> that wraps <paramref name="ptr"/> and <paramref name="length"/> directly through SDL's native methods
+    /// </summary>
+    /// <remarks>
+    /// Using this method is dangerous and can easily go awry; make sure to maintain the RWops in the context of the stackalloc, or maintain the array pinned
+    /// </remarks>
+    /// <param name="ptr">The pointer to the data buffer</param>
+    /// <param name="length">The amount of bytes in the buffer</param>
+    /// <param name="isReadonly"><see langword="true"/> if the <see cref="RWops"/> should only be read through (Created using <see cref="SDL.SDL_RWFromConstMem(IntPtr, int)"/>), <see langword="false"/> otherwise (Created using <see cref="SDL.SDL_RWFromMem(IntPtr, int)"/>).</param>
+    public unsafe static RWops CreateFromPointer(byte* ptr, int length, bool isReadonly = false) 
+        => new(isReadonly
+            ? SDL.SDL_RWFromConstMem((IntPtr)ptr, length) 
+            : SDL.SDL_RWFromMem((IntPtr)ptr, length)
+           );
+
+    /// <summary>
     /// Creates an <see cref="RWops"/> that wraps the array pinned by <paramref name="array"/> through SDL's native methods
     /// </summary>
     /// <param name="array">The pinned buffer</param>
