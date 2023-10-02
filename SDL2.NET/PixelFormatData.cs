@@ -8,7 +8,7 @@ namespace SDL2.NET;
 /// <summary>
 /// Represents a Pixel Format and contains relevant pixel information
 /// </summary>
-public class PixelFormatData : IDisposable, IHandle
+public class PixelFormatData : IDisposable, IHandle, IEquatable<PixelFormatData>
 {
     IntPtr IHandle.Handle => _handle;
     private static readonly ConcurrentDictionary<IntPtr, WeakReference<PixelFormatData>> _handleDict = new(2, 10);
@@ -122,6 +122,26 @@ public class PixelFormatData : IDisposable, IHandle
         if (disposedValue)
             throw new ObjectDisposedException(nameof(PixelFormatData));
     }
+
+    /// <inheritdoc/>
+    public bool Equals(PixelFormatData? other) 
+        => other is not null && _handle == other._handle;
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+        => obj is PixelFormatData dat && Equals(dat);
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+        => _handle.GetHashCode();
+
+    /// <inheritdoc/>
+    public static bool operator ==(PixelFormatData? left, PixelFormatData? right)
+        => left is null && right is null || left?.Equals(right) is true;
+
+    /// <inheritdoc/>
+    public static bool operator !=(PixelFormatData? left, PixelFormatData? right)
+        => !(left == right);
 
     #endregion
 }
