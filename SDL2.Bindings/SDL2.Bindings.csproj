@@ -35,11 +35,5 @@
 		</ContentWithTargetPath>
 		<None Include="lib\*.txt" />
 	</ItemGroup>
-	
-	<ItemGroup>
-		<Page Include="SDLInit.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-	</ItemGroup>
 
 </Project>

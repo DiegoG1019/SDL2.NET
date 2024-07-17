@@ -25,6 +25,34 @@ public sealed class WindowConfig
     }
     private static WindowConfig _def = new WindowConfig().Resizable(true);
 
+    /// <summary>
+    /// Clones the current <see cref="WindowConfig"/> into a new object
+    /// </summary>
+    public WindowConfig Clone()
+        => new()
+        {
+            FullscreenType = FullscreenType,
+            AllowOpenGL = AllowOpenGL,
+            AllowVulkan = AllowVulkan,
+            AllowMetal = AllowMetal,
+            Hidden = Hidden,
+            IsBorderless = IsBorderless,
+            IsResizable = IsResizable,
+            MaximizedOrMinimized = MaximizedOrMinimized,
+            HasMouseGrabbed = HasMouseGrabbed,
+            HasInputFocus = HasInputFocus,
+            HasMouseFocus = HasMouseFocus,
+            AllowHighDPI = AllowHighDPI,
+            HasMouseCaptured = HasMouseCaptured,
+            IsAlwaysOnTop = IsAlwaysOnTop,
+            SkipTaskbar = SkipTaskbar,
+            IsUtility = IsUtility,
+            IsTooltip = IsTooltip,
+            IsPopupMenu = IsPopupMenu,
+            HasKeyboardGrabbed = HasKeyboardGrabbed,
+            HasInputGrabbed = HasInputGrabbed,
+        };
+
     #region Properties
 
     /// <summary>
@@ -353,7 +381,12 @@ public sealed class WindowConfig
 
     #endregion
 
-    internal SDL_WindowFlags GenerateFlags()
+    /// <summary>
+    /// Generates the SDL_WindowFlags represented by this config object
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public SDL_WindowFlags GenerateFlags()
     {
         SDL_WindowFlags flags = 0;
 

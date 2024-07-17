@@ -12,7 +12,12 @@ public class WindowRenderer : Renderer
     /// </summary>
     public Window AttachedWindow { get; }
 
-    internal WindowRenderer(nint handle, Window window) : base(handle)
+    /// <summary>
+    /// Creates a new WindowRenderer object that wraps around the native object at <paramref name="handle"/>
+    /// </summary>
+    /// <param name="handle">The pointer to the native SDL object</param>
+    /// <param name="window">The window this Renderer belongs to</param>
+    public WindowRenderer(nint handle, Window window) : base(handle)
     {
         AttachedWindow = window;
         window.AttachedRenderer = this;

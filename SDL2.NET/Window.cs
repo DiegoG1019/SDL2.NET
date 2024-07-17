@@ -61,9 +61,15 @@ public class Window : IDisposable, IHandle
         return false;
     }
 
-    private Window(nint handle, int threadid)
+    /// <summary>
+    /// Creates a new Window object that wraps around the native object at <paramref name="handle"/>
+    /// </summary>
+    /// <param name="handle">The pointer referring to the native SDL object</param>
+    /// <param name="threadId">The thread Id of the managed thread that created this object. Defaults to <see cref="Environment.CurrentManagedThreadId"/></param>
+    /// <exception cref="SDLWindowCreationException"></exception>
+    public Window(nint handle, int? threadId = null)
     {
-        ThreadID = threadid;
+        ThreadID = threadId ?? Environment.CurrentManagedThreadId;
         _handle = handle;
 
         if (_handle == IntPtr.Zero)
